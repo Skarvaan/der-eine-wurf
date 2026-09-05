@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Der Eine Wurf — Spielbereich</title>
+<meta name="theme-color" content="#12100e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eine Wurf">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="stil.css">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+
+<!-- ==========================================================
+     1  LADEANZEIGE — bis Firebase geantwortet hat
+     ========================================================== -->
+<div id="schirm-laden" class="laden">Verbinde …</div>
+
+
+<!-- ==========================================================
+     2  ANMELDUNG
+     ========================================================== -->
+<div id="schirm-anmelden" class="anmelde-schirm" hidden>
+  <div class="anmelde-karte">
+    <h1>Der Eine Wurf</h1>
+    <p class="leise" id="anmelde-unterzeile">Melde dich an, um weiterzuspielen.</p>
+
+    <!-- Nur bei Registrierung sichtbar -->
+    <label class="feld" id="feld-name" hidden>
+      <span>Dein Name (sehen die anderen in der Runde)</span>
+      <input type="text" id="ein-name" autocomplete="name">
+    </label>
+
+    <label class="feld">
+      <span>E-Mail</span>
+      <input type="email" id="ein-email" autocomplete="email" inputmode="email">
+    </label>
+
+    <label class="feld">
+      <span>Passwort</span>
+      <input type="password" id="ein-passwort" autocomplete="current-password">
+    </label>
+
+    <button type="button" class="knopf knopf-haupt" id="btn-anmelden" style="width:100%">Anmelden</button>
+
+    <div id="anmelde-fehler" class="fehler" hidden></div>
+
+    <p class="wechsel">
+      <a href="#" id="link-wechsel">Noch kein Zugang? Konto anlegen</a><br>
+      <a href="#" id="link-passwort" style="font-size:13px">Passwort vergessen</a>
+    </p>
+    <p class="wechsel" style="margin-top:20px"><a href="index.html">Zurück zur Übersicht</a></p>
+  </div>
+</div>
+
+
+<!-- ==========================================================
+     3  GRUPPENWAHL
+     ========================================================== -->
+<div id="schirm-gruppen" class="anmelde-schirm" hidden>
+  <div class="anmelde-karte">
+    <h1>Deine Runden</h1>
+    <p class="leise">Wähle eine Runde, tritt einer Einladung bei oder gründe eine eigene.</p>
+
+    <div id="gruppen-liste"></div>
+
+    <div id="einladungen-block" hidden>
+      <h3 class="unter" style="font-size:16px">Einladungen</h3>
+      <div id="einladungen-liste"></div>
+    </div>
+
+    <details style="margin-top:20px">
+      <summary style="cursor:pointer;color:var(--messing-hell)">Eigene Runde gründen</summary>
+      <label class="feld" style="margin-top:12px">
+        <span>Name der Runde</span>
+        <input type="text" id="neue-gruppe-name" placeholder="z. B. Die Kessel von Kellinghusen">
+      </label>
+      <button type="button" class="knopf knopf-haupt" id="btn-gruppe-anlegen" style="width:100%">Gründen — ich bin Spielleiter</button>
+    </details>
+
+    <p class="wechsel" style="margin-top:20px"><a href="#" id="link-abmelden-gruppen">Abmelden</a></p>
+  </div>
+</div>
+
+
+<!-- ==========================================================
+     4  DIE APP
+     ========================================================== -->
+<div id="schirm-app" class="app" hidden>
+
+  <header class="kopf">
+    <div>
+      <div class="kopf-marke">Der Eine Wurf</div>
+      <div class="kopf-info" id="kopf-info">—</div>
+    </div>
+    <div class="kopf-rechts">
+      <span class="kopf-info" id="kopf-status"></span>
+      <button type="button" class="knopf-klein" id="btn-gruppe-wechseln">Runde</button>
+      <button type="button" class="knopf-klein" id="btn-abmelden">Abmelden</button>
+    </div>
+  </header>
+
+  <!-- Die drei Zonen. Der Spielleiter-Knopf wird für Spieler
+       ausgeblendet — der echte Schutz sind aber die Regeln. -->
+  <nav class="zonen">
+    <button type="button" class="zone-knopf aktiv" data-zone="zone-spieler">Mein Charakter</button>
+    <button type="button" class="zone-knopf geteilt" data-zone="zone-geteilt">Gemeinsam</button>
+    <button type="button" class="zone-knopf" data-zone="zone-regeln">Regeln</button>
+    <button type="button" class="zone-knopf" data-zone="zone-sl" id="zone-knopf-sl" hidden>Spielleitung</button>
+  </nav>
+
+  <main class="inhalt">
+
+    <!-- ====================================================
+         ZONE A — MEIN CHARAKTER
+         ==================================================== -->
+    <section id="zone-spieler" class="ansicht aktiv">
+      <div id="charakter-bereich"></div>
+    </section>
+
+    <!-- ====================================================
+         ZONE B — GEMEINSAM
+         Alles, was der Spielleiter freigegeben hat, plus das
+         Journal, in das alle schreiben dürfen.
+         ==================================================== -->
+    <section id="zone-geteilt" class="ansicht">
+      <div class="untertabs" id="geteilt-tabs">
+        <button type="button" class="untertab aktiv" data-typ="journal">Journal</button>
+        <button type="button" class="untertab" data-typ="indiz">Indizien</button>
+        <button type="button" class="untertab" data-typ="ort">Orte</button>
+        <button type="button" class="untertab" data-typ="nsc">Personen</button>
+      </div>
+      <div id="geteilt-bereich"></div>
+    </section>
+
+    <!-- ====================================================
+         ZONE C — REGELN
+         ==================================================== -->
+    <section id="zone-regeln" class="ansicht">
+      <div class="karte">
+        <div class="karte-kopf"><h2>Regeln nachschlagen</h2></div>
+        <label class="feld">
+          <span>Suchen</span>
+          <input type="search" id="regel-suche" placeholder="z. B. Manöver, Stabilität, angeschlagen">
+        </label>
+        <div id="regel-liste"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         ZONE D — SPIELLEITUNG
+         ==================================================== -->
+    <section id="zone-sl" class="ansicht">
+      <div class="untertabs" id="sl-tabs">
+        <button type="button" class="untertab aktiv" data-sl="uebersicht">Charaktere</button>
+        <button type="button" class="untertab" data-sl="fall">Fall</button>
+        <button type="button" class="untertab" data-sl="welt">Welt</button>
+        <button type="button" class="untertab" data-sl="tabellen">Tabellen</button>
+        <button type="button" class="untertab" data-sl="runde">Runde</button>
+      </div>
+      <div id="sl-bereich"></div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================
+       WÜRFELLEISTE — immer sichtbar
+       ====================================================== -->
+  <div class="wuerfelleiste">
+    <div class="wuerfel-zeile">
+      <div class="segment" id="wuerfel-modus">
+        <button type="button" data-modus="nachteil">Nachteil</button>
+        <button type="button" data-modus="normal" class="aktiv">Normal</button>
+        <button type="button" data-modus="vorteil">Vorteil</button>
+      </div>
+      <label class="mini-feld">
+        <span>Bonus</span>
+        <input type="number" id="wuerfel-bonus" value="0" step="1" inputmode="numeric">
+      </label>
+      <label class="mini-feld">
+        <span>SG</span>
+        <input type="number" id="wuerfel-sg" value="15" step="5" inputmode="numeric">
+      </label>
+      <button type="button" class="knopf-wuerfeln" id="btn-wuerfeln">W20</button>
+    </div>
+    <div class="wuerfel-ergebnis" id="wuerfel-ergebnis">
+      <span class="wuerfel-zahl">—</span>
+      <span class="wuerfel-text">Bereit</span>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

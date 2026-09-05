@@ -1,0 +1,137 @@
+rules_version = '2';
+
+// ============================================================
+// DER EINE WURF — Firestore-Sicherheitsregeln
+// ============================================================
+//
+// DIESE DATEI IST DAS TÜRSCHLOSS.
+//
+// Die Regeln laufen auf Googles Servern, nicht im Browser.
+// Sie lassen sich nicht umgehen, auch nicht von jemandem, der
+// den Quelltext liest oder eigene Anfragen schickt. Alles,
+// was die Oberfläche ausblendet, ist Bequemlichkeit — der
+// echte Schutz steht hier.
+//
+// EINSPIELEN:
+//   Firebase-Konsole → Firestore Database → Regeln
+//   → Inhalt dieser Datei einfügen → Veröffentlichen
+//
+// Nach jeder Änderung am Datenmodell hier nachziehen.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------------------------------
+    // Hilfsfunktionen
+    // --------------------------------------------------------
+
+    function angemeldet() {
+      return request.auth != null;
+    }
+
+    function gruppe(gid) {
+      return get(/databases/$(database)/documents/gruppen/$(gid)).data;
+    }
+
+    function istMitglied(gid) {
+      return angemeldet() && request.auth.uid in gruppe(gid).mitgliederIds;
+    }
+
+    function istSL(gid) {
+      return angemeldet() && request.auth.uid == gruppe(gid).slUid;
+    }
+
+    // --------------------------------------------------------
+    // Nutzerprofile
+    // Jeder sieht und ändert nur sein eigenes.
+    // --------------------------------------------------------
+    match /nutzer/{uid} {
+      allow read, write: if angemeldet() && request.auth.uid == uid;
+    }
+
+    // --------------------------------------------------------
+    // Gruppen
+    // --------------------------------------------------------
+    match /gruppen/{gid} {
+
+      // Lesen darf, wer Mitglied ist ODER eingeladen wurde.
+      // Der zweite Fall ist nötig, damit ein eingeladener
+      // Spieler die Einladung überhaupt finden kann.
+      allow read: if angemeldet() && (
+        request.auth.uid in resource.data.mitgliederIds ||
+        request.auth.token.email in resource.data.eingeladeneMails
+      );
+
+      // Anlegen: nur für sich selbst als Spielleiter
+      allow create: if angemeldet()
+        && request.resource.data.slUid == request.auth.uid
+        && request.auth.uid in request.resource.data.mitgliederIds;
+
+      // Ändern: der Spielleiter darf alles.
+      // Ein eingeladener Spieler darf sich selbst eintragen —
+      // aber NICHT Spielleiter werden und niemanden entfernen.
+      allow update: if
+        (angemeldet() && request.auth.uid == resource.data.slUid)
+        || (
+          angemeldet()
+          && request.auth.token.email in resource.data.eingeladeneMails
+          && request.resource.data.slUid == resource.data.slUid
+          && request.resource.data.mitgliederIds.hasAll(resource.data.mitgliederIds)
+          && request.resource.data.mitgliederIds.size() == resource.data.mitgliederIds.size() + 1
+          && request.auth.uid in request.resource.data.mitgliederIds
+        );
+
+      allow delete: if angemeldet() && request.auth.uid == resource.data.slUid;
+
+      // ------------------------------------------------------
+      // CHARAKTERE
+      // Alle Mitglieder sehen alle Charaktere (die Gruppe
+      // spielt zusammen). Schreiben darf nur der Besitzer
+      // oder der Spielleiter.
+      // ------------------------------------------------------
+      match /charaktere/{cid} {
+        allow read: if istMitglied(gid);
+
+        allow create: if istMitglied(gid)
+          && request.resource.data.besitzer == request.auth.uid;
+
+        allow update, delete: if istSL(gid)
+          || (istMitglied(gid) && resource.data.besitzer == request.auth.uid);
+      }
+
+      // ------------------------------------------------------
+      // GETEILTER BEREICH
+      // Alles, was der Spielleiter für alle freigibt:
+      // gefundene Indizien, Orte, bekannte Personen — plus das
+      // Journal, in das auch Spieler schreiben dürfen.
+      // ------------------------------------------------------
+      match /geteilt/{did} {
+        allow read: if istMitglied(gid);
+
+        // Der Spielleiter darf alles anlegen und ändern
+        allow create, update, delete: if istSL(gid);
+
+        // Spieler dürfen NUR Journaleinträge anlegen —
+        // und nur ihre eigenen wieder ändern oder löschen
+        allow create: if istMitglied(gid)
+          && request.resource.data.typ == 'journal'
+          && request.resource.data.autorUid == request.auth.uid;
+
+        allow update, delete: if istMitglied(gid)
+          && resource.data.typ == 'journal'
+          && resource.data.autorUid == request.auth.uid;
+      }
+
+      // ------------------------------------------------------
+      // SPIELLEITER-BEREICH
+      // Fallnotizen, Weltenbau, Geheimnisse.
+      // Für Spieler nicht lesbar — nicht ausgeblendet,
+      // sondern gesperrt.
+      // ------------------------------------------------------
+      match /sl/{did} {
+        allow read, write: if istSL(gid);
+      }
+    }
+  }
+}

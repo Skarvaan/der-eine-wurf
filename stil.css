@@ -1,0 +1,498 @@
+/* ============================================================
+   DER EINE WURF — gemeinsames Design
+   Dunkel, kontraststark, große Tippflächen. Gebaut fürs iPad
+   im Halbdunkel am Spieltisch, funktioniert aber auch am
+   Rechner und auf dem Telefon.
+   ============================================================ */
+
+:root {
+  /* Warmes Schwarz statt kaltem Grau — bei Kerzen- oder
+     Lampenlicht wirkt kaltes Grau bläulich und billig */
+  --bg:            #12100e;
+  --flaeche:       #1c1917;
+  --flaeche-hoch:  #262220;
+  --linie:         #3a3532;
+
+  --text:          #e8e4dd;
+  --text-leise:    #9a938a;
+
+  --messing:       #c98f2a;
+  --messing-hell:  #e8b153;
+  --rost:          #b4442e;
+  --gruen:         #6f9c62;
+  --blau:          #5b8296;   /* für den geteilten Bereich */
+
+  --radius:        10px;
+  --tipp:          44px;      /* Mindesthöhe für Finger */
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px; line-height: 1.5;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--messing-hell); }
+
+/* ============================================================
+   ÖFFENTLICHE SEITE
+   ============================================================ */
+
+.held {
+  padding: calc(60px + env(safe-area-inset-top)) 20px 60px;
+  border-bottom: 1px solid var(--linie);
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(201,143,42,0.14), transparent 60%),
+    var(--bg);
+}
+
+.held-innen { max-width: 720px; margin: 0 auto; text-align: center; }
+
+.held-vorspann {
+  margin: 0 0 8px;
+  font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--messing);
+}
+
+.held h1 {
+  margin: 0 0 20px;
+  font-size: clamp(38px, 9vw, 68px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.held-satz {
+  margin: 0 auto 32px;
+  max-width: 520px;
+  font-size: 19px;
+  color: var(--text-leise);
+}
+
+.held-knoepfe { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.knopf-gross {
+  display: inline-flex; align-items: center;
+  min-height: 52px; padding: 0 26px;
+  border: 1px solid var(--messing);
+  border-radius: var(--radius);
+  background: var(--messing);
+  color: #17130c;
+  font-size: 16px; font-weight: 700;
+  text-decoration: none;
+}
+
+.knopf-hohl { background: transparent; color: var(--messing-hell); }
+
+.seite { max-width: 780px; margin: 0 auto; padding: 0 20px 60px; }
+
+.block { padding: 48px 0; border-bottom: 1px solid var(--linie); }
+.block:last-child { border-bottom: none; }
+
+.block h2 {
+  margin: 0 0 18px;
+  font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--messing);
+}
+
+h3.unter {
+  margin: 36px 0 10px;
+  font-size: 21px;
+  color: var(--text);
+}
+
+.gross { font-size: 19px; }
+.leise { color: var(--text-leise); font-size: 15px; }
+
+/* Die Grundformel */
+.formel {
+  margin: 8px 0 10px;
+  padding: 24px 16px;
+  border: 1px solid var(--messing);
+  border-radius: var(--radius);
+  background: rgba(201,143,42,0.07);
+  text-align: center;
+  font-size: clamp(17px, 4.2vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.formel-fuss { margin: 0 0 8px; text-align: center; color: var(--text-leise); font-size: 14px; }
+
+/* Info-Karten */
+.karten-gitter, .zwei-spalten {
+  display: grid; gap: 12px; margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.info-karte {
+  padding: 16px;
+  border: 1px solid var(--linie);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+}
+.info-karte h3 { margin: 0 0 6px; font-size: 16px; color: var(--messing-hell); }
+.info-karte p  { margin: 0; font-size: 15px; }
+
+/* Attribute */
+.attribut-gitter { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.attribut-gitter > div {
+  padding: 12px 14px; border-left: 3px solid var(--messing);
+  background: var(--flaeche); border-radius: 0 8px 8px 0;
+}
+.attribut-gitter b { display: block; margin-bottom: 2px; }
+.attribut-gitter span { font-size: 14px; color: var(--text-leise); }
+
+/* Fertigkeits-Marken */
+.marken { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.marken span {
+  padding: 5px 11px;
+  border: 1px solid var(--linie); border-radius: 20px;
+  background: var(--flaeche);
+  font-size: 14px;
+}
+
+/* Schwierigkeitsleiste */
+.sg-leiste { display: grid; gap: 6px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+.sg-leiste > div {
+  padding: 12px 8px; text-align: center;
+  border: 1px solid var(--linie); border-radius: 8px; background: var(--flaeche);
+}
+.sg-leiste b { display: block; font-size: 24px; color: var(--messing); }
+.sg-leiste span { font-size: 13px; color: var(--text-leise); }
+
+/* Ergebnisleiter */
+.ergebnis-leiter { display: grid; gap: 8px; }
+.stufe {
+  padding: 12px 14px;
+  border-left: 4px solid var(--linie);
+  background: var(--flaeche); border-radius: 0 8px 8px 0;
+}
+.stufe b { display: block; font-size: 15px; margin-bottom: 3px; }
+.stufe span { font-size: 15px; color: var(--text-leise); }
+.stufe.gut     { border-left-color: var(--gruen); }
+.stufe.mittel  { border-left-color: var(--messing); }
+.stufe.schlecht{ border-left-color: var(--rost); }
+
+/* Zustandsleiter */
+.zustand-leiter { display: grid; gap: 6px; margin: 12px 0; }
+.zustand-leiter > div {
+  display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 8px; background: var(--flaeche);
+  border-left: 4px solid var(--gruen);
+}
+.zustand-leiter .warn   { border-left-color: var(--messing); }
+.zustand-leiter .gefahr { border-left-color: var(--rost); }
+.zustand-leiter span { font-size: 14px; color: var(--text-leise); }
+
+/* Schritte */
+.schritte { padding-left: 22px; }
+.schritte li { margin-bottom: 10px; }
+
+/* Beispielszene */
+.szene {
+  padding: 18px;
+  border: 1px solid var(--linie); border-radius: var(--radius);
+  background: var(--flaeche);
+}
+.szene p { margin: 0 0 12px; font-size: 16px; }
+.szene p:last-child { margin-bottom: 0; }
+.wer {
+  display: inline-block; min-width: 76px; margin-right: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.wer.sl { color: var(--messing); }
+.wer.sp { color: var(--blau); }
+
+.block-abschluss { text-align: center; }
+.block-abschluss .held-knoepfe { margin-top: 22px; }
+
+.fuss {
+  padding: 30px 20px calc(30px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--linie);
+  text-align: center; color: var(--text-leise); font-size: 14px;
+}
+
+/* ============================================================
+   SPIELBEREICH
+   ============================================================ */
+
+.app { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+
+/* --- Kopfzeile --- */
+.kopf {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+  background: var(--bg); border-bottom: 1px solid var(--linie);
+}
+.kopf-marke { font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--messing); font-weight: 700; }
+.kopf-info { font-size: 12px; color: var(--text-leise); }
+.kopf-rechts { display: flex; align-items: center; gap: 8px; }
+
+/* --- Zonenumschalter (Spieler / Geteilt / Spielleiter) --- */
+.zonen {
+  display: flex; gap: 4px; padding: 8px 10px;
+  background: var(--bg); border-bottom: 1px solid var(--linie);
+  position: sticky; top: calc(56px + env(safe-area-inset-top)); z-index: 19;
+  overflow-x: auto;
+}
+.zone-knopf {
+  flex: 0 0 auto; min-height: var(--tipp); padding: 0 16px;
+  border: 1px solid var(--linie); border-radius: var(--radius);
+  background: var(--flaeche); color: var(--text-leise);
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.zone-knopf.aktiv { background: var(--messing); border-color: var(--messing); color: #17130c; }
+.zone-knopf.geteilt.aktiv { background: var(--blau); border-color: var(--blau); color: #0d1418; }
+
+/* --- Untertabs innerhalb einer Zone --- */
+.untertabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.untertab {
+  min-height: 38px; padding: 0 14px;
+  border: 1px solid var(--linie); border-radius: 20px;
+  background: transparent; color: var(--text-leise);
+  font-family: inherit; font-size: 14px; cursor: pointer;
+}
+.untertab.aktiv { border-color: var(--messing); color: var(--messing-hell); }
+
+.inhalt { max-width: 900px; margin: 0 auto; padding: 14px 10px 24px; }
+.ansicht { display: none; }
+.ansicht.aktiv { display: block; }
+
+/* --- Karten --- */
+.karte {
+  background: var(--flaeche); border: 1px solid var(--linie);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+}
+.karte-kopf {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.karte-kopf h2 {
+  margin: 0; font-size: 14px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--messing);
+}
+.karte-geteilt { border-color: rgba(91,130,150,0.5); }
+.karte-geteilt .karte-kopf h2 { color: var(--blau); }
+.hinweis { font-size: 13px; color: var(--text-leise); flex: 1 1 100%; }
+
+/* --- Felder --- */
+.feld { display: block; margin-bottom: 12px; }
+.feld > span { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-leise); }
+
+.feld input, .feld textarea, .feld select,
+.zeile-eingabe input, .zeile-eingabe select {
+  width: 100%; min-height: var(--tipp); padding: 10px 12px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--bg); color: var(--text);
+  font-family: inherit; font-size: 16px;  /* unter 16px zoomt iOS hinein */
+  resize: vertical;
+}
+.feld textarea { min-height: 64px; line-height: 1.45; }
+.feld input:focus, .feld textarea:focus, .feld select:focus { outline: 2px solid var(--messing); outline-offset: -2px; }
+.feld-betont input, .feld-betont textarea { border-color: var(--rost); }
+
+.zeile-eingabe { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.zeile-eingabe input, .zeile-eingabe select { flex: 1; min-width: 140px; }
+
+/* --- Knöpfe --- */
+.knopf, .knopf-klein {
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--flaeche-hoch); color: var(--text);
+  font-family: inherit; font-weight: 600; cursor: pointer;
+}
+.knopf { min-height: var(--tipp); padding: 0 18px; font-size: 15px; }
+.knopf-klein { min-height: 34px; padding: 0 12px; font-size: 13px; }
+.knopf:active, .knopf-klein:active { background: var(--messing); color: #17130c; }
+.knopf-haupt { background: var(--messing); border-color: var(--messing); color: #17130c; }
+.knopf-gefahr { border-color: var(--rost); color: #e59b8a; }
+.knopf:disabled, .knopf-klein:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.knopf-gitter { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.knopf-gitter button {
+  min-height: 52px; border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--flaeche-hoch); color: var(--text);
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.knopf-gitter button:active { background: var(--messing); color: #17130c; }
+
+/* --- Listen --- */
+.liste { list-style: none; margin: 0; padding: 0; }
+.liste li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-top: 1px solid var(--linie); font-size: 15px;
+}
+.liste li:first-child { border-top: none; }
+.loeschen {
+  flex: 0 0 auto; width: 30px; height: 30px;
+  border: 1px solid var(--linie); border-radius: 6px;
+  background: transparent; color: var(--text-leise);
+  font-size: 16px; line-height: 1; cursor: pointer;
+}
+.loeschen:active { border-color: var(--rost); color: var(--rost); }
+.zeit { color: var(--messing); font-variant-numeric: tabular-nums; flex: 0 0 auto; font-size: 13px; }
+
+/* --- Punkteverteilung im Charakterbaukasten --- */
+.punkte-anzeige {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 10px 12px; margin-bottom: 12px;
+  border: 1px solid var(--linie); border-radius: 8px; background: var(--bg);
+}
+.punkte-anzeige .zahl { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.punkte-anzeige.passt .zahl  { color: var(--gruen); }
+.punkte-anzeige.offen .zahl  { color: var(--messing); }
+.punkte-anzeige.zuviel .zahl { color: var(--rost); }
+
+.stufen-zeile {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-top: 1px solid var(--linie);
+}
+.stufen-zeile:first-of-type { border-top: none; }
+.stufen-zeile .bez { flex: 1; font-size: 15px; }
+.stufen-zeile .stand {
+  min-width: 32px; text-align: center;
+  font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.stufen-zeile button {
+  width: 40px; height: 40px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--flaeche-hoch); color: var(--text);
+  font-size: 20px; cursor: pointer;
+}
+.stufen-zeile button:disabled { opacity: 0.25; }
+.stufen-zeile .kosten { font-size: 12px; color: var(--messing); min-width: 44px; text-align: right; }
+
+/* --- Zähler (LP, Stabilität, Schicksal) --- */
+.zaehler { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.zaehler > .titel { flex: 0 0 88px; font-size: 13px; color: var(--text-leise); }
+.zaehler button {
+  width: 44px; height: 44px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--flaeche-hoch); color: var(--text); font-size: 20px; cursor: pointer;
+}
+.zaehler .stand { flex: 1; text-align: center; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 80px; }
+
+.zustand { font-size: 13px; font-weight: 700; }
+.zustand.ok      { color: var(--gruen); }
+.zustand.warnung { color: var(--messing-hell); }
+.zustand.gefahr  { color: var(--rost); }
+
+/* --- Werte-Gitter (Übersicht) --- */
+.werte-gitter { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.wert-kachel {
+  padding: 8px; text-align: center;
+  border: 1px solid var(--linie); border-radius: 8px; background: var(--bg);
+}
+.wert-kachel span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-leise); }
+.wert-kachel b { font-size: 20px; font-variant-numeric: tabular-nums; }
+
+/* --- Uhr --- */
+.uhr { display: flex; gap: 12px; margin-bottom: 12px; }
+.uhr button {
+  width: 52px; height: 52px;
+  border: 2px solid var(--linie); border-radius: 50%;
+  background: transparent; color: var(--text-leise);
+  font-size: 18px; font-weight: 700; cursor: pointer;
+}
+.uhr button.voll { background: var(--rost); border-color: var(--rost); color: #fff; }
+
+/* --- Einträge (Journal, Indizien, Welt) --- */
+.eintrag {
+  padding: 12px; margin-bottom: 10px;
+  border: 1px solid var(--linie); border-radius: 8px; background: var(--flaeche-hoch);
+}
+.eintrag-kopf { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.eintrag-kopf h4 { margin: 0; font-size: 16px; flex: 1; }
+.eintrag p { margin: 0; font-size: 15px; white-space: pre-line; }
+.eintrag-fuss { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.marke {
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  border: 1px solid var(--linie); color: var(--text-leise);
+}
+.marke.journal { border-color: var(--blau); color: var(--blau); }
+.marke.indiz   { border-color: var(--messing); color: var(--messing); }
+.marke.ort     { border-color: var(--gruen); color: var(--gruen); }
+.marke.nsc     { border-color: var(--text-leise); }
+.marke.sl      { border-color: var(--rost); color: var(--rost); }
+
+/* --- Regeln --- */
+.regel { padding: 10px 0; border-top: 1px solid var(--linie); }
+.regel:first-child { border-top: none; }
+.regel h4 { margin: 0 0 4px; font-size: 15px; color: var(--messing-hell); }
+.regel p { margin: 0; font-size: 15px; white-space: pre-line; }
+
+/* --- Tabellen --- */
+.tabellen-gruppe { margin-bottom: 16px; }
+.tabellen-gruppe > h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-leise); }
+.tabellen-reihe { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--linie); }
+.tabellen-reihe:first-of-type { border-top: none; }
+.tabellen-reihe .name { flex: 1; font-size: 15px; }
+.tabellen-reihe .anzahl { font-size: 12px; color: var(--text-leise); }
+.ergebnis-zeile { padding: 8px 0; border-top: 1px solid var(--linie); }
+.ergebnis-zeile:first-child { border-top: none; }
+.ergebnis-zeile .label { display: block; font-size: 12px; color: var(--text-leise); }
+.ergebnis-zeile .wert { font-size: 17px; }
+
+/* --- Würfelleiste --- */
+.wuerfelleiste {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  background: var(--flaeche); border-top: 1px solid var(--linie);
+}
+.wuerfel-zeile { display: flex; align-items: flex-end; gap: 8px; max-width: 900px; margin: 0 auto; }
+.segment { display: flex; border: 1px solid var(--linie); border-radius: 8px; overflow: hidden; }
+.segment button {
+  min-height: var(--tipp); padding: 0 10px; border: none;
+  background: var(--bg); color: var(--text-leise);
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.segment button.aktiv { background: var(--messing); color: #17130c; }
+.mini-feld { display: flex; flex-direction: column; gap: 2px; width: 66px; }
+.mini-feld span { font-size: 11px; color: var(--text-leise); }
+.mini-feld input {
+  min-height: var(--tipp); padding: 6px 8px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--bg); color: var(--text);
+  font-family: inherit; font-size: 16px; text-align: center;
+}
+.knopf-wuerfeln {
+  flex: 1; min-height: var(--tipp); border: none; border-radius: 8px;
+  background: var(--messing); color: #17130c;
+  font-family: inherit; font-size: 17px; font-weight: 700; cursor: pointer;
+}
+.wuerfel-ergebnis { display: flex; align-items: baseline; gap: 10px; margin: 8px auto 0; max-width: 900px; min-height: 24px; }
+.wuerfel-zahl { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--messing-hell); }
+.wuerfel-text { font-size: 14px; color: var(--text-leise); }
+.wuerfel-text.erfolg { color: var(--gruen); }
+.wuerfel-text.preis { color: var(--messing-hell); }
+.wuerfel-text.misserfolg { color: var(--rost); }
+
+/* --- Anmeldung --- */
+.anmelde-schirm {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.anmelde-karte {
+  width: 100%; max-width: 400px; padding: 24px;
+  border: 1px solid var(--linie); border-radius: var(--radius); background: var(--flaeche);
+}
+.anmelde-karte h1 { margin: 0 0 6px; font-size: 26px; }
+.anmelde-karte .leise { margin-bottom: 20px; }
+.fehler { margin: 10px 0 0; padding: 10px 12px; border-radius: 8px; background: rgba(180,68,46,0.15); color: #e59b8a; font-size: 14px; }
+.wechsel { margin-top: 16px; text-align: center; font-size: 14px; }
+
+/* --- Ladeanzeige --- */
+.laden { padding: 60px 20px; text-align: center; color: var(--text-leise); }
+
+@media (min-width: 760px) {
+  .inhalt { padding: 18px; }
+}
