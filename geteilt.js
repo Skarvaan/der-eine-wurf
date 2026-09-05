@@ -18,7 +18,7 @@
    ============================================================ */
 
 import { Geteilt } from './speicher.js';
-import { $, $$, sicher, sitzung, merkeAbo, zeitpunkt, status } from './app.js';
+import { $, $$, sicher, sitzung, merkeAbo, zeitpunkt, status, nutzerTippt, hatOffeneAenderungen } from './app.js';
 
 const TYP_BEZEICHNUNG = {
   journal: 'Journal',
@@ -38,6 +38,23 @@ let gid = null;
 let alle = [];
 let aktiverTyp = 'journal';
 let aboBeenden = null;
+let zeichnenAusstehend = false;
+
+/* Siehe charakter.js: nicht neu zeichnen, solange getippt wird —
+   sonst verliert man mitten im Journaleintrag den Text. */
+function zeichnenSicher() {
+  if (nutzerTippt() || hatOffeneAenderungen()) { zeichnenAusstehend = true; return; }
+  zeichnenAusstehend = false;
+  zeichnen();
+}
+
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    if (zeichnenAusstehend && !nutzerTippt()) zeichnenSicher();
+  }, 120);
+});
+
+document.addEventListener('gespeichert', () => zeichnenSicher());
 
 export function beendeGeteilt() {
   if (aboBeenden) { aboBeenden(); aboBeenden = null; }
@@ -59,7 +76,7 @@ export function starteGeteilt(gruppenId) {
   aboBeenden = Geteilt.abonnieren(gid, (eintraege) => {
     // Neueste zuerst
     alle = eintraege.sort((a, b) => (b.angelegt?.seconds || 0) - (a.angelegt?.seconds || 0));
-    zeichnen();
+    zeichnenSicher();
   });
   merkeAbo(aboBeenden);
 }

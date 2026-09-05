@@ -452,6 +452,37 @@ h3.unter {
 .ergebnis-zeile .label { display: block; font-size: 12px; color: var(--text-leise); }
 .ergebnis-zeile .wert { font-size: 17px; }
 
+/* --- Speicherleiste ---
+   Sitzt über der Würfelleiste und fällt bewusst auf: Offene
+   Änderungen sollen nicht übersehen werden. */
+.speicherleiste {
+  position: fixed;
+  left: 10px; right: 10px;
+  bottom: calc(104px + env(safe-area-inset-bottom));
+  z-index: 31;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--rost);
+  border-radius: var(--radius);
+  background: #2a1a15;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+.speicherleiste #speicher-text { font-size: 14px; font-weight: 600; color: #e59b8a; }
+.speicherleiste .knopf { min-height: 40px; }
+
+/* Wenn gespeichert wurde, kurz grün bestätigen */
+.speicherleiste.fertig { border-color: var(--gruen); background: #16210f; }
+.speicherleiste.fertig #speicher-text { color: var(--gruen); }
+
+/* Der Speichern-Knopf, der oben in jeder Ansicht steht */
+.speichern-oben {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.speichern-oben .stand-text { font-size: 13px; color: var(--text-leise); }
+.speichern-oben .offen { color: var(--messing-hell); font-weight: 600; }
+
 /* --- Würfelleiste --- */
 .wuerfelleiste {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;

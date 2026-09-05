@@ -19,7 +19,8 @@
    ============================================================ */
 
 import { SLNotizen, Geteilt, Charaktere, Gruppen } from './speicher.js';
-import { $, $$, sicher, verzoegert, status, sitzung, merkeAbo, zufall } from './app.js';
+import { $, $$, sicher, status, sitzung, merkeAbo, zufall, nutzerTippt,
+         merkeAenderung, hatOffeneAenderungen, alleSpeichern } from './app.js';
 import { TABELLEN, KOMBIS } from './daten/tabellen.js';
 
 const WELT_ARTEN = {
@@ -36,6 +37,39 @@ let charaktere = [];
 let aktiverTab = 'uebersicht';
 let aktiverFallId = null;
 let abos = [];
+let zeichnenAusstehend = false;
+
+/* Siehe charakter.js: Das Fallblatt besteht fast nur aus
+   Textfeldern. Ohne diese Bremse wäre es unbenutzbar. */
+function zeichnenSicher() {
+  // Nicht neu zeichnen, solange getippt wird oder etwas offen
+  // ist — sonst überschreibt der Datenbankstand die Eingaben.
+  if (nutzerTippt() || hatOffeneAenderungen('fall')) {
+    zeichnenAusstehend = true;
+    return;
+  }
+  zeichnenAusstehend = false;
+  zeichnen();
+}
+
+/* Der Zwischenstand des Fallblatts. Getippt wird hier hinein,
+   geschrieben wird erst auf Knopfdruck. */
+let fallEntwurf = {};
+
+function fallGeaendert(fallId) {
+  merkeAenderung('fall', async () => {
+    await SLNotizen.aendern(gid, fallId, fallEntwurf);
+    fallEntwurf = {};
+  });
+  const el = document.querySelector('#sl-bereich .stand-text');
+  if (el) { el.textContent = 'Ungespeicherte Änderungen'; el.classList.add('offen'); }
+}
+
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    if (zeichnenAusstehend && !nutzerTippt()) zeichnenSicher();
+  }, 120);
+});
 
 export function beendeSL() {
   abos.forEach(f => { try { f(); } catch (e) {} });
@@ -60,17 +94,19 @@ export function starteSL(gruppenId) {
       const faelle = notizen.filter(n => n.typ === 'fall');
       aktiverFallId = faelle[0]?.id || null;
     }
-    zeichnen();
+    zeichnenSicher();
   });
 
   const a2 = Charaktere.abonnieren(gid, (liste) => {
     charaktere = liste;
-    zeichnen();
+    zeichnenSicher();
   });
 
   abos = [a1, a2];
   abos.forEach(merkeAbo);
-  document.addEventListener('gruppe-geaendert', zeichnen);
+  document.addEventListener('gruppe-geaendert', zeichnenSicher);
+  document.addEventListener('gespeichert', () => zeichnenSicher());
+  document.addEventListener('verworfen', () => { fallEntwurf = {}; zeichnenAusstehend = false; zeichnen(); });
 }
 
 /* ============================================================
@@ -207,6 +243,12 @@ function zeichneFall(behaelter) {
   const uhr = fall.uhr || 0;
 
   behaelter.innerHTML = `
+    <div class="speichern-oben">
+      <button type="button" class="knopf knopf-haupt" id="btn-fall-speichern">Speichern</button>
+      <span class="stand-text ${hatOffeneAenderungen('fall') ? 'offen' : ''}">
+        ${hatOffeneAenderungen('fall') ? 'Ungespeicherte Änderungen' : 'Alles gespeichert'}
+      </span>
+    </div>
     <div class="karte">
       <div class="karte-kopf">
         <h2>Fall</h2>
@@ -296,11 +338,16 @@ function zeichneFall(behaelter) {
     zeichnen();
   });
 
+  $('btn-fall-speichern').addEventListener('click', () => alleSpeichern());
+
+  // Die Textfelder schreiben nur in den Entwurf. Erst der
+  // Speichern-Knopf schickt alles in EINEM Vorgang los.
   behaelter.querySelectorAll('[data-fall]').forEach(el => {
-    el.addEventListener('input', verzoegert(async () => {
-      await SLNotizen.aendern(gid, fall.id, { [el.dataset.fall]: el.value });
-      status('gespeichert');
-    }));
+    el.addEventListener('input', () => {
+      fallEntwurf[el.dataset.fall] = el.value;
+      fall[el.dataset.fall] = el.value;   // Anzeige aktuell halten
+      fallGeaendert(fall.id);
+    });
   });
 
   behaelter.querySelectorAll('[data-uhr]').forEach(knopf => {

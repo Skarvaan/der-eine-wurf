@@ -40,8 +40,12 @@ export const zufall  = (liste) => liste[Math.floor(Math.random() * liste.length)
 export const wuerfel = (seiten) => Math.floor(Math.random() * seiten) + 1;
 
 /** Verzögert wiederholte Aufrufe — beim Tippen soll nicht bei
-    jedem Buchstaben in die Datenbank geschrieben werden. */
-export function verzoegert(fn, ms = 600) {
+    jedem Buchstaben in die Datenbank geschrieben werden.
+    1500 ms ist ein guter Kompromiss: lang genug, dass ein
+    normaler Satz einen einzigen Schreibvorgang erzeugt, kurz
+    genug, dass nichts verlorengeht. Zusätzlich speichern die
+    Module beim Verlassen des Feldes sofort. */
+export function verzoegert(fn, ms = 1500) {
   let zeiger;
   return (...args) => { clearTimeout(zeiger); zeiger = setTimeout(() => fn(...args), ms); };
 }
@@ -56,11 +60,148 @@ export function status(text) {
   statusZeiger = setTimeout(() => { el.textContent = ''; }, 2500);
 }
 
+/**
+ * Tippt der Nutzer gerade in ein Feld?
+ *
+ * Wird gebraucht, weil Firestore nach jedem Schreibvorgang die
+ * Änderung zurückmeldet. Würden wir daraufhin neu zeichnen,
+ * flöge das Eingabefeld mitten im Tippen aus dem Dokument —
+ * Cursor weg, Text weg. Deshalb prüfen alle Ansichtsmodule
+ * vor dem Neuzeichnen diese Funktion und holen es später nach.
+ */
+export function nutzerTippt() {
+  const el = document.activeElement;
+  return !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
+}
+
 /** Datum eines Firestore-Zeitstempels als tt.mm. hh:mm */
 export function zeitpunkt(stempel) {
   if (!stempel?.toDate) return '';
   return stempel.toDate().toLocaleString('de-DE', {
     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+/* ============================================================
+   ÄNDERUNGSPUFFER
+   ============================================================
+
+   Es wird NICHTS automatisch geschrieben. Die Ansichtsmodule
+   ändern ihre Daten zunächst nur im Arbeitsspeicher und melden
+   hier an, dass etwas offen ist. Erst der Speichern-Knopf
+   schreibt in die Datenbank.
+
+   Das hat zwei Vorteile:
+     - Eine ganze Bearbeitung erzeugt EINEN Schreibvorgang
+       statt einem pro Tastendruck.
+     - Man sieht jederzeit, ob noch etwas offen ist.
+
+   Als Netz gegen Vergesslichkeit läuft eine Sicherung nach
+   zehn Minuten. Die ist ausdrücklich nur die Notbremse, nicht
+   der Normalfall.
+   ============================================================ */
+
+const offeneSpeicherungen = new Map();   // bereich -> async Funktion
+let notfallZeiger = null;
+const NOTFALL_MINUTEN = 10;
+
+/**
+ * Ein Modul meldet: Ich habe etwas geändert, das noch nicht
+ * geschrieben ist. Die Funktion wird beim Speichern aufgerufen.
+ * Meldet dasselbe Modul erneut, ersetzt die neue Funktion die
+ * alte — es bleibt bei einem Schreibvorgang.
+ */
+export function merkeAenderung(bereich, speicherFunktion) {
+  offeneSpeicherungen.set(bereich, speicherFunktion);
+  speicherleisteZeichnen();
+
+  if (!notfallZeiger) {
+    notfallZeiger = setTimeout(() => {
+      if (offeneSpeicherungen.size) alleSpeichern(true);
+    }, NOTFALL_MINUTEN * 60 * 1000);
+  }
+}
+
+/** Gibt es offene Änderungen — insgesamt oder für ein Modul? */
+export function hatOffeneAenderungen(bereich) {
+  return bereich ? offeneSpeicherungen.has(bereich) : offeneSpeicherungen.size > 0;
+}
+
+/** Verwirft die offenen Änderungen eines Moduls ohne zu schreiben */
+export function verwirfAenderung(bereich) {
+  offeneSpeicherungen.delete(bereich);
+  speicherleisteZeichnen();
+}
+
+/**
+ * Schreibt alles Offene in die Datenbank.
+ * @param {boolean} automatisch  true bei der Zehn-Minuten-Sicherung
+ */
+export async function alleSpeichern(automatisch = false) {
+  if (!offeneSpeicherungen.size) return;
+
+  const funktionen = [...offeneSpeicherungen.values()];
+  offeneSpeicherungen.clear();
+  clearTimeout(notfallZeiger);
+  notfallZeiger = null;
+
+  let fehlgeschlagen = 0;
+  for (const fn of funktionen) {
+    try { await fn(); } catch (fehler) { console.error('Speichern fehlgeschlagen:', fehler); fehlgeschlagen++; }
+  }
+
+  speicherleisteZeichnen(fehlgeschlagen
+    ? 'Nicht alles konnte gespeichert werden'
+    : (automatisch ? 'Automatisch gesichert' : 'Gespeichert'));
+
+  // Die Module dürfen sich jetzt wieder neu zeichnen
+  document.dispatchEvent(new CustomEvent('gespeichert'));
+}
+
+/** Zeigt oder versteckt die Leiste unten */
+function speicherleisteZeichnen(bestaetigung = null) {
+  const leiste = $('speicherleiste');
+  if (!leiste) return;
+
+  if (bestaetigung) {
+    leiste.hidden = false;
+    leiste.classList.add('fertig');
+    $('speicher-text').textContent = bestaetigung;
+    $('btn-speichern').hidden = true;
+    $('btn-verwerfen').hidden = true;
+    setTimeout(() => { if (!offeneSpeicherungen.size) leiste.hidden = true; }, 2000);
+    return;
+  }
+
+  leiste.classList.remove('fertig');
+  $('btn-speichern').hidden = false;
+  $('btn-verwerfen').hidden = false;
+  leiste.hidden = offeneSpeicherungen.size === 0;
+
+  const anzahl = offeneSpeicherungen.size;
+  $('speicher-text').textContent = anzahl === 1
+    ? 'Ungespeicherte Änderungen'
+    : `Ungespeicherte Änderungen in ${anzahl} Bereichen`;
+}
+
+function speicherleisteAufbauen() {
+  $('btn-speichern').addEventListener('click', () => alleSpeichern());
+
+  $('btn-verwerfen').addEventListener('click', () => {
+    if (!confirm('Alle ungespeicherten Änderungen verwerfen?')) return;
+    offeneSpeicherungen.clear();
+    clearTimeout(notfallZeiger);
+    notfallZeiger = null;
+    speicherleisteZeichnen();
+    // Die Module holen sich den Stand aus der Datenbank zurück
+    document.dispatchEvent(new CustomEvent('verworfen'));
+  });
+
+  // Warnen, wenn die Seite mit offenen Änderungen verlassen wird
+  window.addEventListener('beforeunload', (ereignis) => {
+    if (!offeneSpeicherungen.size) return;
+    ereignis.preventDefault();
+    ereignis.returnValue = '';
   });
 }
 
@@ -292,7 +433,15 @@ function gruppeOeffnen(gid) {
   }));
 }
 
-function zurZurGruppenwahl() {
+async function zurZurGruppenwahl() {
+  // Offenes zuerst wegschreiben, sonst geht es verloren
+  if (hatOffeneAenderungen() && confirm('Es gibt ungespeicherte Änderungen. Vorher speichern?')) {
+    await alleSpeichern();
+  } else {
+    offeneSpeicherungen.clear();
+    speicherleisteZeichnen();
+  }
+
   alleAbosBeenden();
   beendeCharakter(); beendeGeteilt(); beendeSL();
   sitzung.gruppe = null;
@@ -407,6 +556,7 @@ function wuerfelleisteAufbauen() {
    ============================================================ */
 
 anmeldungAufbauen();
+speicherleisteAufbauen();
 gruppenSchirmKnoepfe();
 zonenAufbauen();
 regelnAufbauen();
@@ -414,6 +564,15 @@ wuerfelleisteAufbauen();
 
 Auth.beobachten(async (nutzer) => {
   sitzung.nutzer = nutzer;
+
+  // Das Passwortfeld leeren, sobald die Anmeldung durch ist.
+  // Bleibt es gefüllt im Dokument stehen, hält der Browser die
+  // folgende Ansichtsänderung für ein abgeschicktes Formular
+  // und fragt, ob er das Passwort speichern soll.
+  if (nutzer) {
+    $('ein-passwort').value = '';
+    $('ein-name').value = '';
+  }
 
   if (!nutzer) {
     alleAbosBeenden();

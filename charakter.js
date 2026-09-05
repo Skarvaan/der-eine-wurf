@@ -14,7 +14,8 @@
    ============================================================ */
 
 import { Charaktere } from './speicher.js';
-import { $, sicher, verzoegert, status, sitzung, merkeAbo, wuerfelnMit } from './app.js';
+import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, nutzerTippt,
+         merkeAenderung, hatOffeneAenderungen, verwirfAenderung, alleSpeichern } from './app.js';
 
 /* ------------------------------------------------------------
    Stammdaten
@@ -62,6 +63,79 @@ const vert    = (c) => 10 + (c.attribute.geschick || 0) + (c.fertigkeiten.nahkam
 let gid = null;
 let meiner = null;         // mein Charakter oder null
 let aboBeenden = null;
+let zeichnenAusstehend = false;
+
+/**
+ * Zeichnet nur, wenn der Nutzer gerade NICHT tippt.
+ * Sonst wird gemerkt, dass etwas nachzuholen ist — und sobald
+ * das Feld verlassen wird, holen wir es nach (siehe unten).
+ *
+ * Ohne diese Bremse zerstört jede Rückmeldung aus Firestore
+ * das Feld, in das gerade geschrieben wird.
+ */
+function zeichnenSicher() {
+  // Nicht neu zeichnen, solange getippt wird ODER es
+  // ungespeicherte Änderungen gibt — sonst würde der Stand aus
+  // der Datenbank die Arbeit des Nutzers überschreiben.
+  if (nutzerTippt() || hatOffeneAenderungen('charakter')) {
+    zeichnenAusstehend = true;
+    return;
+  }
+  zeichnenAusstehend = false;
+  zeichnen();
+}
+
+/**
+ * Meldet dem Änderungspuffer, dass etwas offen ist.
+ * Beim Speichern wird der ganze Charakter in EINEM Vorgang
+ * geschrieben — nicht Feld für Feld.
+ */
+function geaendert() {
+  merkeAenderung('charakter', speichernAlles);
+  aktualisiereSpeicherhinweis();
+}
+
+/** Schreibt den kompletten Charakter — ein Schreibvorgang */
+async function speichernAlles() {
+  if (!meiner) return;
+  const { id, ...daten } = meiner;
+  await Charaktere.aendern(gid, id, daten);
+  aktualisiereSpeicherhinweis();
+  zeichnenSicher();
+}
+
+/** Färbt den Hinweis neben dem Speichern-Knopf */
+function aktualisiereSpeicherhinweis() {
+  const el = document.querySelector('#charakter-bereich .stand-text');
+  if (!el) return;
+  const offen = hatOffeneAenderungen('charakter');
+  el.textContent = offen ? 'Ungespeicherte Änderungen' : 'Alles gespeichert';
+  el.classList.toggle('offen', offen);
+}
+
+/** Der Kopf mit dem Speichern-Knopf, in beiden Ansichten gleich */
+function speichernKopf() {
+  return `
+    <div class="speichern-oben">
+      <button type="button" class="knopf knopf-haupt" id="btn-char-speichern">Speichern</button>
+      <span class="stand-text ${hatOffeneAenderungen('charakter') ? 'offen' : ''}">
+        ${hatOffeneAenderungen('charakter') ? 'Ungespeicherte Änderungen' : 'Alles gespeichert'}
+      </span>
+    </div>`;
+}
+
+function bindeSpeichernKopf() {
+  document.getElementById('btn-char-speichern')?.addEventListener('click', () => alleSpeichern());
+}
+
+// Beim Verlassen eines Feldes nachholen, was übersprungen wurde.
+// Das kleine Zeitfenster gibt dem Browser Gelegenheit, den Fokus
+// auf das nächste Feld zu setzen — dann wird weiter gewartet.
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    if (zeichnenAusstehend && !nutzerTippt()) zeichnenSicher();
+  }, 120);
+});
 
 export function beendeCharakter() {
   if (aboBeenden) { aboBeenden(); aboBeenden = null; }
@@ -73,12 +147,16 @@ export function starteCharakter(gruppenId) {
 
   aboBeenden = Charaktere.abonnieren(gid, (alle) => {
     meiner = alle.find(c => c.besitzer === sitzung.nutzer.uid) || null;
-    zeichnen();
+    zeichnenSicher();
   });
   merkeAbo(aboBeenden);
 
   // Wenn der Spielleiter die Steigerung freischaltet, neu zeichnen
-  document.addEventListener('gruppe-geaendert', zeichnen);
+  document.addEventListener('gruppe-geaendert', zeichnenSicher);
+
+  // Nach dem Speichern oder Verwerfen darf wieder gezeichnet werden
+  document.addEventListener('gespeichert', () => zeichnenSicher());
+  document.addEventListener('verworfen', () => { zeichnenAusstehend = false; zeichnen(); });
 }
 
 /* ------------------------------------------------------------
@@ -154,6 +232,7 @@ function zeichneBaukasten(behaelter) {
   const fertigMoeglich = attributRest === 0 && fertigkeitRest === 0 && c.name.trim();
 
   behaelter.innerHTML = `
+    ${speichernKopf()}
     <div class="karte">
       <div class="karte-kopf">
         <h2>Schritt 1 — Wer bist du?</h2>
@@ -242,6 +321,7 @@ function zeichneBaukasten(behaelter) {
     </div>
   `;
 
+  bindeSpeichernKopf();
   bindeFelder(behaelter);
   bindeStufen(behaelter);
 
@@ -249,7 +329,8 @@ function zeichneBaukasten(behaelter) {
     meiner.fertig = true;
     meiner.lp = maxLp(meiner);
     meiner.stab = maxStab(meiner);
-    await speichern({ fertig: true, lp: meiner.lp, stab: meiner.stab });
+    geaendert();
+    await alleSpeichern();   // hier lohnt sich das sofortige Schreiben
   });
 }
 
@@ -273,10 +354,8 @@ function bindeStufen(behaelter) {
       const ziel = art === 'attribut' ? meiner.attribute : meiner.fertigkeiten;
       ziel[schluessel] += parseInt(richtung, 10);
 
+      geaendert();
       zeichnen();   // sofort neu zeichnen, damit die Punkte stimmen
-      await speichern(art === 'attribut'
-        ? { attribute: meiner.attribute }
-        : { fertigkeiten: meiner.fertigkeiten });
     });
   });
 }
@@ -284,22 +363,23 @@ function bindeStufen(behaelter) {
 /** Textfelder an den Charakter binden */
 function bindeFelder(behaelter) {
   behaelter.querySelectorAll('[data-feld]').forEach(el => {
-    el.addEventListener('input', verzoegert(async () => {
+
+    const uebernehmen = () => {
       const feld = el.dataset.feld;
 
       if (feld.startsWith('staerke')) {
-        const i = parseInt(feld.slice(7), 10);
-        meiner.staerken[i] = el.value;
-        await speichern({ staerken: meiner.staerken });
+        meiner.staerken[parseInt(feld.slice(7), 10)] = el.value;
       } else if (feld.startsWith('makel')) {
-        const i = parseInt(feld.slice(5), 10);
-        meiner.makel[i] = el.value;
-        await speichern({ makel: meiner.makel });
+        meiner.makel[parseInt(feld.slice(5), 10)] = el.value;
       } else {
         meiner[feld] = el.value;
-        await speichern({ [feld]: el.value });
       }
-    }));
+      geaendert();
+    };
+
+    // Nur in den Arbeitsspeicher übernehmen. Geschrieben wird
+    // erst beim Druck auf Speichern.
+    el.addEventListener('input', uebernehmen);
   });
 }
 
@@ -326,6 +406,7 @@ function zeichneSpielbogen(behaelter) {
   const darfSteigern = sitzung.gruppe?.freigaben?.steigern || c.steigernFrei;
 
   behaelter.innerHTML = `
+    ${speichernKopf()}
     <div class="karte">
       <div class="karte-kopf">
         <h2>${sicher(c.name)}</h2>
@@ -417,6 +498,7 @@ function zeichneSpielbogen(behaelter) {
     ${steigerungsKarte(c, darfSteigern)}
   `;
 
+  bindeSpeichernKopf();
   bindeFelder(behaelter);
   bindeZaehler(behaelter);
   bindeWuerfe(behaelter);
@@ -424,14 +506,16 @@ function zeichneSpielbogen(behaelter) {
 
   $('btn-bearbeiten')?.addEventListener('click', async () => {
     meiner.fertig = false;
-    await speichern({ fertig: false });
+    geaendert();
+    await alleSpeichern();
   });
 
   $('btn-narbe')?.addEventListener('click', async () => {
     const wert = $('narbe-eingabe').value.trim();
     if (!wert) return;
     meiner.narben = [...(meiner.narben || []), wert];
-    await speichern({ narben: meiner.narben });
+    geaendert();
+    zeichnen();
   });
 }
 
@@ -538,8 +622,9 @@ function bindeSteigerung(behaelter, darfSteigern) {
       }
 
       meiner.fp = aenderung.fp;
-      await speichern(aenderung);
-      status('gesteigert');
+      geaendert();
+      zeichnen();
+      status('gesteigert — nicht vergessen zu speichern');
     });
   });
 }
@@ -560,8 +645,8 @@ function bindeZaehler(behaelter) {
 
       const neu = Math.max(grenzen[0], Math.min(grenzen[1], meiner[feld] + parseInt(schritt, 10)));
       meiner[feld] = neu;
+      geaendert();
       zeichnen();
-      await speichern({ [feld]: neu });
     });
   });
 }
@@ -589,12 +674,7 @@ function bindeWuerfe(behaelter) {
    Speichern
    ------------------------------------------------------------ */
 
-async function speichern(aenderung) {
-  try {
-    await Charaktere.aendern(gid, meiner.id, aenderung);
-    status('gespeichert');
-  } catch (fehler) {
-    console.error('Charakter konnte nicht gespeichert werden:', fehler);
-    status('nicht gespeichert!');
-  }
-}
+/* Die frühere Einzelfeld-Speicherung ist entfallen. Geschrieben
+   wird nur noch über speichernAlles() oben — ausgelöst durch den
+   Speichern-Knopf, die Zehn-Minuten-Sicherung oder eine klare
+   Entscheidung wie „Fertig". */

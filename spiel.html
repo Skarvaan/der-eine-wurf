@@ -167,6 +167,20 @@
   </main>
 
   <!-- ======================================================
+       SPEICHERLEISTE
+       Erscheint nur, wenn es ungespeicherte Änderungen gibt.
+       Nichts wird automatisch geschrieben — das spart
+       Schreibvorgänge und macht sichtbar, was noch offen ist.
+       ====================================================== -->
+  <div class="speicherleiste" id="speicherleiste" hidden>
+    <span id="speicher-text">Ungespeicherte Änderungen</span>
+    <div style="display:flex;gap:8px">
+      <button type="button" class="knopf-klein" id="btn-verwerfen">Verwerfen</button>
+      <button type="button" class="knopf knopf-haupt" id="btn-speichern">Speichern</button>
+    </div>
+  </div>
+
+  <!-- ======================================================
        WÜRFELLEISTE — immer sichtbar
        ====================================================== -->
   <div class="wuerfelleiste">
