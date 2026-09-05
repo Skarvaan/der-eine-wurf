@@ -28,6 +28,16 @@
   color-scheme: dark;
 }
 
+/* ------------------------------------------------------------
+   WICHTIG: Muss vor allen Layout-Regeln stehen.
+   Regeln wie ".anmelde-schirm { display: flex }" sind
+   spezifischer als das eingebaute [hidden] des Browsers und
+   würden es sonst überschreiben — die vermeintlich versteckten
+   Bildschirme blieben dann sichtbar und stapelten sich
+   untereinander.
+   ------------------------------------------------------------ */
+[hidden] { display: none !important; }
+
 * { box-sizing: border-box; }
 
 html, body {
