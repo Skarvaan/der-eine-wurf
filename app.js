@@ -421,6 +421,11 @@ function gruppeOeffnen(gid) {
       `${gruppe.name} · ${sitzung.istSL ? 'Spielleitung' : (gruppe.mitglieder?.[sitzung.nutzer.uid]?.name || 'Spieler')}`;
     $('zone-knopf-sl').hidden = !sitzung.istSL;
 
+    // Die Zone "Regeln" blendet Spielleitungswissen für Spieler
+    // aus (siehe regelnZeichnen) — bei jedem Rollenwechsel neu
+    // zeichnen, nicht nur beim allerersten Öffnen der Runde.
+    regelnZeichnen($('regel-suche')?.value || '');
+
     if (ersterAufruf) {
       zeigeSchirm('schirm-app');
       starteCharakter(gid);
@@ -482,7 +487,14 @@ const REGEL_GRUPPEN = [...new Set(REGELN.map(r => r.gruppe))];
 
 function regelnZeichnen(filter = '') {
   const suche = filter.trim().toLowerCase();
-  const treffer = REGELN.filter(r =>
+
+  // Einträge mit "nurSL" verraten Spielleitungswissen (wie man
+  // improvisiert, wie Hinweise gelegt werden, …) — für Spieler
+  // wäre das ein Spoiler auf die eigenen Tricks des Spielleiters.
+  // Die Spielleitung selbst sieht hier bewusst mehr als Spieler.
+  const sichtbar = REGELN.filter(r => !r.nurSL || sitzung.istSL);
+
+  const treffer = sichtbar.filter(r =>
     !suche || r.titel.toLowerCase().includes(suche)
            || r.text.toLowerCase().includes(suche)
            || (r.schlagworte || '').toLowerCase().includes(suche));

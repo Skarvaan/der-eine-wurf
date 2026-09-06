@@ -8,6 +8,10 @@
    in der Reihenfolge ihres ersten Auftretens.
    "schlagworte" hilft der Suche, wenn die Begriffe im Text
    selbst nicht vorkommen (z. B. "AC" für Verteidigung).
+   "nurSL: true" blendet einen Eintrag für Spieler komplett aus
+   (Titel, Text und Suche) — für Spielleitungswissen, das den
+   Spielern die eigenen Tricks verraten würde. Siehe
+   regelnZeichnen() in app.js.
    ============================================================ */
 
 export const REGELN = [
@@ -281,6 +285,7 @@ Makel verschwinden, wenn sie im Spiel überwunden werden — nicht durch Bezahle
   /* ---------------- Spielleitung ---------------- */
   {
     gruppe: 'Spielleitung',
+    nurSL: true,
     titel: 'SG in zwei Sekunden setzen',
     schlagworte: 'spielleiter improvisation sg setzen',
     text: `Wäre das für einen fähigen Menschen mit Übung machbar?
@@ -290,6 +295,7 @@ Im Zweifel 15.`
   },
   {
     gruppe: 'Spielleitung',
+    nurSL: true,
     titel: 'Hinweise legen',
     schlagworte: 'hinweis ermittlung drei fährte fall',
     text: `Für jede wichtige Erkenntnis drei Hinweise, an drei Orten, über drei Fertigkeiten. Dann darf jeder Wurf danebengehen.
@@ -300,6 +306,7 @@ Nichts bleibt zweimal bedeutungslos: Kommt ein Spieler auf ein Detail zurück, g
   },
   {
     gruppe: 'Spielleitung',
+    nurSL: true,
     titel: 'Rückwärts begründen',
     schlagworte: 'improvisation rückwärts begründen wahrheitsnotiz',
     text: `1. Ein Detail entsteht (gewürfelt, erfragt, eingefallen).
@@ -310,6 +317,7 @@ Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.`
   },
   {
     gruppe: 'Spielleitung',
+    nurSL: true,
     titel: 'Festlegungsregel',
     schlagworte: 'festlegen kanon entscheidung improvisation',
     text: `Sobald ein Spieler eine Frage stellt, deren Antwort seine nächste Entscheidung beeinflusst, legst du dich fest — und bleibst dabei. Aufschreiben.
@@ -318,6 +326,7 @@ Vorher darf alles Nebel sein. Nachher ist es Kanon.`
   },
   {
     gruppe: 'Spielleitung',
+    nurSL: true,
     titel: 'Wenn die Gruppe feststeckt',
     schlagworte: 'feststecken hilfe sackgasse notfall',
     text: `1. Uhr füllen — etwas passiert und bringt neue Information mit.
