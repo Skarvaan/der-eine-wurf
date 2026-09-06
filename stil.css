@@ -638,10 +638,7 @@ button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color:
 .marke.sl      { border-color: var(--rost); color: var(--rost); }
 
 /* --- Regeln --- */
-.regel { padding: 10px 0; border-top: 1px solid var(--linie); }
-.regel:first-child { border-top: none; }
-.regel h4 { margin: 0 0 4px; font-size: 15px; color: var(--messing-hell); font-family: var(--schrift-kopf); }
-.regel p { margin: 0; font-size: 15px; white-space: pre-line; }
+.regel-text { margin: 0; font-size: 14px; white-space: pre-line; line-height: 1.5; }
 
 /* --- Tabellen --- */
 .tabellen-gruppe { margin-bottom: 16px; }

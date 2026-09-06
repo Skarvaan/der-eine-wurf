@@ -472,6 +472,14 @@ function zonenAufbauen() {
    REGELN
    ============================================================ */
 
+/**
+ * Baut die Reihenfolge der Gruppen aus dem ersten Auftreten in
+ * REGELN — eine neue "gruppe" in daten/regeln.js taucht damit
+ * automatisch an der richtigen Stelle auf, ohne dass hier etwas
+ * gepflegt werden müsste.
+ */
+const REGEL_GRUPPEN = [...new Set(REGELN.map(r => r.gruppe))];
+
 function regelnZeichnen(filter = '') {
   const suche = filter.trim().toLowerCase();
   const treffer = REGELN.filter(r =>
@@ -479,9 +487,27 @@ function regelnZeichnen(filter = '') {
            || r.text.toLowerCase().includes(suche)
            || (r.schlagworte || '').toLowerCase().includes(suche));
 
-  $('regel-liste').innerHTML = treffer.length
-    ? treffer.map(r => `<div class="regel"><h4>${sicher(r.titel)}</h4><p>${sicher(r.text)}</p></div>`).join('')
-    : '<p class="leise">Nichts gefunden. Im Zweifel: W20 + Attribut gegen 15.</p>';
+  if (!treffer.length) {
+    $('regel-liste').innerHTML = '<p class="hinweis-schild">Nichts gefunden. Im Zweifel: W20 + Attribut gegen 15.</p>';
+    return;
+  }
+
+  // Nach Gruppe sortiert ausgeben — nur Gruppen mit mindestens
+  // einem Treffer erscheinen überhaupt.
+  $('regel-liste').innerHTML = REGEL_GRUPPEN.map(gruppe => {
+    const eintraege = treffer.filter(r => r.gruppe === gruppe);
+    if (!eintraege.length) return '';
+
+    return `
+      <h3 class="unter">${sicher(gruppe)}</h3>
+      <div class="bogen-gitter gitter-drei">
+        ${eintraege.map(r => `
+          <div class="karte">
+            <div class="karte-kopf"><h2>${sicher(r.titel)}</h2></div>
+            <p class="regel-text">${sicher(r.text)}</p>
+          </div>`).join('')}
+      </div>`;
+  }).join('');
 }
 
 function regelnAufbauen() {

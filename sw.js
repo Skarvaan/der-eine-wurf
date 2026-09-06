@@ -10,7 +10,7 @@
    Offline-Speicher mit (siehe speicher.js).
    ============================================================ */
 
-const VERSION = 'dew-v6';
+const VERSION = 'dew-v7';
 
 const DATEIEN = [
   './', './index.html', './spiel.html', './stil.css',

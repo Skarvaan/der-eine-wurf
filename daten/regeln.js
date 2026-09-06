@@ -3,6 +3,9 @@
    ============================================================
 
    ERWEITERN: einfach ein weiteres Objekt ins Array.
+   "gruppe" bestimmt den Abschnitt, unter dem der Eintrag in der
+   Zone "Regeln" auftaucht — neue Gruppen erscheinen automatisch
+   in der Reihenfolge ihres ersten Auftretens.
    "schlagworte" hilft der Suche, wenn die Begriffe im Text
    selbst nicht vorkommen (z. B. "AC" für Verteidigung).
    ============================================================ */
@@ -11,6 +14,7 @@ export const REGELN = [
 
   /* ---------------- Grundmechanik ---------------- */
   {
+    gruppe: 'Grundmechanik',
     titel: 'Die Grundregel',
     schlagworte: 'probe wurf grundmechanik w20 sg schwierigkeit',
     text: `W20 + Attribut + Fertigkeit ≥ Schwierigkeitsgrad.
@@ -20,6 +24,7 @@ Passt keine Fertigkeit: W20 + Attribut. Fertigkeit 0 gibt keinen Bonus, aber auc
 Gewürfelt wird nur, wenn der Ausgang ungewiss ist UND ein Misserfolg interessant wäre.`
   },
   {
+    gruppe: 'Grundmechanik',
     titel: 'Schwierigkeitsgrade',
     schlagworte: 'sg schwierigkeit zielwert dc',
     text: `10 leicht · 15 normal · 20 schwierig · 25 sehr schwierig · 30 extrem
@@ -27,6 +32,7 @@ Gewürfelt wird nur, wenn der Ausgang ungewiss ist UND ein Misserfolg interessan
 Im Zweifel: 15. Kein SG 5 — was so leicht ist, wird nicht gewürfelt.`
   },
   {
+    gruppe: 'Grundmechanik',
     titel: 'Die vier Ergebnisse',
     schlagworte: 'erfolg misserfolg preis komplikation ergebnis',
     text: `+5 über SG → Erfolg mit Bonus (schneller, leiser, eine Zusatzinformation)
@@ -39,6 +45,7 @@ Natürliche 20: Erfolg + etwas Unerwartetes. Natürliche 1: Misserfolg + Komplik
 Ein Misserfolg blockiert nie den einzigen Weg.`
   },
   {
+    gruppe: 'Grundmechanik',
     titel: 'Vorteil und Nachteil',
     schlagworte: 'vorteil nachteil 2w20 hilfe unterstützung',
     text: `Vorteil: 2W20, höheres Ergebnis zählt.
@@ -49,6 +56,7 @@ Keine Stufen. Vorteil und Nachteil heben sich immer vollständig auf.
 Hilfe: genau EIN Mitspieler kann helfen, wenn er beschreibt wie. Das gibt Vorteil. Weitere Helfer geben nichts.`
   },
   {
+    gruppe: 'Grundmechanik',
     titel: 'Passiver Wert, Gegeneinander, Gruppenproben',
     schlagworte: 'passiv vergleich gegeneinander gruppe',
     text: `Passiver Wert = 10 + Attribut + Fertigkeit (prüfen, ohne würfeln zu lassen).
@@ -62,6 +70,7 @@ Wiederholung nur, wenn sich etwas geändert hat.`
 
   /* ---------------- Attribute & Fertigkeiten ---------------- */
   {
+    gruppe: 'Attribute & Fertigkeiten',
     titel: 'Die sechs Attribute',
     schlagworte: 'attribute körper geschick verstand wahrnehmung wille ausstrahlung',
     text: `KÖRPER — Muskeln, Zähigkeit, Gift überstehen, Schläge wegstecken. Bestimmt die LP.
@@ -72,6 +81,7 @@ WILLE — Mut, Selbstbeherrschung, geistige Härte. Bestimmt die Stabilität.
 AUSSTRAHLUNG — Auftreten, Überzeugen, Lügen, Präsenz.`
   },
   {
+    gruppe: 'Attribute & Fertigkeiten',
     titel: 'Die fünfzehn Fertigkeiten',
     schlagworte: 'fertigkeiten liste athletik nahkampf fernkampf technik wissen mysterien',
     text: `Athletik · Nahkampf · Fernkampf · Heimlichkeit · Fingerfertigkeit · Technik · Handwerk · Ermittlung · Wissen · Mysterien · Heilkunde · Überzeugen · Widerstand · Überleben · Steuern
@@ -81,6 +91,7 @@ Attribut und Fertigkeit sind nicht fest verdrahtet: Schloss aufbrechen = Körper
 
   /* ---------------- Eigenschaften ---------------- */
   {
+    gruppe: 'Eigenschaften',
     titel: 'Eigenschaften & Schicksalspunkte',
     schlagworte: 'eigenschaften stärke makel talent schicksalspunkt',
     text: `2 Stärken + 1 Makel (oder 3 + 2). Ist eine Eigenschaft für die Situation wirklich relevant: Vorteil bzw. Nachteil. Sonst nichts. Keine Sonderregeln.
@@ -91,6 +102,7 @@ Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf. Höchstens drei bes
 
   /* ---------------- Gesundheit ---------------- */
   {
+    gruppe: 'Gesundheit',
     titel: 'Gesundheit und Tod',
     schlagworte: 'lp lebenspunkte angeschlagen am boden tod sterben heilung',
     text: `LP = 10 + (Körper × 2). Verteidigung = 10 + Geschick + Nahkampf.
@@ -106,6 +118,7 @@ Versorgen: Verstand + Heilkunde SG 15 → 1 LP, wach, angeschlagen.
 Erfolg mit Preis: er lebt und behält eine Narbe (neuer dauerhafter Makel).`
   },
   {
+    gruppe: 'Gesundheit',
     titel: 'Heilung',
     schlagworte: 'heilung rasten verschnaufen erholung lp',
     text: `Verschnaufen (einmal pro Szene): 1W6 + Körper LP
@@ -114,6 +127,7 @@ Eine Nacht Schlaf: halbe maximale LP
 Mehrere Tage Ruhe: vollständig geheilt`
   },
   {
+    gruppe: 'Gesundheit',
     titel: 'Umgebungsschaden',
     schlagworte: 'sturz feuer gefahr schaden fallen',
     text: `Schmerzhaft (kurzer Sturz, Schlägerei): 1W6
@@ -125,6 +139,7 @@ Ausweichen: Geschick + Athletik SG 15 halbiert den Schaden.`
 
   /* ---------------- Kampf ---------------- */
   {
+    gruppe: 'Kampf',
     titel: 'Kampf: Initiative und Bewegung',
     schlagworte: 'initiative zonen bewegung nah kurz fern',
     text: `Initiative: einmal pro Kampf W20 + Wahrnehmung. Alle Gegner würfeln gemeinsam einen Wurf.
@@ -135,6 +150,7 @@ Pro Runde eine Zone. Aktion opfern für eine zweite Zone.
 Aus dem Nahkampf lösen: der Gegner bekommt einen freien Angriff, außer du gibst deine Aktion auf.`
   },
   {
+    gruppe: 'Kampf',
     titel: 'Kampf: Die fünf Aktionen',
     schlagworte: 'aktion angreifen wehren manöver unterstützen umgebung',
     text: `ANGREIFEN — W20 + Attribut + Fertigkeit gegen Verteidigung. +5 über VT: +2 Schaden.
@@ -144,6 +160,7 @@ UNTERSTÜTZEN — beschreiben wie: der Verbündete hat Vorteil.
 UMGEBUNG NUTZEN — SL nennt Attribut, Fertigkeit, SG. Wirkt meist stärker als ein Angriff.`
   },
   {
+    gruppe: 'Kampf',
     titel: 'Waffen, Rüstung, Kritische',
     schlagworte: 'waffen schaden rüstung deckung kritisch nachladen',
     text: `Leicht 1W6 · Mittel 1W8 · Schwer 1W10
@@ -159,6 +176,7 @@ Natürliche 1: Fehlschlag + Komplikation.
 Kein Schadensbonus durch Attribute.`
   },
   {
+    gruppe: 'Kampf',
     titel: 'Gegner aus dem Kopf',
     schlagworte: 'gegner monster werte statist stark monströs',
     text: `STATIST — VT 11, Angriff +3, Schaden 1W6, geht bei jedem Treffer zu Boden
@@ -171,6 +189,7 @@ Höchstens EINE Sonderfähigkeit pro Gegner, in einem Satz.`
 
   /* ---------------- Stabilität ---------------- */
   {
+    gruppe: 'Stabilität',
     titel: 'Stabilität: Der Schockwurf',
     schlagworte: 'stabilität horror schock wahnsinn geist nerven',
     text: `Stabilität = 10 + (Wille × 2). Wurf: W20 + Wille + Widerstand.
@@ -185,6 +204,7 @@ Bei Erfolg KEIN Verlust. Erfolg mit Preis: du hältst es aus, schreist aber, ers
 Pro Schockquelle einmal, nicht pro Anblick.`
   },
   {
+    gruppe: 'Stabilität',
     titel: 'Stabilität: Erschüttert und Gebrochen',
     schlagworte: 'erschüttert gebrochen tick narbe seele',
     text: `ERSCHÜTTERT (halbe Stabilität oder weniger): Nachteil auf alle Proben mit Wille oder Wahrnehmung, dazu ein Tick, den der Spieler ausspielt.
@@ -193,6 +213,7 @@ GEBROCHEN (0): Der SPIELER wählt selbst, wie sein Charakter bricht — fliehen,
 Dauert bis Szenenende. Danach 1W6 Stabilität und eine neue "Narbe der Seele" (dauerhafter Makel, vom Spieler formuliert).`
   },
   {
+    gruppe: 'Stabilität',
     titel: 'Stabilität: Erholung',
     schlagworte: 'stabilität erholung anker regeneration',
     text: `Ruhige Nacht an sicherem Ort: 2
@@ -202,6 +223,7 @@ Jemand redet mit dir (Ausstrahlung + Überzeugen SG 15): 1W6, einmal pro Person 
 Abgeschlossenes Abenteuer: 1W6, bei echtem Sieg 2W6`
   },
   {
+    gruppe: 'Stabilität',
     titel: 'Mysterien und verbotenes Wissen',
     schlagworte: 'mysterien okkult verbotenes wissen ritual magie',
     text: `Mysterien 1 oder höher: bei einem misslungenen Schockwurf +1 Stabilitätsverlust. Dafür erkennt man mit Verstand + Mysterien, WAS es ist und wo die Schwachstelle liegt.
@@ -213,6 +235,7 @@ Rituale: Wille + Mysterien, SG 15/20/25. Brauchen Zeit, einen Ort und einen Prei
 
   /* ---------------- Technik ---------------- */
   {
+    gruppe: 'Technik',
     titel: 'Maschinen und Erfindungen',
     schlagworte: 'maschine technik erfindung bauen dampf steampunk',
     text: `Bedienen: Geschick oder Verstand + Steuern
@@ -226,6 +249,7 @@ Drei Grenzen: Material, Zeit, und es tut nur eine Sache.
 Bei natürlicher 1 an einer Maschine geht die Maschine kaputt.`
   },
   {
+    gruppe: 'Technik',
     titel: 'Ausrüstung',
     schlagworte: 'ausrüstung traglast geld munition verbrauch',
     text: `Sechs Dinge am Körper. Schwere Rüstung zählt als zwei. Alltägliches wird nicht aufgeschrieben.
@@ -239,6 +263,7 @@ Geld: arm — auskömmlich — wohlhabend. Keine Preisliste.`
 
   /* ---------------- Fortschritt ---------------- */
   {
+    gruppe: 'Fortschritt',
     titel: 'Fortschritt',
     schlagworte: 'fortschritt fp erfahrung steigern level aufstieg',
     text: `1 FP pro Sitzung, 2 bei einem Abschluss.
@@ -255,6 +280,7 @@ Makel verschwinden, wenn sie im Spiel überwunden werden — nicht durch Bezahle
 
   /* ---------------- Spielleitung ---------------- */
   {
+    gruppe: 'Spielleitung',
     titel: 'SG in zwei Sekunden setzen',
     schlagworte: 'spielleiter improvisation sg setzen',
     text: `Wäre das für einen fähigen Menschen mit Übung machbar?
@@ -263,6 +289,7 @@ Ja, locker → 10 · Ja, mit Konzentration → 15 · Nur wenn er richtig gut ist
 Im Zweifel 15.`
   },
   {
+    gruppe: 'Spielleitung',
     titel: 'Hinweise legen',
     schlagworte: 'hinweis ermittlung drei fährte fall',
     text: `Für jede wichtige Erkenntnis drei Hinweise, an drei Orten, über drei Fertigkeiten. Dann darf jeder Wurf danebengehen.
@@ -272,6 +299,7 @@ Falsche Fährten müssen zu etwas Echtem führen — nur nicht zur Lösung. Fäh
 Nichts bleibt zweimal bedeutungslos: Kommt ein Spieler auf ein Detail zurück, gib ihm etwas.`
   },
   {
+    gruppe: 'Spielleitung',
     titel: 'Rückwärts begründen',
     schlagworte: 'improvisation rückwärts begründen wahrheitsnotiz',
     text: `1. Ein Detail entsteht (gewürfelt, erfragt, eingefallen).
@@ -281,6 +309,7 @@ Nichts bleibt zweimal bedeutungslos: Kommt ein Spieler auf ein Detail zurück, g
 Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.`
   },
   {
+    gruppe: 'Spielleitung',
     titel: 'Festlegungsregel',
     schlagworte: 'festlegen kanon entscheidung improvisation',
     text: `Sobald ein Spieler eine Frage stellt, deren Antwort seine nächste Entscheidung beeinflusst, legst du dich fest — und bleibst dabei. Aufschreiben.
@@ -288,6 +317,7 @@ Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.`
 Vorher darf alles Nebel sein. Nachher ist es Kanon.`
   },
   {
+    gruppe: 'Spielleitung',
     titel: 'Wenn die Gruppe feststeckt',
     schlagworte: 'feststecken hilfe sackgasse notfall',
     text: `1. Uhr füllen — etwas passiert und bringt neue Information mit.
