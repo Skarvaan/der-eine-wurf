@@ -520,21 +520,12 @@ function zeichneSpielbogen(behaelter) {
       <div class="karte">
         <div class="karte-kopf">
           <h2>Fertigkeiten</h2>
-          <span class="hinweis">${wuerfelt
-            ? 'Antippen: das passende Attribut wählen, dann wird gewürfelt.'
-            : 'Attribut wählen — die Zahl daneben ist dein Bonus für den echten Würfel.'}</span>
+          <span class="hinweis">Nur der Wert — welches Attribut dazukommt, entscheidet ihr am Tisch je nach Situation. Zusammenrechnen ist Sache des echten Wurfs.</span>
         </div>
-        ${Object.entries(FERTIGKEITEN).map(([k, bez]) => `
-          <div class="stufen-zeile">
-            <span class="bez">${bez}</span>
-            <span class="stand">${c.fertigkeiten[k]}</span>
-            <select data-attributwahl="${k}" class="attribut-wahl">
-              ${Object.entries(ATTRIBUTE).map(([ak, ab]) => `<option value="${ak}">${ab}</option>`).join('')}
-            </select>
-            ${wuerfelt
-              ? `<button type="button" class="knopf-klein knopf-wuerfeln-zeile" data-wurf="fertigkeit:${k}">🎲 Würfeln</button>`
-              : `<span class="bonus-anzeige" data-bonus-fuer="${k}">+${c.attribute.koerper + c.fertigkeiten[k]}</span>`}
-          </div>`).join('')}
+        <div class="werte-gitter">
+          ${Object.entries(FERTIGKEITEN).map(([k, bez]) => `
+            <div class="wert-kachel"><span>${bez}</span><b>${c.fertigkeiten[k]}</b></div>`).join('')}
+        </div>
       </div>
 
       <div class="karte">
@@ -576,7 +567,6 @@ function zeichneSpielbogen(behaelter) {
   bindeFelder(behaelter);
   bindeZaehler(behaelter);
   bindeWuerfe(behaelter);
-  bindeBonusAnzeige(behaelter);
   bindeNotizbuch(behaelter);
   bindeSteigerung(behaelter, darfSteigern);
 
@@ -604,24 +594,6 @@ function bindeNotizbuch(behaelter) {
   feld.addEventListener('input', () => {
     notizenText = feld.value;
     notizenGeaendert();
-  });
-}
-
-/**
- * Ohne In-App-Würfeln zeigt jede Fertigkeitszeile statt eines
- * Würfeln-Knopfs den fertigen Bonus (Attribut + Fertigkeit) —
- * praktisch, wenn am Tisch mit echten Würfeln gespielt wird.
- * Ändert sich die Attributwahl, wird der Bonus sofort nachgeführt.
- */
-function bindeBonusAnzeige(behaelter) {
-  behaelter.querySelectorAll('[data-attributwahl]').forEach(auswahl => {
-    const schluessel = auswahl.dataset.attributwahl;
-    const anzeige = behaelter.querySelector(`[data-bonus-fuer="${schluessel}"]`);
-    if (!anzeige) return;   // Würfeln ist aktiv — es gibt keine Anzeige zu pflegen
-    auswahl.addEventListener('change', () => {
-      const bonus = (meiner.attribute[auswahl.value] || 0) + (meiner.fertigkeiten[schluessel] || 0);
-      anzeige.textContent = (bonus >= 0 ? '+' : '') + bonus;
-    });
   });
 }
 
@@ -767,21 +739,16 @@ function bindeZaehler(behaelter) {
   });
 }
 
+/* Nur Attribute lassen sich per Antippen würfeln — eindeutig,
+   weil ein Attribut allein steht. Bei Fertigkeiten wäre das
+   Attribut dazu situationsabhängig (siehe Regeln), ein fest
+   verdrahteter Würfeln-Knopf würde also eher verwirren als
+   helfen. Der Bogen bietet hier bewusst nur Orientierung. */
 function bindeWuerfe(behaelter) {
   behaelter.querySelectorAll('[data-wurf]').forEach(el => {
     el.addEventListener('click', () => {
-      const [art, schluessel] = el.dataset.wurf.split(':');
-
-      if (art === 'attribut') {
-        wuerfelnMit(meiner.attribute[schluessel], ATTRIBUTE[schluessel]);
-        return;
-      }
-
-      // Fertigkeit: das gewählte Attribut aus dem Auswahlfeld daneben
-      const wahl = behaelter.querySelector(`[data-attributwahl="${schluessel}"]`);
-      const attributSchluessel = wahl ? wahl.value : 'verstand';
-      const bonus = (meiner.attribute[attributSchluessel] || 0) + (meiner.fertigkeiten[schluessel] || 0);
-      wuerfelnMit(bonus, `${ATTRIBUTE[attributSchluessel]} + ${FERTIGKEITEN[schluessel]}`);
+      const [, schluessel] = el.dataset.wurf.split(':');
+      wuerfelnMit(meiner.attribute[schluessel], ATTRIBUTE[schluessel]);
     });
   });
 }

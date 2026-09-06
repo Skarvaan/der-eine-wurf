@@ -81,91 +81,155 @@
   <p class="formel-fuss">Das ist das ganze System. Alles andere beantwortet nur: welches Attribut, welche Fertigkeit, welcher Schwierigkeitsgrad.</p>
 
   <!-- --- Attribute --- -->
-  <h3 class="unter">Sechs Attribute</h3>
-  <p>Werte von 1 bis 5 zu Beginn. 3 ist ein durchschnittlicher Mensch.</p>
-  <div class="attribut-gitter">
-    <div><b>Körper</b><span>Muskeln, Zähigkeit, Kondition. Türen eintreten, Gift überstehen, einen Schlag wegstecken.</span></div>
-    <div><b>Geschick</b><span>Feinmotorik, Reflexe, Balance. Schlösser, Zielen, Ausweichen, lautlos gehen.</span></div>
-    <div><b>Verstand</b><span>Wissen, Logik, Planung. Maschinen verstehen, Zusammenhänge schließen, eine Chiffre knacken.</span></div>
-    <div><b>Wahrnehmung</b><span>Sinne, Instinkt, Menschenkenntnis. Etwas Verstecktes bemerken, eine Lüge im Gesicht lesen.</span></div>
-    <div><b>Wille</b><span>Mut, Selbstbeherrschung, geistige Härte. Panik unterdrücken, einem Verhör standhalten.</span></div>
-    <div><b>Ausstrahlung</b><span>Auftreten, Überzeugen, Präsenz. Verhandeln, bluffen, befehlen, eine Menge aufwiegeln.</span></div>
+  <div class="karte">
+    <div class="karte-kopf">
+      <h2>Sechs Attribute</h2>
+      <span class="hinweis">Werte von 1 bis 5 zu Beginn. 3 ist ein durchschnittlicher Mensch.</span>
+    </div>
+    <div class="bogen-gitter gitter-drei">
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/><line x1="6" y1="12" x2="18" y2="12"/>
+        </svg></div>
+        <div class="attribut-schild-text"><h3>Körper</h3><p>Muskeln, Zähigkeit, Kondition. Türen eintreten, Gift überstehen, einen Schlag wegstecken.</p></div>
+      </div>
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="attribut-schild-text"><h3>Geschick</h3><p>Feinmotorik, Reflexe, Balance. Schlösser, Zielen, Ausweichen, lautlos gehen.</p></div>
+      </div>
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="6"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(60 12 12)"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(120 12 12)"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(180 12 12)"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(240 12 12)"/>
+          <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(300 12 12)"/>
+        </svg></div>
+        <div class="attribut-schild-text"><h3>Verstand</h3><p>Wissen, Logik, Planung. Maschinen verstehen, Zusammenhänge schließen, eine Chiffre knacken.</p></div>
+      </div>
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <ellipse cx="12" cy="12" rx="9" ry="5.5"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+        </svg></div>
+        <div class="attribut-schild-text"><h3>Wahrnehmung</h3><p>Sinne, Instinkt, Menschenkenntnis. Etwas Verstecktes bemerken, eine Lüge im Gesicht lesen.</p></div>
+      </div>
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+          <path d="M12 2L20 5V11C20 16 16.5 20 12 22C7.5 20 4 16 4 11V5Z"/>
+        </svg></div>
+        <div class="attribut-schild-text"><h3>Wille</h3><p>Mut, Selbstbeherrschung, geistige Härte. Panik unterdrücken, einem Verhör standhalten.</p></div>
+      </div>
+      <div class="attribut-schild">
+        <div class="wappen"><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,3 14.12,9.09 20.56,9.22 15.42,13.11 17.29,19.28 12,15.6 6.71,19.28 8.58,13.11 3.44,9.22 9.88,9.09"/></svg></div>
+        <div class="attribut-schild-text"><h3>Ausstrahlung</h3><p>Auftreten, Überzeugen, Präsenz. Verhandeln, bluffen, befehlen, eine Menge aufwiegeln.</p></div>
+      </div>
+    </div>
   </div>
 
   <!-- --- Fertigkeiten --- -->
-  <h3 class="unter">Fünfzehn Fertigkeiten</h3>
-  <p>Werte von 0 bis 3 zu Beginn. <b>Eine Fertigkeit auf 0 gibt keinen Bonus, aber auch keinen Abzug</b> — jeder darf alles versuchen.</p>
-  <p class="marken">
-    <span>Athletik</span><span>Nahkampf</span><span>Fernkampf</span><span>Heimlichkeit</span><span>Fingerfertigkeit</span><span>Technik</span><span>Handwerk</span><span>Ermittlung</span><span>Wissen</span><span>Mysterien</span><span>Heilkunde</span><span>Überzeugen</span><span>Widerstand</span><span>Überleben</span><span>Steuern</span>
-  </p>
-  <p class="leise">Attribut und Fertigkeit sind nicht fest verdrahtet. Ein Schloss <i>aufbrechen</i> ist Körper + Athletik, <i>knacken</i> ist Geschick + Fingerfertigkeit, <i>verstehen</i> ist Verstand + Technik. Der Spielleiter entscheidet, was zu deiner Beschreibung passt.</p>
+  <div class="karte">
+    <div class="karte-kopf">
+      <h2>Fünfzehn Fertigkeiten</h2>
+      <span class="hinweis">Werte von 0 bis 3 zu Beginn. <b>Eine Fertigkeit auf 0 gibt keinen Bonus, aber auch keinen Abzug</b> — jeder darf alles versuchen.</span>
+    </div>
+    <p class="marken">
+      <span>Athletik</span><span>Nahkampf</span><span>Fernkampf</span><span>Heimlichkeit</span><span>Fingerfertigkeit</span><span>Technik</span><span>Handwerk</span><span>Ermittlung</span><span>Wissen</span><span>Mysterien</span><span>Heilkunde</span><span>Überzeugen</span><span>Widerstand</span><span>Überleben</span><span>Steuern</span>
+    </p>
+    <p class="hinweis-schild">Attribut und Fertigkeit sind nicht fest verdrahtet. Ein Schloss <i>aufbrechen</i> ist Körper + Athletik, <i>knacken</i> ist Geschick + Fingerfertigkeit, <i>verstehen</i> ist Verstand + Technik. Der Spielleiter entscheidet, was zu deiner Beschreibung passt.</p>
+  </div>
 
   <!-- --- Schwierigkeit --- -->
-  <h3 class="unter">Schwierigkeitsgrade</h3>
-  <div class="sg-leiste">
-    <div><b>10</b><span>leicht</span></div>
-    <div><b>15</b><span>normal</span></div>
-    <div><b>20</b><span>schwierig</span></div>
-    <div><b>25</b><span>sehr schwierig</span></div>
-    <div><b>30</b><span>extrem</span></div>
+  <div class="karte">
+    <div class="karte-kopf"><h2>Schwierigkeitsgrade</h2></div>
+    <div class="sg-leiste">
+      <div><b>10</b><span>leicht</span></div>
+      <div><b>15</b><span>normal</span></div>
+      <div><b>20</b><span>schwierig</span></div>
+      <div><b>25</b><span>sehr schwierig</span></div>
+      <div><b>30</b><span>extrem</span></div>
+    </div>
+    <p class="hinweis-schild">Der Spielleiter muss sich genau eine Zahl merken: <b>15</b>.</p>
   </div>
-  <p class="leise">Der Spielleiter muss sich genau eine Zahl merken: 15.</p>
 
   <!-- --- Ergebnisse --- -->
-  <h3 class="unter">Vier Ergebnisse, nicht zwei</h3>
-  <div class="ergebnis-leiter">
-    <div class="stufe gut"><b>5 oder mehr über dem SG</b><span>Erfolg und ein Bonus — schneller, leiser, eine zusätzliche Information.</span></div>
-    <div class="stufe gut"><b>SG erreicht</b><span>Erfolg.</span></div>
-    <div class="stufe mittel"><b>1 bis 4 darunter</b><span><b>Erfolg mit Preis.</b> Es klappt — aber es kostet Zeit, Lärm, Material, eine Verletzung, oder es bleibt eine Spur zurück. Du darfst ablehnen.</span></div>
-    <div class="stufe schlecht"><b>5 oder mehr darunter</b><span>Misserfolg mit Komplikation. Die Lage wird schlechter.</span></div>
+  <div class="karte">
+    <div class="karte-kopf"><h2>Vier Ergebnisse, nicht zwei</h2></div>
+    <div class="ergebnis-leiter">
+      <div class="stufe gut"><b>5 oder mehr über dem SG</b><span>Erfolg und ein Bonus — schneller, leiser, eine zusätzliche Information.</span></div>
+      <div class="stufe gut"><b>SG erreicht</b><span>Erfolg.</span></div>
+      <div class="stufe mittel"><b>1 bis 4 darunter</b><span><b>Erfolg mit Preis.</b> Es klappt — aber es kostet Zeit, Lärm, Material, eine Verletzung, oder es bleibt eine Spur zurück. Du darfst ablehnen.</span></div>
+      <div class="stufe schlecht"><b>5 oder mehr darunter</b><span>Misserfolg mit Komplikation. Die Lage wird schlechter.</span></div>
+    </div>
+    <p class="hinweis-schild">„Erfolg mit Preis“ ist das Herzstück. Ein Misserfolg blockiert nie den einzigen Weg — er kostet etwas oder öffnet einen anderen.</p>
   </div>
-  <p class="leise">„Erfolg mit Preis“ ist das Herzstück. Ein Misserfolg blockiert nie den einzigen Weg — er kostet etwas oder öffnet einen anderen.</p>
 
   <!-- --- Vorteil --- -->
-  <h3 class="unter">Vorteil und Nachteil</h3>
-  <div class="zwei-spalten">
-    <div class="info-karte">
-      <h3>Vorteil</h3>
-      <p>Zwei W20, das <b>höhere</b> zählt. Gibt es für: passende Eigenschaft, gutes Werkzeug, Vorbereitung, Überraschung, Hilfe eines Mitspielers.</p>
+  <div class="karte">
+    <div class="karte-kopf"><h2>Vorteil und Nachteil</h2></div>
+    <div class="zwei-spalten">
+      <div class="info-karte">
+        <h3>▲ Vorteil</h3>
+        <p>Zwei W20, das <b>höhere</b> zählt. Gibt es für: passende Eigenschaft, gutes Werkzeug, Vorbereitung, Überraschung, Hilfe eines Mitspielers.</p>
+      </div>
+      <div class="info-karte">
+        <h3>▼ Nachteil</h3>
+        <p>Zwei W20, das <b>niedrigere</b> zählt. Gibt es für: hinderliche Eigenschaft, Dunkelheit, Zeitdruck, Verletzung, falsches Werkzeug.</p>
+      </div>
     </div>
-    <div class="info-karte">
-      <h3>Nachteil</h3>
-      <p>Zwei W20, das <b>niedrigere</b> zählt. Gibt es für: hinderliche Eigenschaft, Dunkelheit, Zeitdruck, Verletzung, falsches Werkzeug.</p>
-    </div>
+    <p class="hinweis-schild">Keine Stufen, kein Aufrechnen. Liegt beides vor, würfelst du ganz normal einen W20.</p>
   </div>
-  <p class="leise">Keine Stufen, kein Aufrechnen. Liegt beides vor, würfelst du ganz normal einen W20.</p>
 
   <!-- --- Gesundheit --- -->
-  <h3 class="unter">Gesundheit</h3>
-  <p>Lebenspunkte = <b>10 + (Körper × 2)</b>.</p>
-  <div class="zustand-leiter">
-    <div><b>Unversehrt</b><span>über der Hälfte</span></div>
-    <div class="warn"><b>Angeschlagen</b><span>auf der Hälfte oder darunter — Nachteil auf alles mit Körper oder Geschick</span></div>
-    <div class="gefahr"><b>Am Boden</b><span>0 LP — du liegst und kannst nicht handeln</span></div>
+  <div class="karte">
+    <div class="karte-kopf">
+      <h2>Gesundheit</h2>
+      <span class="hinweis">Lebenspunkte = <b>10 + (Körper × 2)</b>.</span>
+    </div>
+    <div class="zustand-leiter">
+      <div><b>Unversehrt</b><span>über der Hälfte</span></div>
+      <div class="warn"><b>Angeschlagen</b><span>auf der Hälfte oder darunter — Nachteil auf alles mit Körper oder Geschick</span></div>
+      <div class="gefahr"><b>Am Boden</b><span>0 LP — du liegst und kannst nicht handeln</span></div>
+    </div>
+    <p class="warnschild kritisch">Es gibt <b>keine Rettungswürfe</b>. Wer am Boden liegt und erneut Schaden nimmt, ist tot. Wer am Boden liegt und bis zum Ende der Szene niemanden hat, der ihn versorgt, ist tot.</p>
+    <p class="hinweis-schild">Sterben ist damit eine Frage der Geschichte, nicht des Würfelglücks. Bleiben deine Kameraden, lebst du wahrscheinlich.</p>
   </div>
-  <p>Es gibt <b>keine Rettungswürfe</b>. Wer am Boden liegt und erneut Schaden nimmt, ist tot. Wer am Boden liegt und bis zum Ende der Szene niemanden hat, der ihn versorgt, ist tot.</p>
-  <p class="leise">Sterben ist damit eine Frage der Geschichte, nicht des Würfelglücks. Bleiben deine Kameraden, lebst du wahrscheinlich.</p>
 
   <!-- --- Stabilität --- -->
-  <h3 class="unter">Stabilität</h3>
-  <p>Für Kampagnen mit Horror: Stabilität = <b>10 + (Wille × 2)</b>. Wenn du etwas siehst, das nicht sein kann, würfelst du Wille + Widerstand. Bei Erfolg passiert nichts. Bei Misserfolg verlierst du Fassung.</p>
-  <p><b>Und das ist der Punkt, der uns wichtig ist:</b> Wenn deine Stabilität auf null fällt, entscheidest <i>du</i>, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Der Spielleiter sagt nur, <i>dass</i> es passiert. Niemand nimmt dir deine Figur weg. Zurück bleibt eine Narbe, die du selbst formulierst.</p>
+  <div class="karte">
+    <div class="karte-kopf">
+      <h2>Stabilität</h2>
+      <span class="hinweis">Für Kampagnen mit Horror: Stabilität = <b>10 + (Wille × 2)</b>.</span>
+    </div>
+    <p>Wenn du etwas siehst, das nicht sein kann, würfelst du Wille + Widerstand. Bei Erfolg passiert nichts. Bei Misserfolg verlierst du Fassung.</p>
+    <p class="warnschild"><b>Und das ist der Punkt, der uns wichtig ist:</b> Wenn deine Stabilität auf null fällt, entscheidest <i>du</i>, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Der Spielleiter sagt nur, <i>dass</i> es passiert. Niemand nimmt dir deine Figur weg. Zurück bleibt eine Narbe, die du selbst formulierst.</p>
+  </div>
 
   <!-- --- Charakter --- -->
-  <h3 class="unter">Dein Charakter in fünf Schritten</h3>
-  <ol class="schritte">
-    <li><b>Attribute</b> — alle starten auf 2, du verteilst 7 Punkte. Maximum 5.</li>
-    <li><b>Fertigkeiten</b> — alle starten auf 0, du verteilst 10 Punkte. Maximum 3.</li>
-    <li><b>Eigenschaften</b> — zwei Stärken, ein Makel. <i>Veteran des Kolonialkriegs. Ruhige Hände. Höhenangst.</i> Relevant heißt Vorteil oder Nachteil, sonst passiert nichts.</li>
-    <li><b>Hintergrund</b> — ein Satz, wer du bist. Dazu ein <b>Anker</b> (was dir wirklich etwas bedeutet) und ein <b>Riss</b> (was in deinem Leben nicht in Ordnung ist).</li>
-    <li><b>Ausrüstung</b> — eine Waffe, Werkzeug deines Berufs, drei besondere Gegenstände. Alltagskram wird nicht aufgeschrieben.</li>
-  </ol>
-  <p class="leise">Dauert eine Viertelstunde. Der Charakterbaukasten im Spielbereich rechnet alles mit.</p>
+  <div class="karte">
+    <div class="karte-kopf"><h2>Dein Charakter in fünf Schritten</h2></div>
+    <div class="schritt-kette">
+      <div class="schritt-glied"><span class="schritt-nr">1</span>
+        <div class="schritt-text"><h3>Attribute</h3><p>Alle starten auf 2, du verteilst 7 Punkte. Maximum 5.</p></div></div>
+      <div class="schritt-glied"><span class="schritt-nr">2</span>
+        <div class="schritt-text"><h3>Fertigkeiten</h3><p>Alle starten auf 0, du verteilst 10 Punkte. Maximum 3.</p></div></div>
+      <div class="schritt-glied"><span class="schritt-nr">3</span>
+        <div class="schritt-text"><h3>Eigenschaften</h3><p>Zwei Stärken, ein Makel. <i>Veteran des Kolonialkriegs. Ruhige Hände. Höhenangst.</i> Relevant heißt Vorteil oder Nachteil, sonst passiert nichts.</p></div></div>
+      <div class="schritt-glied"><span class="schritt-nr">4</span>
+        <div class="schritt-text"><h3>Hintergrund</h3><p>Ein Satz, wer du bist. Dazu ein <b>Anker</b> (was dir wirklich etwas bedeutet) und ein <b>Riss</b> (was in deinem Leben nicht in Ordnung ist).</p></div></div>
+      <div class="schritt-glied"><span class="schritt-nr">5</span>
+        <div class="schritt-text"><h3>Ausrüstung</h3><p>Eine Waffe, Werkzeug deines Berufs, drei besondere Gegenstände. Alltagskram wird nicht aufgeschrieben.</p></div></div>
+    </div>
+    <p class="hinweis-schild">Dauert eine Viertelstunde. Der Charakterbaukasten im Spielbereich rechnet alles mit.</p>
+  </div>
 
   <!-- --- Schicksalspunkte --- -->
-  <h3 class="unter">Schicksalspunkte</h3>
-  <p>Wenn dein <b>Makel</b> dir einen Nachteil einbringt, bekommst du einen Schicksalspunkt. Einen Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf.</p>
-  <p class="leise">Deshalb lohnt es sich, seine Schwächen selbst ins Spiel zu bringen, statt sie zu verstecken.</p>
+  <div class="karte">
+    <div class="karte-kopf"><h2>Schicksalspunkte</h2></div>
+    <p>Wenn dein <b>Makel</b> dir einen Nachteil einbringt, bekommst du einen Schicksalspunkt. Einen Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf.</p>
+    <p class="hinweis-schild">Deshalb lohnt es sich, seine Schwächen selbst ins Spiel zu bringen, statt sie zu verstecken.</p>
+  </div>
 </section>
 
 <!-- ==========================================================

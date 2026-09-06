@@ -193,15 +193,6 @@ h3.unter {
 .info-karte h3 { margin: 0 0 6px; font-size: 16px; color: var(--messing-hell); font-family: var(--schrift-kopf); }
 .info-karte p  { margin: 0; font-size: 15px; }
 
-/* Attribute */
-.attribut-gitter { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.attribut-gitter > div {
-  padding: 12px 14px; border-left: 3px solid var(--messing);
-  background: var(--flaeche); border-radius: 0 8px 8px 0;
-}
-.attribut-gitter b { display: block; margin-bottom: 2px; }
-.attribut-gitter span { font-size: 14px; color: var(--text-leise); }
-
 /* Fertigkeits-Marken */
 .marken { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
 .marken span {
@@ -215,17 +206,56 @@ h3.unter {
 .sg-leiste { display: grid; gap: 6px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
 .sg-leiste > div {
   padding: 12px 8px; text-align: center;
-  border: 1px solid var(--linie); border-radius: 8px; background: var(--flaeche);
+  border: 1px solid var(--linie); border-top: 2px solid var(--messing);
+  border-radius: 8px; background: var(--bg);
 }
-.sg-leiste b { display: block; font-size: 24px; color: var(--messing); }
+.sg-leiste b { display: block; font-size: 24px; color: var(--messing); font-family: var(--schrift-kopf); }
 .sg-leiste span { font-size: 13px; color: var(--text-leise); }
+
+/* --- Wappen: rundes Messing-Emblem für die sechs Attribute auf
+   der öffentlichen Regelseite. Reine CSS/SVG-Grafik, kein Bild. --- */
+.attribut-schild {
+  display: flex; gap: 14px; align-items: center;
+}
+.wappen {
+  flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, var(--flaeche-hoch), var(--bg) 75%);
+  box-shadow: 0 0 0 2px var(--linie), 0 0 0 4px rgba(201,143,42,0.25), 0 2px 6px rgba(0,0,0,0.4);
+  color: var(--messing-hell);
+}
+.wappen svg { width: 26px; height: 26px; }
+.attribut-schild-text h3 { margin: 0 0 4px; font-size: 16px; color: var(--messing-hell); font-family: var(--schrift-kopf); }
+.attribut-schild-text p  { margin: 0; font-size: 14px; color: var(--text-leise); }
+
+/* --- Schritt-Kette: nummerierte Zeitachse (z. B. Charaktererstellung
+   in fünf Schritten) statt einer trockenen Aufzählung. --- */
+.schritt-kette { display: flex; flex-direction: column; }
+.schritt-glied { display: flex; gap: 16px; padding-bottom: 22px; position: relative; }
+.schritt-glied:last-child { padding-bottom: 0; }
+.schritt-glied::before {
+  /* die Verbindungslinie zum nächsten Glied */
+  content: ""; position: absolute; left: 19px; top: 40px; bottom: 0;
+  width: 2px; background: var(--linie);
+}
+.schritt-glied:last-child::before { display: none; }
+.schritt-nr {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; z-index: 1;
+  background: linear-gradient(180deg, var(--messing-hell), var(--messing));
+  color: #17130c; font-family: var(--schrift-kopf); font-weight: 700; font-size: 17px;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.schritt-text { padding-top: 6px; }
+.schritt-text h3 { margin: 0 0 4px; font-size: 17px; font-family: var(--schrift-kopf); }
+.schritt-text p { margin: 0; font-size: 15px; color: var(--text-leise); }
 
 /* Ergebnisleiter */
 .ergebnis-leiter { display: grid; gap: 8px; }
 .stufe {
   padding: 12px 14px;
   border-left: 4px solid var(--linie);
-  background: var(--flaeche); border-radius: 0 8px 8px 0;
+  background: var(--bg); border-radius: 0 8px 8px 0;
 }
 .stufe b { display: block; font-size: 15px; margin-bottom: 3px; }
 .stufe span { font-size: 15px; color: var(--text-leise); }
@@ -237,16 +267,12 @@ h3.unter {
 .zustand-leiter { display: grid; gap: 6px; margin: 12px 0; }
 .zustand-leiter > div {
   display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
-  padding: 10px 14px; border-radius: 8px; background: var(--flaeche);
+  padding: 10px 14px; border-radius: 8px; background: var(--bg);
   border-left: 4px solid var(--gruen);
 }
 .zustand-leiter .warn   { border-left-color: var(--messing); }
 .zustand-leiter .gefahr { border-left-color: var(--rost); }
 .zustand-leiter span { font-size: 14px; color: var(--text-leise); }
-
-/* Schritte */
-.schritte { padding-left: 22px; }
-.schritte li { margin-bottom: 10px; }
 
 /* Beispielszene */
 .szene {
@@ -529,14 +555,6 @@ h3.unter {
 }
 .stufen-zeile button:disabled { opacity: 0.25; }
 .stufen-zeile .kosten { font-size: 12px; color: var(--messing); min-width: 44px; text-align: right; }
-.stufen-zeile .attribut-wahl { width: auto; min-width: 128px; flex: 0 1 140px; min-height: 38px; padding: 4px 6px; font-size: 14px; }
-.stufen-zeile .bonus-anzeige {
-  min-width: 48px; text-align: center; padding: 4px 8px;
-  border: 1px solid var(--linie); border-radius: 20px;
-  font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums;
-  color: var(--messing-hell); background: rgba(201,143,42,0.08);
-}
-.stufen-zeile .knopf-wuerfeln-zeile { min-height: 34px; }
 
 /* --- Zähler (LP, Stabilität, Schicksal) --- */
 .zaehler { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
