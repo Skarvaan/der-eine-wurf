@@ -13,8 +13,8 @@
    Der Spielleiter sieht alle — das steckt aber in sl.js.
    ============================================================ */
 
-import { Charaktere } from './speicher.js';
-import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, nutzerTippt,
+import { Charaktere, Notizbuch } from './speicher.js';
+import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, wuerfelnAktiv, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, verwirfAenderung, alleSpeichern } from './app.js';
 
 /* ------------------------------------------------------------
@@ -57,6 +57,28 @@ const maxStab = (c) => 10 + (c.attribute.wille || 0) * 2 + (c.bonusStab || 0);
 const vert    = (c) => 10 + (c.attribute.geschick || 0) + (c.fertigkeiten.nahkampf || 0);
 
 /* ------------------------------------------------------------
+   Das Messgerät — ein rundes Druckmessgerät statt trockener
+   Zahl für Lebenspunkte, Stabilität und Schicksal. Der
+   Füllstand kommt über einen Kegelverlauf in CSS, siehe
+   ".messgeraet" in stil.css.
+   ------------------------------------------------------------ */
+function gaugeKlasse(wert, max) {
+  if (wert <= 0) return 'gefahr';
+  if (wert <= Math.floor(max / 2)) return 'warnung';
+  return 'ok';
+}
+function gaugePct(wert, max) {
+  return Math.max(0, Math.min(100, Math.round((wert / max) * 100)));
+}
+function messgeraet(wert, max, mitKlasse = true) {
+  const klasse = mitKlasse ? gaugeKlasse(wert, max) : '';
+  return `
+    <div class="messgeraet ${klasse}" style="--pct:${gaugePct(wert, max)}%">
+      <div class="zeiger-zahl">${wert}<small>/ ${max}</small></div>
+    </div>`;
+}
+
+/* ------------------------------------------------------------
    Zustand dieses Moduls
    ------------------------------------------------------------ */
 
@@ -64,6 +86,13 @@ let gid = null;
 let meiner = null;         // mein Charakter oder null
 let aboBeenden = null;
 let zeichnenAusstehend = false;
+
+/* Das Notizbuch lebt bewusst NICHT im Charakterdokument (das
+   dürfen alle in der Runde lesen), sondern in einer eigenen,
+   wirklich geschützten Sammlung — siehe Notizbuch in speicher.js
+   und firestore.rules. Deshalb eigener Entwurfszustand hier. */
+let notizenText = '';
+let notizenAboBeenden = null;
 
 /**
  * Zeichnet nur, wenn der Nutzer gerade NICHT tippt.
@@ -77,7 +106,9 @@ function zeichnenSicher() {
   // Nicht neu zeichnen, solange getippt wird ODER es
   // ungespeicherte Änderungen gibt — sonst würde der Stand aus
   // der Datenbank die Arbeit des Nutzers überschreiben.
-  if (nutzerTippt() || hatOffeneAenderungen('charakter')) {
+  // Das Notizbuch zählt mit — es hat einen eigenen Puffer
+  // ('notizen'), sitzt aber in derselben Ansicht.
+  if (nutzerTippt() || hatOffeneAenderungen('charakter') || hatOffeneAenderungen('notizen')) {
     zeichnenAusstehend = true;
     return;
   }
@@ -108,20 +139,31 @@ async function speichernAlles() {
 function aktualisiereSpeicherhinweis() {
   const el = document.querySelector('#charakter-bereich .stand-text');
   if (!el) return;
-  const offen = hatOffeneAenderungen('charakter');
+  const offen = hatOffeneAenderungen('charakter') || hatOffeneAenderungen('notizen');
   el.textContent = offen ? 'Ungespeicherte Änderungen' : 'Alles gespeichert';
   el.classList.toggle('offen', offen);
 }
 
 /** Der Kopf mit dem Speichern-Knopf, in beiden Ansichten gleich */
 function speichernKopf() {
+  const offen = hatOffeneAenderungen('charakter') || hatOffeneAenderungen('notizen');
   return `
     <div class="speichern-oben">
       <button type="button" class="knopf knopf-haupt" id="btn-char-speichern">Speichern</button>
-      <span class="stand-text ${hatOffeneAenderungen('charakter') ? 'offen' : ''}">
-        ${hatOffeneAenderungen('charakter') ? 'Ungespeicherte Änderungen' : 'Alles gespeichert'}
+      <span class="stand-text ${offen ? 'offen' : ''}">
+        ${offen ? 'Ungespeicherte Änderungen' : 'Alles gespeichert'}
       </span>
     </div>`;
+}
+
+/** Meldet dem Änderungspuffer, dass das Notizbuch geändert
+    wurde — eigener Eimer ('notizen'), weil es in eine andere
+    Sammlung schreibt als der Rest des Charakterbogens. */
+function notizenGeaendert() {
+  merkeAenderung('notizen', async () => {
+    await Notizbuch.speichern(gid, sitzung.nutzer.uid, notizenText);
+  });
+  aktualisiereSpeicherhinweis();
 }
 
 function bindeSpeichernKopf() {
@@ -139,7 +181,9 @@ document.addEventListener('focusout', () => {
 
 export function beendeCharakter() {
   if (aboBeenden) { aboBeenden(); aboBeenden = null; }
+  if (notizenAboBeenden) { notizenAboBeenden(); notizenAboBeenden = null; }
   meiner = null;
+  notizenText = '';
 }
 
 export function starteCharakter(gruppenId) {
@@ -151,8 +195,18 @@ export function starteCharakter(gruppenId) {
   });
   merkeAbo(aboBeenden);
 
+  notizenAboBeenden = Notizbuch.abonnieren(gid, sitzung.nutzer.uid, (text) => {
+    notizenText = text;
+    zeichnenSicher();
+  });
+  merkeAbo(notizenAboBeenden);
+
   // Wenn der Spielleiter die Steigerung freischaltet, neu zeichnen
   document.addEventListener('gruppe-geaendert', zeichnenSicher);
+
+  // Der Würfeln-Schalter entscheidet, ob Würfeln-Knöpfe oder nur
+  // der Bonus zu sehen sind — bei Änderung neu zeichnen.
+  document.addEventListener('wuerfeln-umgeschaltet', zeichnenSicher);
 
   // Nach dem Speichern oder Verwerfen darf wieder gezeichnet werden
   document.addEventListener('gespeichert', () => zeichnenSicher());
@@ -248,32 +302,35 @@ function zeichneBaukasten(behaelter) {
       </label>
     </div>
 
-    <div class="karte">
-      <div class="karte-kopf">
-        <h2>Schritt 2 — Attribute</h2>
-        <span class="hinweis">Alle starten auf 2. Verteile 7 Punkte, höchstens bis 5.</span>
+    <div class="bogen-gitter">
+      <div class="karte">
+        <div class="karte-kopf">
+          <h2>Schritt 2 — Attribute</h2>
+          <span class="hinweis">Alle starten auf 2. Verteile 7 Punkte, höchstens bis 5.</span>
+        </div>
+        <div class="punkte-anzeige ${attributRest === 0 ? 'passt' : attributRest < 0 ? 'zuviel' : 'offen'}">
+          <span class="zahl">${attributRest}</span>
+          <span class="leise">${attributRest === 0 ? 'Punkte verteilt — passt' : attributRest > 0 ? 'Punkte übrig' : 'Punkte zu viel'}</span>
+        </div>
+        ${Object.entries(ATTRIBUTE).map(([k, bez]) => stufenZeile(
+          k, bez, c.attribute[k], 1, MAX_ATTRIBUT_START, 'attribut', attributRest
+        )).join('')}
       </div>
-      <div class="punkte-anzeige ${attributRest === 0 ? 'passt' : attributRest < 0 ? 'zuviel' : 'offen'}">
-        <span class="zahl">${attributRest}</span>
-        <span class="leise">${attributRest === 0 ? 'Punkte verteilt — passt' : attributRest > 0 ? 'Punkte übrig' : 'Punkte zu viel'}</span>
-      </div>
-      ${Object.entries(ATTRIBUTE).map(([k, bez]) => stufenZeile(
-        k, bez, c.attribute[k], 1, MAX_ATTRIBUT_START, 'attribut', attributRest
-      )).join('')}
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf">
-        <h2>Schritt 3 — Fertigkeiten</h2>
-        <span class="hinweis">Alle starten auf 0. Verteile 10 Punkte, höchstens bis 3. Eine 0 ist kein Abzug — du darfst alles versuchen.</span>
+      <div class="karte">
+        <div class="karte-kopf">
+          <h2>Schritt 3 — Fertigkeiten</h2>
+          <span class="hinweis">Alle starten auf 0. Verteile 10 Punkte, höchstens bis 3.</span>
+        </div>
+        <div class="punkte-anzeige ${fertigkeitRest === 0 ? 'passt' : fertigkeitRest < 0 ? 'zuviel' : 'offen'}">
+          <span class="zahl">${fertigkeitRest}</span>
+          <span class="leise">${fertigkeitRest === 0 ? 'Punkte verteilt — passt' : fertigkeitRest > 0 ? 'Punkte übrig' : 'Punkte zu viel'}</span>
+        </div>
+        <p class="hinweis-schild">Eine 0 ist <b>kein Abzug</b> — du darfst alles versuchen, nur eben ohne Bonus.</p>
+        ${Object.entries(FERTIGKEITEN).map(([k, bez]) => stufenZeile(
+          k, bez, c.fertigkeiten[k], 0, MAX_FERTIGKEIT_START, 'fertigkeit', fertigkeitRest
+        )).join('')}
       </div>
-      <div class="punkte-anzeige ${fertigkeitRest === 0 ? 'passt' : fertigkeitRest < 0 ? 'zuviel' : 'offen'}">
-        <span class="zahl">${fertigkeitRest}</span>
-        <span class="leise">${fertigkeitRest === 0 ? 'Punkte verteilt — passt' : fertigkeitRest > 0 ? 'Punkte übrig' : 'Punkte zu viel'}</span>
-      </div>
-      ${Object.entries(FERTIGKEITEN).map(([k, bez]) => stufenZeile(
-        k, bez, c.fertigkeiten[k], 0, MAX_FERTIGKEIT_START, 'fertigkeit', fertigkeitRest
-      )).join('')}
     </div>
 
     <div class="karte">
@@ -287,7 +344,7 @@ function zeichneBaukasten(behaelter) {
         <input type="text" data-feld="staerke1" value="${sicher(c.staerken[1] || '')}" placeholder="Merkt sich jedes Gesicht"></label>
       <label class="feld feld-betont"><span>Makel</span>
         <input type="text" data-feld="makel0" value="${sicher(c.makel[0] || '')}" placeholder="Kann nicht aufhören, wenn sie einmal angefangen hat"></label>
-      <p class="leise">Wenn dein Makel dir einen Nachteil einbringt, bekommst du einen Schicksalspunkt.</p>
+      <p class="hinweis-schild">Wenn dein Makel dir einen Nachteil einbringt, bekommst du einen <b>Schicksalspunkt</b>.</p>
     </div>
 
     <div class="karte">
@@ -313,7 +370,7 @@ function zeichneBaukasten(behaelter) {
       <button type="button" class="knopf knopf-haupt" id="btn-fertig" ${fertigMoeglich ? '' : 'disabled'} style="width:100%">
         ${fertigMoeglich ? 'Fertig — ab ins Spiel' : 'Noch nicht fertig'}
       </button>
-      ${fertigMoeglich ? '' : '<p class="leise" style="margin-top:8px">Es fehlt noch: '
+      ${fertigMoeglich ? '' : '<p class="warnschild" style="margin-top:8px">Es fehlt noch: '
         + [ !c.name.trim() ? 'ein Name' : null,
             attributRest !== 0 ? 'die Attributspunkte' : null,
             fertigkeitRest !== 0 ? 'die Fertigkeitspunkte' : null
@@ -392,6 +449,7 @@ function zeichneSpielbogen(behaelter) {
   const lpMax = maxLp(c), stabMax = maxStab(c);
   const angeschlagen = c.lp <= Math.floor(lpMax / 2);
   const erschuettert = c.stab <= Math.floor(stabMax / 2);
+  const wuerfelt = wuerfelnAktiv();
 
   const lpZustand = c.lp <= 0
     ? '<span class="zustand gefahr">AM BODEN</span>'
@@ -411,88 +469,104 @@ function zeichneSpielbogen(behaelter) {
       <div class="karte-kopf">
         <h2>${sicher(c.name)}</h2>
         <button type="button" class="knopf-klein" id="btn-bearbeiten">Bearbeiten</button>
-        <span class="hinweis">${sicher(c.hintergrund)}</span>
+        ${c.hintergrund ? `<span class="hinweis">${sicher(c.hintergrund)}</span>` : ''}
       </div>
 
       <div class="zaehler">
         <span class="titel">Lebenspunkte</span>
         <button type="button" data-zaehler="lp:-1">−</button>
-        <span class="stand">${c.lp} / ${lpMax}</span>
+        ${messgeraet(c.lp, lpMax)}
         <button type="button" data-zaehler="lp:1">+</button>
         ${lpZustand}
       </div>
       <div class="zaehler">
         <span class="titel">Stabilität</span>
         <button type="button" data-zaehler="stab:-1">−</button>
-        <span class="stand">${c.stab} / ${stabMax}</span>
+        ${messgeraet(c.stab, stabMax)}
         <button type="button" data-zaehler="stab:1">+</button>
         ${stabZustand}
       </div>
       <div class="zaehler">
         <span class="titel">Schicksal</span>
         <button type="button" data-zaehler="sp:-1">−</button>
-        <span class="stand">${c.sp} / 3</span>
+        ${messgeraet(c.sp, 3, false)}
         <button type="button" data-zaehler="sp:1">+</button>
         <span class="leise" style="font-size:13px">Makel greift → +1</span>
       </div>
 
-      ${angeschlagen && c.lp > 0 ? '<p class="leise" style="color:var(--messing-hell)">Angeschlagen: Nachteil auf alles mit Körper oder Geschick.</p>' : ''}
-      ${erschuettert && c.stab > 0 ? '<p class="leise" style="color:var(--messing-hell)">Erschüttert: Nachteil auf alles mit Wille oder Wahrnehmung. Spiel deinen Tick.</p>' : ''}
-      ${c.stab <= 0 ? '<p class="leise" style="color:var(--rost)"><b>Gebrochen.</b> Du entscheidest selbst, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Bis zum Ende der Szene.</p>' : ''}
+      ${angeschlagen && c.lp > 0 ? '<p class="warnschild">Angeschlagen: Nachteil auf alles mit Körper oder Geschick.</p>' : ''}
+      ${erschuettert && c.stab > 0 ? '<p class="warnschild">Erschüttert: Nachteil auf alles mit Wille oder Wahrnehmung. Spiel deinen Tick.</p>' : ''}
+      ${c.stab <= 0 ? '<p class="warnschild kritisch"><b>Gebrochen.</b> Du entscheidest selbst, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Bis zum Ende der Szene.</p>' : ''}
     </div>
 
-    <div class="karte">
-      <div class="karte-kopf">
-        <h2>Attribute</h2>
-        <span class="hinweis">Antippen würfelt nur mit dem Attribut — für alles, was man nicht lernen kann.</span>
+    <div class="bogen-gitter">
+      <div class="karte">
+        <div class="karte-kopf">
+          <h2>Attribute</h2>
+          ${wuerfelt ? '<span class="hinweis">Antippen würfelt nur mit dem Attribut — für alles, was man nicht lernen kann.</span>' : ''}
+        </div>
+        <div class="werte-gitter">
+          ${Object.entries(ATTRIBUTE).map(([k, bez]) => wuerfelt
+            ? `<button type="button" class="wert-kachel" data-wurf="attribut:${k}">
+                <span>${bez}</span><b>${c.attribute[k]}</b></button>`
+            : `<div class="wert-kachel"><span>${bez}</span><b>${c.attribute[k]}</b></div>`
+          ).join('')}
+        </div>
+        <div class="werte-gitter">
+          <div class="wert-kachel"><span>Verteidigung</span><b>${vert(c)}</b></div>
+        </div>
       </div>
-      <div class="werte-gitter">
-        ${Object.entries(ATTRIBUTE).map(([k, bez]) => `
-          <button type="button" class="wert-kachel" data-wurf="attribut:${k}" style="cursor:pointer">
-            <span>${bez}</span><b>${c.attribute[k]}</b>
-          </button>`).join('')}
-      </div>
-      <div class="werte-gitter">
-        <div class="wert-kachel"><span>Verteidigung</span><b>${vert(c)}</b></div>
-      </div>
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf">
-        <h2>Fertigkeiten</h2>
-        <span class="hinweis">Antippen: das passende Attribut wählen, dann wird gewürfelt.</span>
+      <div class="karte">
+        <div class="karte-kopf">
+          <h2>Fertigkeiten</h2>
+          <span class="hinweis">${wuerfelt
+            ? 'Antippen: das passende Attribut wählen, dann wird gewürfelt.'
+            : 'Attribut wählen — die Zahl daneben ist dein Bonus für den echten Würfel.'}</span>
+        </div>
+        ${Object.entries(FERTIGKEITEN).map(([k, bez]) => `
+          <div class="stufen-zeile">
+            <span class="bez">${bez}</span>
+            <span class="stand">${c.fertigkeiten[k]}</span>
+            <select data-attributwahl="${k}" class="attribut-wahl">
+              ${Object.entries(ATTRIBUTE).map(([ak, ab]) => `<option value="${ak}">${ab}</option>`).join('')}
+            </select>
+            ${wuerfelt
+              ? `<button type="button" class="knopf-klein knopf-wuerfeln-zeile" data-wurf="fertigkeit:${k}">🎲 Würfeln</button>`
+              : `<span class="bonus-anzeige" data-bonus-fuer="${k}">+${c.attribute.koerper + c.fertigkeiten[k]}</span>`}
+          </div>`).join('')}
       </div>
-      ${Object.entries(FERTIGKEITEN).map(([k, bez]) => `
-        <div class="stufen-zeile">
-          <span class="bez">${bez}</span>
-          <span class="stand">${c.fertigkeiten[k]}</span>
-          <select data-attributwahl="${k}" style="width:130px;min-height:38px;padding:4px 6px;border:1px solid var(--linie);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px">
-            ${Object.entries(ATTRIBUTE).map(([ak, ab]) => `<option value="${ak}">${ab}</option>`).join('')}
-          </select>
-          <button type="button" class="knopf-klein" data-wurf="fertigkeit:${k}">Würfeln</button>
-        </div>`).join('')}
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Eigenschaften</h2></div>
-      <ul class="liste">
-        ${c.staerken.filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
-        ${c.makel.filter(Boolean).map(m => `<li><span style="flex:1">${sicher(m)}</span><span class="marke sl">Makel</span></li>`).join('')}
-        ${(c.narben || []).map(n => `<li><span style="flex:1">${sicher(n)}</span><span class="marke sl">Narbe</span></li>`).join('')}
-      </ul>
-      <div class="zeile-eingabe" style="margin-top:12px">
-        <input type="text" id="narbe-eingabe" placeholder="Neue Narbe (Körper oder Seele)">
-        <button type="button" class="knopf-klein" id="btn-narbe">Hinzufügen</button>
+      <div class="karte">
+        <div class="karte-kopf"><h2>Eigenschaften</h2></div>
+        <ul class="liste">
+          ${c.staerken.filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
+          ${c.makel.filter(Boolean).map(m => `<li><span style="flex:1">${sicher(m)}</span><span class="marke sl">Makel</span></li>`).join('')}
+          ${(c.narben || []).map(n => `<li><span style="flex:1">${sicher(n)}</span><span class="marke sl">Narbe</span></li>`).join('')}
+        </ul>
+        <div class="zeile-eingabe" style="margin-top:12px">
+          <input type="text" id="narbe-eingabe" placeholder="Neue Narbe (Körper oder Seele)">
+          <button type="button" class="knopf-klein" id="btn-narbe">Hinzufügen</button>
+        </div>
+        <p class="hinweis-schild">Narben entstehen, wenn du am Boden lagst oder gebrochen warst. Du formulierst sie selbst.</p>
       </div>
-      <p class="leise">Narben entstehen, wenn du am Boden lagst oder gebrochen warst. Du formulierst sie selbst.</p>
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Anker, Riss, Ausrüstung</h2></div>
-      <label class="feld"><span>Anker</span><input type="text" data-feld="anker" value="${sicher(c.anker)}"></label>
-      <label class="feld"><span>Riss</span><input type="text" data-feld="riss" value="${sicher(c.riss)}"></label>
-      <label class="feld"><span>Ausrüstung (sechs Dinge am Körper)</span><textarea data-feld="ausruestung" rows="3">${sicher(c.ausruestung)}</textarea></label>
-      <p class="leise">Zeit mit dem Anker gibt 1W6 Stabilität zurück, einmal pro Spielabend.</p>
+      <div class="karte">
+        <div class="karte-kopf"><h2>Notizbuch</h2>
+          <span class="hinweis">Nur du und deine Spielleitung sehen das. Verdächtige, Gedächtnisstützen, was dein Charakter denkt.</span></div>
+        <div class="notizbuch-umriss">
+          <textarea class="notizbuch-feld" data-notizbuch rows="8"
+            placeholder="Verdacht: der Hausmeister hat gelogen …">${sicher(notizenText)}</textarea>
+        </div>
+      </div>
+
+      <div class="karte karte-breit">
+        <div class="karte-kopf"><h2>Anker, Riss, Ausrüstung</h2></div>
+        <label class="feld"><span>Anker</span><input type="text" data-feld="anker" value="${sicher(c.anker)}"></label>
+        <label class="feld"><span>Riss</span><input type="text" data-feld="riss" value="${sicher(c.riss)}"></label>
+        <label class="feld"><span>Ausrüstung (sechs Dinge am Körper)</span><textarea data-feld="ausruestung" rows="3">${sicher(c.ausruestung)}</textarea></label>
+        <p class="hinweis-schild">Zeit mit dem Anker gibt 1W6 Stabilität zurück, einmal pro Spielabend.</p>
+      </div>
     </div>
 
     ${steigerungsKarte(c, darfSteigern)}
@@ -502,6 +576,8 @@ function zeichneSpielbogen(behaelter) {
   bindeFelder(behaelter);
   bindeZaehler(behaelter);
   bindeWuerfe(behaelter);
+  bindeBonusAnzeige(behaelter);
+  bindeNotizbuch(behaelter);
   bindeSteigerung(behaelter, darfSteigern);
 
   $('btn-bearbeiten')?.addEventListener('click', async () => {
@@ -519,6 +595,36 @@ function zeichneSpielbogen(behaelter) {
   });
 }
 
+/** Das Notizbuch schreibt nur in den lokalen Entwurf
+    (notizenText) — geschrieben wird wie überall erst über den
+    Speichern-Knopf bzw. den gemeinsamen Änderungspuffer. */
+function bindeNotizbuch(behaelter) {
+  const feld = behaelter.querySelector('[data-notizbuch]');
+  if (!feld) return;
+  feld.addEventListener('input', () => {
+    notizenText = feld.value;
+    notizenGeaendert();
+  });
+}
+
+/**
+ * Ohne In-App-Würfeln zeigt jede Fertigkeitszeile statt eines
+ * Würfeln-Knopfs den fertigen Bonus (Attribut + Fertigkeit) —
+ * praktisch, wenn am Tisch mit echten Würfeln gespielt wird.
+ * Ändert sich die Attributwahl, wird der Bonus sofort nachgeführt.
+ */
+function bindeBonusAnzeige(behaelter) {
+  behaelter.querySelectorAll('[data-attributwahl]').forEach(auswahl => {
+    const schluessel = auswahl.dataset.attributwahl;
+    const anzeige = behaelter.querySelector(`[data-bonus-fuer="${schluessel}"]`);
+    if (!anzeige) return;   // Würfeln ist aktiv — es gibt keine Anzeige zu pflegen
+    auswahl.addEventListener('change', () => {
+      const bonus = (meiner.attribute[auswahl.value] || 0) + (meiner.fertigkeiten[schluessel] || 0);
+      anzeige.textContent = (bonus >= 0 ? '+' : '') + bonus;
+    });
+  });
+}
+
 /* ------------------------------------------------------------
    Steigerung
    ------------------------------------------------------------ */
@@ -530,10 +636,12 @@ function kostenFertigkeit(aktuell) { return aktuell < 3 ? 2 : 4; }
 function steigerungsKarte(c, darfSteigern) {
   if (!darfSteigern) {
     return `
-      <div class="karte">
+      <div class="karte karte-breit">
         <div class="karte-kopf"><h2>Fortschritt</h2></div>
-        <p><b>${c.fp || 0} Fortschrittspunkte</b> gesammelt.</p>
-        <p class="leise">Der Spielleiter schaltet das Steigern frei, wenn ihr eine Sitzung abgeschlossen habt.
+        <div class="punkte-anzeige offen">
+          <span class="zahl">${c.fp || 0}</span><span class="leise">Fortschrittspunkte gesammelt</span>
+        </div>
+        <p class="hinweis-schild">Der Spielleiter schaltet das Steigern frei, wenn ihr eine Sitzung abgeschlossen habt.
         Bis dahin sammeln sich die Punkte einfach an.</p>
       </div>`;
   }
@@ -541,7 +649,7 @@ function steigerungsKarte(c, darfSteigern) {
   const fp = c.fp || 0;
 
   return `
-    <div class="karte">
+    <div class="karte karte-breit">
       <div class="karte-kopf">
         <h2>Fortschritt — freigeschaltet</h2>
         <span class="hinweis">Du kannst nur verbessern, was du im Spiel benutzt oder geübt hast. Ein Satz Begründung reicht dem Spielleiter.</span>
@@ -550,43 +658,51 @@ function steigerungsKarte(c, darfSteigern) {
         <span class="zahl">${fp}</span><span class="leise">Fortschrittspunkte</span>
       </div>
 
-      <h3 class="unter" style="font-size:15px">Attribute (max. 7)</h3>
-      ${Object.entries(ATTRIBUTE).map(([k, bez]) => {
-        const wert = c.attribute[k], kosten = kostenAttribut(wert);
-        return `<div class="stufen-zeile">
-          <span class="bez">${bez}</span>
-          <span class="stand">${wert}</span>
-          <span class="kosten">${wert >= 7 ? 'max' : kosten + ' FP'}</span>
-          <button type="button" data-steigern="attribut:${k}:${kosten}" ${wert >= 7 || fp < kosten ? 'disabled' : ''}>+</button>
-        </div>`;
-      }).join('')}
+      <div class="bogen-gitter gitter-drei">
+        <div>
+          <h3 class="unter" style="font-size:15px;margin-top:0">Attribute (max. 7)</h3>
+          ${Object.entries(ATTRIBUTE).map(([k, bez]) => {
+            const wert = c.attribute[k], kosten = kostenAttribut(wert);
+            return `<div class="stufen-zeile">
+              <span class="bez">${bez}</span>
+              <span class="stand">${wert}</span>
+              <span class="kosten">${wert >= 7 ? 'max' : kosten + ' FP'}</span>
+              <button type="button" data-steigern="attribut:${k}:${kosten}" ${wert >= 7 || fp < kosten ? 'disabled' : ''}>+</button>
+            </div>`;
+          }).join('')}
+        </div>
 
-      <h3 class="unter" style="font-size:15px">Fertigkeiten (max. 5)</h3>
-      ${Object.entries(FERTIGKEITEN).map(([k, bez]) => {
-        const wert = c.fertigkeiten[k], kosten = kostenFertigkeit(wert);
-        return `<div class="stufen-zeile">
-          <span class="bez">${bez}</span>
-          <span class="stand">${wert}</span>
-          <span class="kosten">${wert >= 5 ? 'max' : kosten + ' FP'}</span>
-          <button type="button" data-steigern="fertigkeit:${k}:${kosten}" ${wert >= 5 || fp < kosten ? 'disabled' : ''}>+</button>
-        </div>`;
-      }).join('')}
+        <div>
+          <h3 class="unter" style="font-size:15px;margin-top:0">Fertigkeiten (max. 5)</h3>
+          ${Object.entries(FERTIGKEITEN).map(([k, bez]) => {
+            const wert = c.fertigkeiten[k], kosten = kostenFertigkeit(wert);
+            return `<div class="stufen-zeile">
+              <span class="bez">${bez}</span>
+              <span class="stand">${wert}</span>
+              <span class="kosten">${wert >= 5 ? 'max' : kosten + ' FP'}</span>
+              <button type="button" data-steigern="fertigkeit:${k}:${kosten}" ${wert >= 5 || fp < kosten ? 'disabled' : ''}>+</button>
+            </div>`;
+          }).join('')}
+        </div>
 
-      <h3 class="unter" style="font-size:15px">Sonstiges</h3>
-      <div class="stufen-zeile">
-        <span class="bez">+3 maximale Lebenspunkte</span>
-        <span class="kosten">3 FP</span>
-        <button type="button" data-steigern="lp::3" ${fp < 3 ? 'disabled' : ''}>+</button>
-      </div>
-      <div class="stufen-zeile">
-        <span class="bez">+3 maximale Stabilität</span>
-        <span class="kosten">3 FP</span>
-        <button type="button" data-steigern="stab::3" ${fp < 3 ? 'disabled' : ''}>+</button>
-      </div>
-      <div class="stufen-zeile">
-        <span class="bez">Neue Stärke</span>
-        <span class="kosten">4 FP</span>
-        <button type="button" data-steigern="staerke::4" ${fp < 4 ? 'disabled' : ''}>+</button>
+        <div>
+          <h3 class="unter" style="font-size:15px;margin-top:0">Sonstiges</h3>
+          <div class="stufen-zeile">
+            <span class="bez">+3 maximale Lebenspunkte</span>
+            <span class="kosten">3 FP</span>
+            <button type="button" data-steigern="lp::3" ${fp < 3 ? 'disabled' : ''}>+</button>
+          </div>
+          <div class="stufen-zeile">
+            <span class="bez">+3 maximale Stabilität</span>
+            <span class="kosten">3 FP</span>
+            <button type="button" data-steigern="stab::3" ${fp < 3 ? 'disabled' : ''}>+</button>
+          </div>
+          <div class="stufen-zeile">
+            <span class="bez">Neue Stärke</span>
+            <span class="kosten">4 FP</span>
+            <button type="button" data-steigern="staerke::4" ${fp < 4 ? 'disabled' : ''}>+</button>
+          </div>
+        </div>
       </div>
     </div>`;
 }

@@ -3,6 +3,9 @@
    Dunkel, kontraststark, große Tippflächen. Gebaut fürs iPad
    im Halbdunkel am Spieltisch, funktioniert aber auch am
    Rechner und auf dem Telefon.
+
+   Steampunk-Anmutung: Messing, Leder, genietete Platten.
+   Alles rein in CSS — keine Bilder, kein Build-Schritt.
    ============================================================ */
 
 :root {
@@ -20,10 +23,28 @@
   --messing-hell:  #e8b153;
   --rost:          #b4442e;
   --gruen:         #6f9c62;
-  --blau:          #5b8296;   /* für den geteilten Bereich */
+  /* Grünspan-Türkis statt kaltem Blau — passt zum Messing und
+     bleibt trotzdem klar vom Rest unterscheidbar (Zone „Gemeinsam“) */
+  --blau:          #4f8f88;
+  --blau-hell:     #7bb8ae;
+
+  /* Zusätzliche Farben für die Steampunk-Anmutung */
+  --kupfer:        #b5651d;
+  --kupfer-hell:   #d98a3d;
+  --eisen:         #4a443d;
+  --leder:         #191411;
+  --leder-hoch:    #221a15;
+  --pergament:     #e8dcc0;
 
   --radius:        10px;
   --tipp:          44px;      /* Mindesthöhe für Finger */
+
+  /* Schriften: Cinzel für Überschriften (geprägte Messingplatte),
+     Special Elite fürs Notizbuch (Schreibmaschine). Fällt beides
+     sauber auf System-Schriften zurück, falls die Google-Fonts
+     nicht laden — z. B. ganz ohne Netz beim ersten Start. */
+  --schrift-kopf: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --schrift-notiz: 'Special Elite', 'Courier New', monospace;
 
   color-scheme: dark;
 }
@@ -50,7 +71,24 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Ein Hauch Dampf im Hintergrund der ganzen App — sehr schwach,
+   damit Text darüber immer noch bequem lesbar bleibt. */
+body {
+  /* Kein "background-attachment: fixed" — das ist auf iOS Safari
+     (dem Zielgerät) ruckelig und kann beim Scrollen zu
+     Darstellungsfehlern führen. Der Verlauf scrollt einfach mit,
+     das fällt bei so schwacher Deckkraft nicht auf. */
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(201,143,42,0.05), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(79,143,136,0.04), transparent 55%),
+    var(--bg);
+}
+
 a { color: var(--messing-hell); }
+
+h1, h2, .karte-kopf h2, .zone-knopf, .kopf-marke {
+  font-family: var(--schrift-kopf);
+}
 
 /* ============================================================
    ÖFFENTLICHE SEITE
@@ -76,7 +114,9 @@ a { color: var(--messing-hell); }
   margin: 0 0 20px;
   font-size: clamp(38px, 9vw, 68px);
   line-height: 1.05;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.4);
 }
 
 .held-satz {
@@ -93,13 +133,14 @@ a { color: var(--messing-hell); }
   min-height: 52px; padding: 0 26px;
   border: 1px solid var(--messing);
   border-radius: var(--radius);
-  background: var(--messing);
+  background: linear-gradient(180deg, var(--messing-hell), var(--messing));
   color: #17130c;
   font-size: 16px; font-weight: 700;
   text-decoration: none;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
 }
 
-.knopf-hohl { background: transparent; color: var(--messing-hell); }
+.knopf-hohl { background: transparent; color: var(--messing-hell); box-shadow: none; }
 
 .seite { max-width: 780px; margin: 0 auto; padding: 0 20px 60px; }
 
@@ -116,6 +157,7 @@ h3.unter {
   margin: 36px 0 10px;
   font-size: 21px;
   color: var(--text);
+  font-family: var(--schrift-kopf);
 }
 
 .gross { font-size: 19px; }
@@ -132,6 +174,7 @@ h3.unter {
   font-size: clamp(17px, 4.2vw, 26px);
   font-weight: 700;
   letter-spacing: 0.01em;
+  font-family: var(--schrift-kopf);
 }
 .formel-fuss { margin: 0 0 8px; text-align: center; color: var(--text-leise); font-size: 14px; }
 
@@ -143,11 +186,11 @@ h3.unter {
 
 .info-karte {
   padding: 16px;
-  border: 1px solid var(--linie);
-  border-radius: var(--radius);
-  background: var(--flaeche);
+  border: 1px solid var(--linie); border-left: 3px solid var(--messing);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: linear-gradient(180deg, var(--flaeche-hoch), var(--flaeche));
 }
-.info-karte h3 { margin: 0 0 6px; font-size: 16px; color: var(--messing-hell); }
+.info-karte h3 { margin: 0 0 6px; font-size: 16px; color: var(--messing-hell); font-family: var(--schrift-kopf); }
 .info-karte p  { margin: 0; font-size: 15px; }
 
 /* Attribute */
@@ -218,7 +261,7 @@ h3.unter {
   font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
 }
 .wer.sl { color: var(--messing); }
-.wer.sp { color: var(--blau); }
+.wer.sp { color: var(--blau-hell); }
 
 .block-abschluss { text-align: center; }
 .block-abschluss .held-knoepfe { margin-top: 22px; }
@@ -233,7 +276,11 @@ h3.unter {
    SPIELBEREICH
    ============================================================ */
 
-.app { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+/* Grosszügig bemessen für den seltenen Fall, dass Speicherleiste
+   UND aufgeklappte Würfelleiste gleichzeitig zu sehen sind —
+   in den meisten Fällen bleibt dadurch etwas Luft am Fuß der
+   Seite, was unkritisch ist. */
+.app { padding-bottom: calc(210px + env(safe-area-inset-bottom)); }
 
 /* --- Kopfzeile --- */
 .kopf {
@@ -257,10 +304,10 @@ h3.unter {
   flex: 0 0 auto; min-height: var(--tipp); padding: 0 16px;
   border: 1px solid var(--linie); border-radius: var(--radius);
   background: var(--flaeche); color: var(--text-leise);
-  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  font-size: 15px; font-weight: 600; cursor: pointer;
 }
-.zone-knopf.aktiv { background: var(--messing); border-color: var(--messing); color: #17130c; }
-.zone-knopf.geteilt.aktiv { background: var(--blau); border-color: var(--blau); color: #0d1418; }
+.zone-knopf.aktiv { background: linear-gradient(180deg, var(--messing-hell), var(--messing)); border-color: var(--messing); color: #17130c; }
+.zone-knopf.geteilt.aktiv { background: linear-gradient(180deg, var(--blau-hell), var(--blau)); border-color: var(--blau); color: #0d1418; }
 
 /* --- Untertabs innerhalb einer Zone --- */
 .untertabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -270,28 +317,107 @@ h3.unter {
   background: transparent; color: var(--text-leise);
   font-family: inherit; font-size: 14px; cursor: pointer;
 }
-.untertab.aktiv { border-color: var(--messing); color: var(--messing-hell); }
+.untertab.aktiv { border-color: var(--messing); color: var(--messing-hell); background: rgba(201,143,42,0.1); }
 
-.inhalt { max-width: 900px; margin: 0 auto; padding: 14px 10px 24px; }
+.inhalt { max-width: 980px; margin: 0 auto; padding: 14px 10px 24px; }
 .ansicht { display: none; }
 .ansicht.aktiv { display: block; }
 
-/* --- Karten --- */
+/* --- Karten — genietete Messingplatten ---
+   Vier kleine „Nieten" in den Ecken plus ein doppelter Rahmen
+   erzeugen den Eindruck einer angeschraubten Platte, ganz ohne
+   Bilder: vier radiale Farbverläufe plus ein Verlauf für die
+   Fläche selbst, übereinandergelegt. */
 .karte {
-  background: var(--flaeche); border: 1px solid var(--linie);
-  border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+  position: relative;
+  background:
+    radial-gradient(circle 2.6px at 11px 11px, var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 11px) 11px, var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at 11px calc(100% - 11px), var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 11px) calc(100% - 11px), var(--messing-hell) 97%, transparent 100%),
+    linear-gradient(180deg, var(--flaeche-hoch), var(--flaeche));
+  border: 1px solid var(--linie);
+  outline: 1px solid rgba(201,143,42,0.14);
+  outline-offset: -6px;
+  border-radius: var(--radius);
+  padding: 16px; margin-bottom: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .karte-kopf {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--linie);
 }
 .karte-kopf h2 {
-  margin: 0; font-size: 14px; letter-spacing: 0.06em;
+  margin: 0; font-size: 15px; letter-spacing: 0.07em;
   text-transform: uppercase; color: var(--messing);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
 }
-.karte-geteilt { border-color: rgba(91,130,150,0.5); }
-.karte-geteilt .karte-kopf h2 { color: var(--blau); }
-.hinweis { font-size: 13px; color: var(--text-leise); flex: 1 1 100%; }
+.karte-geteilt { border-color: rgba(79,143,136,0.5); }
+.karte-geteilt .karte-kopf h2 { color: var(--blau-hell); }
+
+/* --- Hinweis im Kartenkopf: eigenes kleines Schild statt
+   loser Fließtext direkt unter der Überschrift --- */
+.hinweis {
+  flex: 1 1 100%; margin-top: 2px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--messing);
+  background: rgba(0,0,0,0.18);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px; color: var(--text-leise);
+}
+
+/* --- Hinweis-Schild: ein umrahmter Kasten für erklärenden Text
+   MITTEN in einer Karte — ersetzt den bisherigen Fließtext
+   (<p class="leise">) an Stellen, die eine Regel erklären. --- */
+.hinweis-schild {
+  display: flex; gap: 9px; align-items: flex-start;
+  margin: 10px 0; padding: 10px 12px;
+  border: 1px dashed var(--kupfer);
+  border-radius: 8px;
+  background: rgba(181,101,29,0.08);
+  font-size: 13px; line-height: 1.45; color: var(--text-leise);
+}
+.hinweis-schild::before {
+  content: "⚙"; flex: 0 0 auto; font-size: 15px; line-height: 1.3;
+  color: var(--kupfer-hell);
+}
+.hinweis-schild b, .hinweis-schild strong { color: var(--text); }
+
+/* --- Warnschild: für Zustandsmeldungen (angeschlagen,
+   erschüttert, gebrochen) — fällt bewusst mehr auf als der
+   ruhige Hinweis-Kasten. --- */
+.warnschild {
+  margin: 10px 0; padding: 10px 12px;
+  border: 1px solid var(--messing-hell); border-left: 4px solid var(--messing-hell);
+  border-radius: 0 8px 8px 0;
+  background: rgba(232,177,83,0.09);
+  font-size: 14px; line-height: 1.4;
+}
+.warnschild.kritisch {
+  border-color: var(--rost); border-left-color: var(--rost);
+  background: rgba(180,68,46,0.14);
+}
+
+/* --- Responsives Kartenraster ---
+   Gruppiert mehrere Karten so, dass sie auf Tablet/Desktop
+   nebeneinander sitzen, auf dem Telefon aber sauber stapeln.
+   .karte-breit lässt eine einzelne Karte die volle Breite
+   beanspruchen, auch innerhalb des Rasters. */
+.bogen-gitter {
+  display: grid; gap: 14px; grid-template-columns: 1fr;
+  align-items: start;
+}
+.bogen-gitter .karte,
+.bogen-gitter .eintrag { margin-bottom: 0; }
+.karte-breit { grid-column: 1 / -1; }
+
+@media (min-width: 700px) {
+  .bogen-gitter { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1100px) {
+  .bogen-gitter.gitter-drei { grid-template-columns: 1fr 1fr 1fr; }
+}
 
 /* --- Felder --- */
 .feld { display: block; margin-bottom: 12px; }
@@ -312,6 +438,29 @@ h3.unter {
 .zeile-eingabe { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .zeile-eingabe input, .zeile-eingabe select { flex: 1; min-width: 140px; }
 
+/* --- Notizbuch: liniertes Blatt in Leder-Optik.
+   Reine CSS-Musterung — ein sich wiederholender Verlauf simuliert
+   die Linien, die Zeilenhöhe ist auf den Abstand abgestimmt. --- */
+.notizbuch-feld {
+  width: 100%; min-height: 200px; padding: 14px 16px 14px 44px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background:
+    repeating-linear-gradient(var(--leder) 0 31px, rgba(232,220,192,0.08) 31px 32px),
+    linear-gradient(180deg, var(--leder-hoch), var(--leder));
+  color: var(--pergament);
+  font-family: var(--schrift-notiz); font-size: 15px; line-height: 32px;
+  resize: vertical;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
+}
+.notizbuch-feld:focus { outline: 2px solid var(--kupfer); outline-offset: -2px; }
+.notizbuch-umriss { position: relative; }
+.notizbuch-umriss::before {
+  /* der rote Merkfaden am linken Rand, wie in einem alten Kladdenheft */
+  content: ""; position: absolute; left: 32px; top: 8px; bottom: 8px; width: 1px;
+  background: rgba(180,68,46,0.45); z-index: 1; pointer-events: none;
+}
+
 /* --- Knöpfe --- */
 .knopf, .knopf-klein {
   border: 1px solid var(--linie); border-radius: 8px;
@@ -321,7 +470,8 @@ h3.unter {
 .knopf { min-height: var(--tipp); padding: 0 18px; font-size: 15px; }
 .knopf-klein { min-height: 34px; padding: 0 12px; font-size: 13px; }
 .knopf:active, .knopf-klein:active { background: var(--messing); color: #17130c; }
-.knopf-haupt { background: var(--messing); border-color: var(--messing); color: #17130c; }
+.knopf-haupt { background: linear-gradient(180deg, var(--messing-hell), var(--messing)); border-color: var(--messing); color: #17130c; box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+.knopf-haupt:active { background: var(--messing); box-shadow: none; transform: translateY(2px); }
 .knopf-gefahr { border-color: var(--rost); color: #e59b8a; }
 .knopf:disabled, .knopf-klein:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -361,11 +511,12 @@ h3.unter {
 .punkte-anzeige.zuviel .zahl { color: var(--rost); }
 
 .stufen-zeile {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 0; border-top: 1px solid var(--linie);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 7px 4px; border-top: 1px solid var(--linie);
 }
+.stufen-zeile:nth-of-type(even) { background: rgba(255,255,255,0.015); }
 .stufen-zeile:first-of-type { border-top: none; }
-.stufen-zeile .bez { flex: 1; font-size: 15px; }
+.stufen-zeile .bez { flex: 1 1 auto; font-size: 15px; min-width: 110px; }
 .stufen-zeile .stand {
   min-width: 32px; text-align: center;
   font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums;
@@ -378,10 +529,18 @@ h3.unter {
 }
 .stufen-zeile button:disabled { opacity: 0.25; }
 .stufen-zeile .kosten { font-size: 12px; color: var(--messing); min-width: 44px; text-align: right; }
+.stufen-zeile .attribut-wahl { width: auto; min-width: 128px; flex: 0 1 140px; min-height: 38px; padding: 4px 6px; font-size: 14px; }
+.stufen-zeile .bonus-anzeige {
+  min-width: 48px; text-align: center; padding: 4px 8px;
+  border: 1px solid var(--linie); border-radius: 20px;
+  font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--messing-hell); background: rgba(201,143,42,0.08);
+}
+.stufen-zeile .knopf-wuerfeln-zeile { min-height: 34px; }
 
 /* --- Zähler (LP, Stabilität, Schicksal) --- */
-.zaehler { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.zaehler > .titel { flex: 0 0 88px; font-size: 13px; color: var(--text-leise); }
+.zaehler { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.zaehler > .titel { flex: 0 0 96px; font-size: 13px; color: var(--text-leise); }
 .zaehler button {
   width: 44px; height: 44px;
   border: 1px solid var(--linie); border-radius: 8px;
@@ -394,12 +553,37 @@ h3.unter {
 .zustand.warnung { color: var(--messing-hell); }
 .zustand.gefahr  { color: var(--rost); }
 
+/* --- Messgerät: ein rundes Druckmessgerät statt trockener Zahl.
+   Der Füllstand kommt über einen Kegelverlauf (conic-gradient),
+   dessen Anteil per Inline-Style „--pct" gesetzt wird. --- */
+.messgeraet {
+  --farbe: var(--messing);
+  flex: 0 0 auto; width: 62px; height: 62px; border-radius: 50%;
+  padding: 5px;
+  background: conic-gradient(var(--farbe) var(--pct, 50%), var(--eisen) 0);
+  box-shadow: 0 0 0 2px var(--linie), 0 3px 8px rgba(0,0,0,0.45);
+}
+.messgeraet .zeiger-zahl {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--flaeche-hoch), var(--bg) 75%);
+  display: grid; place-items: center; text-align: center;
+  font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15;
+}
+.messgeraet .zeiger-zahl small { display: block; font-size: 10px; font-weight: 500; color: var(--text-leise); }
+.messgeraet.ok      { --farbe: var(--gruen); }
+.messgeraet.warnung { --farbe: var(--messing-hell); }
+.messgeraet.gefahr  { --farbe: var(--rost); }
+
 /* --- Werte-Gitter (Übersicht) --- */
 .werte-gitter { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-bottom: 12px; }
 .wert-kachel {
-  padding: 8px; text-align: center;
-  border: 1px solid var(--linie); border-radius: 8px; background: var(--bg);
+  padding: 9px 8px; text-align: center;
+  border: 1px solid var(--linie); border-top: 2px solid var(--messing);
+  border-radius: 8px; background: var(--bg);
+  font-family: inherit; color: var(--text);
 }
+button.wert-kachel { cursor: pointer; }
+button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color: var(--messing-hell); }
 .wert-kachel span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-leise); }
 .wert-kachel b { font-size: 20px; font-variant-numeric: tabular-nums; }
 
@@ -416,10 +600,11 @@ h3.unter {
 /* --- Einträge (Journal, Indizien, Welt) --- */
 .eintrag {
   padding: 12px; margin-bottom: 10px;
-  border: 1px solid var(--linie); border-radius: 8px; background: var(--flaeche-hoch);
+  border: 1px solid var(--linie); border-left: 3px solid var(--eisen);
+  border-radius: 0 8px 8px 0; background: var(--flaeche-hoch);
 }
 .eintrag-kopf { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-.eintrag-kopf h4 { margin: 0; font-size: 16px; flex: 1; }
+.eintrag-kopf h4 { margin: 0; font-size: 16px; flex: 1; font-family: var(--schrift-kopf); }
 .eintrag p { margin: 0; font-size: 15px; white-space: pre-line; }
 .eintrag-fuss { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
@@ -428,7 +613,7 @@ h3.unter {
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
   border: 1px solid var(--linie); color: var(--text-leise);
 }
-.marke.journal { border-color: var(--blau); color: var(--blau); }
+.marke.journal { border-color: var(--blau-hell); color: var(--blau-hell); }
 .marke.indiz   { border-color: var(--messing); color: var(--messing); }
 .marke.ort     { border-color: var(--gruen); color: var(--gruen); }
 .marke.nsc     { border-color: var(--text-leise); }
@@ -437,7 +622,7 @@ h3.unter {
 /* --- Regeln --- */
 .regel { padding: 10px 0; border-top: 1px solid var(--linie); }
 .regel:first-child { border-top: none; }
-.regel h4 { margin: 0 0 4px; font-size: 15px; color: var(--messing-hell); }
+.regel h4 { margin: 0 0 4px; font-size: 15px; color: var(--messing-hell); font-family: var(--schrift-kopf); }
 .regel p { margin: 0; font-size: 15px; white-space: pre-line; }
 
 /* --- Tabellen --- */
@@ -452,16 +637,21 @@ h3.unter {
 .ergebnis-zeile .label { display: block; font-size: 12px; color: var(--text-leise); }
 .ergebnis-zeile .wert { font-size: 17px; }
 
+/* --- Bodenleisten ---
+   Speicherleiste und Würfelleiste stapeln sich hier in einem
+   GEMEINSAMEN fixen Container. So braucht es kein Verrechnen von
+   Pixelabständen zwischen beiden — welche Zeile gerade wie hoch
+   ist (Würfelleiste ein- oder aufgeklappt, Speicherleiste
+   sichtbar oder nicht), regelt ganz normaler Dokumentfluss. */
+.bodenleisten { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; }
+
 /* --- Speicherleiste ---
-   Sitzt über der Würfelleiste und fällt bewusst auf: Offene
-   Änderungen sollen nicht übersehen werden. */
+   Fällt bewusst auf: Offene Änderungen sollen nicht übersehen
+   werden. */
 .speicherleiste {
-  position: fixed;
-  left: 10px; right: 10px;
-  bottom: calc(104px + env(safe-area-inset-bottom));
-  z-index: 31;
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; flex-wrap: wrap;
+  margin: 0 10px 10px;
   padding: 10px 12px;
   border: 1px solid var(--rost);
   border-radius: var(--radius);
@@ -483,12 +673,22 @@ h3.unter {
 .speichern-oben .stand-text { font-size: 13px; color: var(--text-leise); }
 .speichern-oben .offen { color: var(--messing-hell); font-weight: 600; }
 
-/* --- Würfelleiste --- */
+/* --- Würfelleiste ---
+   Standardmäßig eingeklappt: nur die Kopfzeile mit dem Schalter
+   ist zu sehen. Wer wirklich in der App würfeln will, klappt sie
+   per Schalter auf — die meisten Runden würfeln mit echten
+   Würfeln am Tisch und brauchen hier nur die Boni. */
 .wuerfelleiste {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  padding: 0 10px calc(0px + env(safe-area-inset-bottom));
   background: var(--flaeche); border-top: 1px solid var(--linie);
 }
+.wuerfel-kopf {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 900px; margin: 0 auto; padding: 9px 0;
+}
+.wuerfel-marke { font-size: 13px; font-weight: 700; color: var(--messing); letter-spacing: 0.04em; }
+.wuerfel-kopf .schalter-text { font-size: 12px; color: var(--text-leise); flex: 1; }
+.wuerfel-koerper { padding-bottom: 10px; }
 .wuerfel-zeile { display: flex; align-items: flex-end; gap: 8px; max-width: 900px; margin: 0 auto; }
 .segment { display: flex; border: 1px solid var(--linie); border-radius: 8px; overflow: hidden; }
 .segment button {
@@ -507,7 +707,7 @@ h3.unter {
 }
 .knopf-wuerfeln {
   flex: 1; min-height: var(--tipp); border: none; border-radius: 8px;
-  background: var(--messing); color: #17130c;
+  background: linear-gradient(180deg, var(--messing-hell), var(--messing)); color: #17130c;
   font-family: inherit; font-size: 17px; font-weight: 700; cursor: pointer;
 }
 .wuerfel-ergebnis { display: flex; align-items: baseline; gap: 10px; margin: 8px auto 0; max-width: 900px; min-height: 24px; }
@@ -517,6 +717,27 @@ h3.unter {
 .wuerfel-text.preis { color: var(--messing-hell); }
 .wuerfel-text.misserfolg { color: var(--rost); }
 
+/* --- Schalter (Kippschalter/Hebel) ---
+   Für „Würfeln in der App" und ähnliche Ein/Aus-Einstellungen. */
+.schalter { position: relative; flex: 0 0 auto; width: 48px; height: 28px; display: inline-block; }
+.schalter input {
+  position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.schalter .lauf {
+  position: absolute; inset: 0;
+  background: var(--bg); border: 1px solid var(--linie); border-radius: 16px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.schalter .griff {
+  position: absolute; top: 2px; left: 2px; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--eisen);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  transition: transform 0.15s, background-color 0.15s;
+}
+.schalter input:checked ~ .lauf { background: var(--messing); border-color: var(--messing); }
+.schalter input:checked ~ .lauf .griff { transform: translateX(20px); background: #fff6e6; }
+.schalter input:focus-visible ~ .lauf { outline: 2px solid var(--messing-hell); outline-offset: 2px; }
+
 /* --- Anmeldung --- */
 .anmelde-schirm {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -524,7 +745,14 @@ h3.unter {
 }
 .anmelde-karte {
   width: 100%; max-width: 400px; padding: 24px;
-  border: 1px solid var(--linie); border-radius: var(--radius); background: var(--flaeche);
+  border: 1px solid var(--linie); border-radius: var(--radius);
+  background:
+    radial-gradient(circle 2.6px at 11px 11px, var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 11px) 11px, var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at 11px calc(100% - 11px), var(--messing-hell) 97%, transparent 100%),
+    radial-gradient(circle 2.6px at calc(100% - 11px) calc(100% - 11px), var(--messing-hell) 97%, transparent 100%),
+    linear-gradient(180deg, var(--flaeche-hoch), var(--flaeche));
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 .anmelde-karte h1 { margin: 0 0 6px; font-size: 26px; }
 .anmelde-karte .leise { margin-bottom: 20px; }

@@ -495,6 +495,37 @@ function regelnAufbauen() {
 
 let wuerfelModus = 'normal';
 
+/* ------------------------------------------------------------
+   Würfeln in der App — standardmäßig AUS
+   ------------------------------------------------------------
+   Die meisten Runden würfeln mit echten Würfeln am Tisch und
+   nutzen das Programm nur, um den Bonus abzulesen. Deshalb ist
+   die Würfelleiste standardmäßig eingeklappt, und der
+   Charakterbogen zeigt statt Würfeln-Knöpfen nur den Bonus an.
+   Wer in der App würfeln will, klappt es über den Schalter auf —
+   die Einstellung merkt sich das Gerät (nicht die Runde). */
+const WUERFELN_SCHLUESSEL = 'dew:wuerfelnInApp';
+
+export function wuerfelnAktiv() {
+  return localStorage.getItem(WUERFELN_SCHLUESSEL) === 'ja';
+}
+
+function wuerfelnUmschalten(aktiv) {
+  try { localStorage.setItem(WUERFELN_SCHLUESSEL, aktiv ? 'ja' : 'nein'); } catch (e) {}
+  $('wuerfel-koerper').hidden = !aktiv;
+  // Der Charakterbogen zeigt Würfeln-Knöpfe nur, wenn diese
+  // Einstellung an ist — neu zeichnen lassen.
+  document.dispatchEvent(new CustomEvent('wuerfeln-umgeschaltet', { detail: { aktiv } }));
+}
+
+function wuerfelSchalterAufbauen() {
+  const kontrolle = $('schalter-wuerfeln');
+  const aktiv = wuerfelnAktiv();
+  kontrolle.checked = aktiv;
+  $('wuerfel-koerper').hidden = !aktiv;
+  kontrolle.addEventListener('change', () => wuerfelnUmschalten(kontrolle.checked));
+}
+
 /** Wirft einen W20 nach dem gewählten Modus */
 export function w20(modus = wuerfelModus) {
   if (modus === 'normal') { const w = wuerfel(20); return { wuerfe: [w], roh: w }; }
@@ -561,6 +592,7 @@ gruppenSchirmKnoepfe();
 zonenAufbauen();
 regelnAufbauen();
 wuerfelleisteAufbauen();
+wuerfelSchalterAufbauen();
 
 Auth.beobachten(async (nutzer) => {
   sitzung.nutzer = nutzer;

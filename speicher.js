@@ -24,6 +24,14 @@
    gruppen/{gid}/charaktere/{cid}
      besitzer, name, attribute{}, fertigkeiten{}, ...
      → Spieler schreibt nur den eigenen, SL alle
+     → ACHTUNG: alle Mitglieder DÜRFEN DAS LESEN. Private Notizen
+       gehören deshalb NICHT hierher, siehe notizbuch/{uid} unten.
+
+   gruppen/{gid}/notizbuch/{uid}
+     text
+     → Dokument-ID ist die eigene UID. Nur die Person selbst
+       schreibt; sie selbst und die Spielleitung lesen mit.
+       Andere Mitspieler sehen das nicht.
 
    gruppen/{gid}/geteilt/{did}
      typ: 'journal' | 'indiz' | 'ort' | 'nsc'
@@ -266,3 +274,31 @@ function sammlung(name) {
 export const Charaktere = sammlung('charaktere');
 export const Geteilt    = sammlung('geteilt');
 export const SLNotizen  = sammlung('sl');
+
+/* ============================================================
+   NOTIZBUCH — private Notizen je Person
+   ============================================================
+   Kein Fall für die Sammlungs-Fabrik oben: Es gibt genau EIN
+   Dokument pro Person (Dokument-ID = die eigene UID), keine
+   Liste mit auto-generierten IDs. Siehe firestore.rules,
+   match /notizbuch/{uid} — nur Besitzer und Spielleitung lesen. */
+export const Notizbuch = {
+
+  /** Hört auf die eigenen Notizen. Der Rückruf bekommt den Text
+      (leer, solange noch nichts gespeichert wurde). */
+  abonnieren(gid, uid, rueckruf) {
+    return onSnapshot(doc(db, 'gruppen', gid, 'notizbuch', uid),
+      s => rueckruf(s.exists() ? (s.data().text || '') : ''),
+      fehler => {
+        console.warn('Notizbuch nicht lesbar:', fehler.code);
+        rueckruf('');
+      }
+    );
+  },
+
+  async speichern(gid, uid, text) {
+    await setDoc(doc(db, 'gruppen', gid, 'notizbuch', uid), {
+      text, geaendert: serverTimestamp()
+    });
+  }
+};

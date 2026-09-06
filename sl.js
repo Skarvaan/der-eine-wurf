@@ -31,6 +31,19 @@ const WELT_ARTEN = {
   notiz:      'Notiz'
 };
 
+/* Kleines rundes Messgerät für die Charakterübersicht — dieselbe
+   Optik wie im Spielbogen (siehe ".messgeraet" in stil.css), hier
+   aber bewusst eigenständig gehalten statt aus charakter.js
+   importiert: Die Zonen kennen einander laut Architektur nicht. */
+function messgeraet(wert, max) {
+  const klasse = wert <= 0 ? 'gefahr' : wert <= Math.floor(max / 2) ? 'warnung' : 'ok';
+  const pct = Math.max(0, Math.min(100, Math.round((wert / max) * 100)));
+  return `
+    <div class="messgeraet ${klasse}" style="--pct:${pct}%">
+      <div class="zeiger-zahl">${wert}<small>/ ${max}</small></div>
+    </div>`;
+}
+
 let gid = null;
 let notizen = [];       // alles aus der Sammlung "sl"
 let charaktere = [];
@@ -135,17 +148,14 @@ function zeichnen() {
 function zeichneUebersicht(behaelter) {
   if (!charaktere.length) {
     behaelter.innerHTML = `<div class="karte"><div class="karte-kopf"><h2>Charaktere</h2></div>
-      <p class="leise">Noch keine Charaktere. Lade deine Spieler unter „Runde“ ein.</p></div>`;
+      <p class="hinweis-schild">Noch keine Charaktere. Lade deine Spieler unter „Runde“ ein.</p></div>`;
     return;
   }
 
-  behaelter.innerHTML = charaktere.map(c => {
+  behaelter.innerHTML = `<div class="bogen-gitter">${charaktere.map(c => {
     const lpMax   = 10 + (c.attribute?.koerper || 0) * 2 + (c.bonusLp || 0);
     const stabMax = 10 + (c.attribute?.wille || 0) * 2 + (c.bonusStab || 0);
     const vt      = 10 + (c.attribute?.geschick || 0) + (c.fertigkeiten?.nahkampf || 0);
-
-    const lpKlasse   = c.lp <= 0 ? 'gefahr' : c.lp <= lpMax / 2 ? 'warnung' : 'ok';
-    const stabKlasse = c.stab <= 0 ? 'gefahr' : c.stab <= stabMax / 2 ? 'warnung' : 'ok';
 
     // Die drei besten Fertigkeiten — reicht für den Überblick
     const beste = Object.entries(c.fertigkeiten || {})
@@ -156,18 +166,18 @@ function zeichneUebersicht(behaelter) {
     <div class="karte">
       <div class="karte-kopf">
         <h2>${sicher(c.name || 'Ohne Namen')}</h2>
-        <span class="hinweis">${sicher(c.hintergrund || '')}</span>
+        ${c.hintergrund ? `<span class="hinweis">${sicher(c.hintergrund)}</span>` : ''}
       </div>
 
       <div class="zaehler">
         <span class="titel">LP</span>
-        <span class="stand zustand ${lpKlasse}">${c.lp} / ${lpMax}</span>
+        ${messgeraet(c.lp, lpMax)}
         <span class="titel">Stabilität</span>
-        <span class="stand zustand ${stabKlasse}">${c.stab} / ${stabMax}</span>
+        ${messgeraet(c.stab, stabMax)}
         <span class="titel">VT</span>
-        <span class="stand">${vt}</span>
+        <span class="stand" style="flex:0 0 auto">${vt}</span>
         <span class="titel">Schicksal</span>
-        <span class="stand">${c.sp || 0}</span>
+        <span class="stand" style="flex:0 0 auto">${c.sp || 0}</span>
       </div>
 
       <div class="werte-gitter">
@@ -184,7 +194,7 @@ function zeichneUebersicht(behaelter) {
       </ul>
 
       ${c.anker || c.riss ? `
-      <p class="leise" style="margin-top:10px">
+      <p class="hinweis-schild" style="margin-top:10px">
         ${c.anker ? `<b>Anker:</b> ${sicher(c.anker)}<br>` : ''}
         ${c.riss  ? `<b>Riss:</b> ${sicher(c.riss)}` : ''}
       </p>` : ''}
@@ -196,7 +206,7 @@ function zeichneUebersicht(behaelter) {
         <button type="button" class="knopf-klein" data-heilen="${c.id}">Voll heilen</button>
       </div>
     </div>`;
-  }).join('');
+  }).join('')}</div>`;
 
   // FP vergeben
   behaelter.querySelectorAll('[data-fp]').forEach(knopf => {
@@ -231,8 +241,8 @@ function zeichneFall(behaelter) {
   if (!fall) {
     behaelter.innerHTML = `
       <div class="karte">
-        <div class="karte-kopf"><h2>Fallblatt</h2>
-          <span class="hinweis">Fünf Zeilen Wahrheit, und du kannst den ganzen Abend improvisieren. Alles Weitere begründest du im Spiel rückwärts.</span></div>
+        <div class="karte-kopf"><h2>Fallblatt</h2></div>
+        <p class="hinweis-schild">Fünf Zeilen Wahrheit, und du kannst den ganzen Abend improvisieren. Alles Weitere begründest du im Spiel rückwärts.</p>
         <button type="button" class="knopf knopf-haupt" id="btn-fall-neu">Ersten Fall anlegen</button>
       </div>`;
     $('btn-fall-neu').addEventListener('click', fallAnlegen);
@@ -260,68 +270,75 @@ function zeichneFall(behaelter) {
 
       <label class="feld"><span>Titel</span>
         <input type="text" data-fall="titel" value="${sicher(fall.titel || '')}"></label>
-      <label class="feld"><span>Was ist passiert</span>
-        <textarea data-fall="passiert" rows="2">${sicher(fall.passiert || '')}</textarea></label>
-      <label class="feld"><span>Wer war es</span>
-        <textarea data-fall="wer" rows="2">${sicher(fall.wer || '')}</textarea></label>
-      <label class="feld"><span>Was wollte er</span>
-        <textarea data-fall="wollte" rows="2">${sicher(fall.wollte || '')}</textarea></label>
-      <label class="feld"><span>Was ging schief</span>
-        <textarea data-fall="schief" rows="2">${sicher(fall.schief || '')}</textarea></label>
+
+      <div class="bogen-gitter">
+        <label class="feld"><span>Was ist passiert</span>
+          <textarea data-fall="passiert" rows="2">${sicher(fall.passiert || '')}</textarea></label>
+        <label class="feld"><span>Wer war es</span>
+          <textarea data-fall="wer" rows="2">${sicher(fall.wer || '')}</textarea></label>
+        <label class="feld"><span>Was wollte er</span>
+          <textarea data-fall="wollte" rows="2">${sicher(fall.wollte || '')}</textarea></label>
+        <label class="feld"><span>Was ging schief</span>
+          <textarea data-fall="schief" rows="2">${sicher(fall.schief || '')}</textarea></label>
+      </div>
       <label class="feld feld-betont"><span>Was passiert als Nächstes, wenn niemand eingreift</span>
         <textarea data-fall="naechstes" rows="2">${sicher(fall.naechstes || '')}</textarea></label>
     </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Die drei Erkenntnisse</h2>
-        <span class="hinweis">Wozu die Gruppe kommen soll. Für jede: drei Hinweise, drei Orte, drei Fertigkeiten.</span></div>
-      <label class="feld"><span>1</span><input type="text" data-fall="erkenntnis1" value="${sicher(fall.erkenntnis1 || '')}"></label>
-      <label class="feld"><span>2</span><input type="text" data-fall="erkenntnis2" value="${sicher(fall.erkenntnis2 || '')}"></label>
-      <label class="feld"><span>3</span><input type="text" data-fall="erkenntnis3" value="${sicher(fall.erkenntnis3 || '')}"></label>
+    <div class="bogen-gitter">
+      <div class="karte">
+        <div class="karte-kopf"><h2>Die drei Erkenntnisse</h2>
+          <span class="hinweis">Wozu die Gruppe kommen soll. Für jede: drei Hinweise, drei Orte, drei Fertigkeiten.</span></div>
+        <label class="feld"><span>1</span><input type="text" data-fall="erkenntnis1" value="${sicher(fall.erkenntnis1 || '')}"></label>
+        <label class="feld"><span>2</span><input type="text" data-fall="erkenntnis2" value="${sicher(fall.erkenntnis2 || '')}"></label>
+        <label class="feld"><span>3</span><input type="text" data-fall="erkenntnis3" value="${sicher(fall.erkenntnis3 || '')}"></label>
+      </div>
+
+      <div class="karte">
+        <div class="karte-kopf"><h2>Die Uhr</h2></div>
+        <div class="uhr">
+          ${[1,2,3,4].map(i => `<button type="button" data-uhr="${i}" class="${i <= uhr ? 'voll' : ''}">${i}</button>`).join('')}
+        </div>
+        <p class="hinweis-schild">
+          Ein Feld pro Szene ohne Fortschritt oder pro Fehler der Gruppe. Sie füllt sich nicht als Strafe — die Welt läuft weiter.<br><br>
+          <b>1</b> Etwas verschwindet: Zeuge, Dokument, Spur<br>
+          <b>2</b> Der Gegner handelt: jemand wird bedroht, versetzt, gekauft<br>
+          <b>3</b> Es wird persönlich gefährlich für die Gruppe<br>
+          <b>4</b> Das, was in Zeile fünf steht, passiert
+        </p>
+      </div>
     </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Die Uhr</h2>
-        <span class="hinweis">Ein Feld pro Szene ohne Fortschritt oder pro Fehler der Gruppe. Sie füllt sich nicht als Strafe — die Welt läuft weiter.</span></div>
-      <div class="uhr">
-        ${[1,2,3,4].map(i => `<button type="button" data-uhr="${i}" class="${i <= uhr ? 'voll' : ''}">${i}</button>`).join('')}
+    <div class="bogen-gitter">
+      <div class="karte">
+        <div class="karte-kopf"><h2>Festgelegt im Spiel</h2>
+          <span class="hinweis">Sobald eine Spielerentscheidung von einer Antwort abhängt: hier eintragen. Ab dann ist es Kanon.</span></div>
+        <div class="zeile-eingabe">
+          <input type="text" id="festlegung-eingabe" placeholder="z. B. Grothe war an dem Abend im Haus">
+          <button type="button" class="knopf" id="btn-festlegung">Festlegen</button>
+        </div>
+        <ul class="liste">
+          ${(fall.festlegungen || []).map((f, i) => `
+            <li><span style="flex:1">${sicher(f)}</span>
+            <button type="button" class="loeschen" data-fweg="${i}">×</button></li>`).join('')
+            || '<li class="leise">Noch nichts festgelegt.</li>'}
+        </ul>
       </div>
-      <p class="leise">
-        <b>1</b> Etwas verschwindet: Zeuge, Dokument, Spur<br>
-        <b>2</b> Der Gegner handelt: jemand wird bedroht, versetzt, gekauft<br>
-        <b>3</b> Es wird persönlich gefährlich für die Gruppe<br>
-        <b>4</b> Das, was in Zeile fünf steht, passiert
-      </p>
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Festgelegt im Spiel</h2>
-        <span class="hinweis">Sobald eine Spielerentscheidung von einer Antwort abhängt: hier eintragen. Ab dann ist es Kanon.</span></div>
-      <div class="zeile-eingabe">
-        <input type="text" id="festlegung-eingabe" placeholder="z. B. Grothe war an dem Abend im Haus">
-        <button type="button" class="knopf" id="btn-festlegung">Festlegen</button>
+      <div class="karte">
+        <div class="karte-kopf"><h2>Theorien der Spieler</h2>
+          <span class="hinweis">Mittippen, was am Tisch gesagt wird. Falsche Theorien werden zu echten Fährten — nie zu Sackgassen.</span></div>
+        <div class="zeile-eingabe">
+          <input type="text" id="theorie-eingabe" placeholder="„Die haben nachts was anderes produziert“">
+          <button type="button" class="knopf" id="btn-theorie">Notieren</button>
+        </div>
+        <ul class="liste">
+          ${(fall.theorien || []).map((t, i) => `
+            <li><span style="flex:1">${sicher(t)}</span>
+            <button type="button" class="loeschen" data-tweg="${i}">×</button></li>`).join('')
+            || '<li class="leise">Noch nichts notiert.</li>'}
+        </ul>
       </div>
-      <ul class="liste">
-        ${(fall.festlegungen || []).map((f, i) => `
-          <li><span style="flex:1">${sicher(f)}</span>
-          <button type="button" class="loeschen" data-fweg="${i}">×</button></li>`).join('')
-          || '<li class="leise">Noch nichts festgelegt.</li>'}
-      </ul>
-    </div>
-
-    <div class="karte">
-      <div class="karte-kopf"><h2>Theorien der Spieler</h2>
-        <span class="hinweis">Mittippen, was am Tisch gesagt wird. Falsche Theorien werden zu echten Fährten — nie zu Sackgassen.</span></div>
-      <div class="zeile-eingabe">
-        <input type="text" id="theorie-eingabe" placeholder="„Die haben nachts was anderes produziert“">
-        <button type="button" class="knopf" id="btn-theorie">Notieren</button>
-      </div>
-      <ul class="liste">
-        ${(fall.theorien || []).map((t, i) => `
-          <li><span style="flex:1">${sicher(t)}</span>
-          <button type="button" class="loeschen" data-tweg="${i}">×</button></li>`).join('')
-          || '<li class="leise">Noch nichts notiert.</li>'}
-      </ul>
     </div>
 
     <div class="karte">
@@ -424,7 +441,7 @@ function zeichneWelt(behaelter) {
       <button type="button" class="knopf knopf-haupt" id="btn-welt-neu">Anlegen</button>
     </div>
 
-    ${eintraege.length ? eintraege.map(e => `
+    ${eintraege.length ? `<div class="bogen-gitter">${eintraege.map(e => `
       <div class="eintrag" data-id="${e.id}">
         <div class="eintrag-kopf">
           <h4>${sicher(e.titel || 'Ohne Titel')}</h4>
@@ -437,8 +454,8 @@ function zeichneWelt(behaelter) {
           <button type="button" class="knopf-klein knopf-gefahr" data-welt-weg="${e.id}">Löschen</button>
           ${e.freigegeben ? '<span class="marke journal">bereits freigegeben</span>' : ''}
         </div>
-      </div>`).join('')
-    : '<div class="karte"><p class="leise">Noch nichts notiert. Drei Orte, drei Personen mit je einem Wunsch und einem Geheimnis — das trägt einen ganzen Abend.</p></div>'}
+      </div>`).join('')}</div>`
+    : '<div class="karte"><p class="hinweis-schild">Noch nichts notiert. Drei Orte, drei Personen mit je einem Wunsch und einem Geheimnis — das trägt einen ganzen Abend.</p></div>'}
   `;
 
   $('btn-welt-neu').addEventListener('click', async () => {
@@ -605,47 +622,49 @@ function zeichneRunde(behaelter) {
   const mitglieder = Object.entries(g.mitglieder || {});
 
   behaelter.innerHTML = `
-    <div class="karte">
-      <div class="karte-kopf"><h2>Spieler einladen</h2>
-        <span class="hinweis">Trag die E-Mail ein, mit der sich der Spieler anmeldet. Er sieht die Einladung dann beim nächsten Start.</span></div>
-      <div class="zeile-eingabe">
-        <input type="email" id="einladung-mail" placeholder="name@beispiel.de" inputmode="email">
-        <button type="button" class="knopf knopf-haupt" id="btn-einladen">Einladen</button>
+    <div class="bogen-gitter">
+      <div class="karte">
+        <div class="karte-kopf"><h2>Spieler einladen</h2>
+          <span class="hinweis">Trag die E-Mail ein, mit der sich der Spieler anmeldet. Er sieht die Einladung dann beim nächsten Start.</span></div>
+        <div class="zeile-eingabe">
+          <input type="email" id="einladung-mail" placeholder="name@beispiel.de" inputmode="email">
+          <button type="button" class="knopf knopf-haupt" id="btn-einladen">Einladen</button>
+        </div>
+        <ul class="liste">
+          ${(g.eingeladeneMails || []).map(m => `
+            <li><span style="flex:1">${sicher(m)}</span>
+            <button type="button" class="loeschen" data-einladung-weg="${sicher(m)}" title="Einladung zurücknehmen">×</button></li>`).join('')
+            || '<li class="leise">Noch niemand eingeladen.</li>'}
+        </ul>
       </div>
-      <ul class="liste">
-        ${(g.eingeladeneMails || []).map(m => `
-          <li><span style="flex:1">${sicher(m)}</span>
-          <button type="button" class="loeschen" data-einladung-weg="${sicher(m)}" title="Einladung zurücknehmen">×</button></li>`).join('')
-          || '<li class="leise">Noch niemand eingeladen.</li>'}
-      </ul>
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>In der Runde</h2></div>
-      <ul class="liste">
-        ${mitglieder.map(([uid, m]) => `
-          <li><span style="flex:1">${sicher(m.name)}</span>
-          <span class="marke ${m.rolle === 'sl' ? 'sl' : 'journal'}">${m.rolle === 'sl' ? 'Spielleitung' : 'Spieler'}</span></li>`).join('')}
-      </ul>
-    </div>
-
-    <div class="karte">
-      <div class="karte-kopf"><h2>Freigaben</h2>
-        <span class="hinweis">Schalte das Steigern frei, wenn ihr eine Sitzung abgeschlossen habt. Danach wieder zu — dann sammeln sich die Punkte nur an.</span></div>
-      <div class="zaehler">
-        <span class="titel" style="flex:1">Charaktere dürfen steigern</span>
-        <button type="button" class="knopf ${g.freigaben?.steigern ? 'knopf-haupt' : ''}" id="btn-steigern">
-          ${g.freigaben?.steigern ? 'Freigeschaltet — jetzt schließen' : 'Steigern freischalten'}
-        </button>
+      <div class="karte">
+        <div class="karte-kopf"><h2>In der Runde</h2></div>
+        <ul class="liste">
+          ${mitglieder.map(([uid, m]) => `
+            <li><span style="flex:1">${sicher(m.name)}</span>
+            <span class="marke ${m.rolle === 'sl' ? 'sl' : 'journal'}">${m.rolle === 'sl' ? 'Spielleitung' : 'Spieler'}</span></li>`).join('')}
+        </ul>
       </div>
-    </div>
 
-    <div class="karte">
-      <div class="karte-kopf"><h2>Fortschrittspunkte für alle</h2>
-        <span class="hinweis">1 FP pro Sitzung, 2 bei einem Abschluss.</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" class="knopf" data-alle-fp="1">Allen +1 FP</button>
-        <button type="button" class="knopf" data-alle-fp="2">Allen +2 FP</button>
+      <div class="karte">
+        <div class="karte-kopf"><h2>Freigaben</h2>
+          <span class="hinweis">Schalte das Steigern frei, wenn ihr eine Sitzung abgeschlossen habt. Danach wieder zu — dann sammeln sich die Punkte nur an.</span></div>
+        <div class="zaehler">
+          <span class="titel" style="flex:1">Charaktere dürfen steigern</span>
+          <button type="button" class="knopf ${g.freigaben?.steigern ? 'knopf-haupt' : ''}" id="btn-steigern">
+            ${g.freigaben?.steigern ? 'Freigeschaltet — jetzt schließen' : 'Steigern freischalten'}
+          </button>
+        </div>
+      </div>
+
+      <div class="karte">
+        <div class="karte-kopf"><h2>Fortschrittspunkte für alle</h2>
+          <span class="hinweis">1 FP pro Sitzung, 2 bei einem Abschluss.</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="knopf" data-alle-fp="1">Allen +1 FP</button>
+          <button type="button" class="knopf" data-alle-fp="2">Allen +2 FP</button>
+        </div>
       </div>
     </div>`;
 

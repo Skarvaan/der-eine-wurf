@@ -101,6 +101,19 @@ service cloud.firestore {
       }
 
       // ------------------------------------------------------
+      // NOTIZBUCH
+      // Private Notizen je Person — bewusst NICHT im
+      // Charakterdokument, das alle in der Runde lesen dürfen.
+      // Eigene Sammlung, ein Dokument pro Person (Dokument-ID
+      // ist die eigene UID): nur die Person selbst schreibt,
+      // sie selbst und die Spielleitung lesen mit.
+      // ------------------------------------------------------
+      match /notizbuch/{uid} {
+        allow read:  if angemeldet() && (request.auth.uid == uid || istSL(gid));
+        allow write: if angemeldet() && request.auth.uid == uid;
+      }
+
+      // ------------------------------------------------------
       // GETEILTER BEREICH
       // Alles, was der Spielleiter für alle freigibt:
       // gefundene Indizien, Orte, bekannte Personen — plus das

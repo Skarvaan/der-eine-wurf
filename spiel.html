@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Eine Wurf">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 <link rel="icon" href="icon-192.png">
 </head>
@@ -167,43 +170,62 @@
   </main>
 
   <!-- ======================================================
-       SPEICHERLEISTE
-       Erscheint nur, wenn es ungespeicherte Änderungen gibt.
-       Nichts wird automatisch geschrieben — das spart
-       Schreibvorgänge und macht sichtbar, was noch offen ist.
+       BODENLEISTEN — Speicherleiste und Würfelleiste stapeln
+       sich hier in einem GEMEINSAMEN fixen Container. Nur der
+       Container selbst ist "position: fixed"; welche der beiden
+       Zeilen gerade wie hoch ist (eingeklappte oder aufgeklappte
+       Würfelleiste, Speicherleiste sichtbar oder nicht), regelt
+       normaler Fluss — kein Verrechnen von Pixelabständen nötig.
        ====================================================== -->
-  <div class="speicherleiste" id="speicherleiste" hidden>
-    <span id="speicher-text">Ungespeicherte Änderungen</span>
-    <div style="display:flex;gap:8px">
-      <button type="button" class="knopf-klein" id="btn-verwerfen">Verwerfen</button>
-      <button type="button" class="knopf knopf-haupt" id="btn-speichern">Speichern</button>
-    </div>
-  </div>
+  <div class="bodenleisten">
 
-  <!-- ======================================================
-       WÜRFELLEISTE — immer sichtbar
-       ====================================================== -->
-  <div class="wuerfelleiste">
-    <div class="wuerfel-zeile">
-      <div class="segment" id="wuerfel-modus">
-        <button type="button" data-modus="nachteil">Nachteil</button>
-        <button type="button" data-modus="normal" class="aktiv">Normal</button>
-        <button type="button" data-modus="vorteil">Vorteil</button>
+    <!-- SPEICHERLEISTE — erscheint nur, wenn es ungespeicherte
+         Änderungen gibt. Nichts wird automatisch geschrieben. -->
+    <div class="speicherleiste" id="speicherleiste" hidden>
+      <span id="speicher-text">Ungespeicherte Änderungen</span>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="knopf-klein" id="btn-verwerfen">Verwerfen</button>
+        <button type="button" class="knopf knopf-haupt" id="btn-speichern">Speichern</button>
       </div>
-      <label class="mini-feld">
-        <span>Bonus</span>
-        <input type="number" id="wuerfel-bonus" value="0" step="1" inputmode="numeric">
-      </label>
-      <label class="mini-feld">
-        <span>SG</span>
-        <input type="number" id="wuerfel-sg" value="15" step="5" inputmode="numeric">
-      </label>
-      <button type="button" class="knopf-wuerfeln" id="btn-wuerfeln">W20</button>
     </div>
-    <div class="wuerfel-ergebnis" id="wuerfel-ergebnis">
-      <span class="wuerfel-zahl">—</span>
-      <span class="wuerfel-text">Bereit</span>
+
+    <!-- WÜRFELLEISTE — standardmäßig eingeklappt. Die meisten
+         Runden würfeln mit echten Würfeln am Tisch; hier lässt
+         sich das In-App-Würfeln bei Bedarf zuschalten. Siehe
+         wuerfelSchalterAufbauen() in app.js. -->
+    <div class="wuerfelleiste">
+      <div class="wuerfel-kopf">
+        <span class="wuerfel-marke">🎲 Würfeltisch</span>
+        <span class="schalter-text">In der App würfeln</span>
+        <label class="schalter" title="Standardmäßig aus — die meisten Runden würfeln mit echten Würfeln am Tisch.">
+          <input type="checkbox" id="schalter-wuerfeln">
+          <span class="lauf"><span class="griff"></span></span>
+        </label>
+      </div>
+      <div class="wuerfel-koerper" id="wuerfel-koerper" hidden>
+        <div class="wuerfel-zeile">
+          <div class="segment" id="wuerfel-modus">
+            <button type="button" data-modus="nachteil">Nachteil</button>
+            <button type="button" data-modus="normal" class="aktiv">Normal</button>
+            <button type="button" data-modus="vorteil">Vorteil</button>
+          </div>
+          <label class="mini-feld">
+            <span>Bonus</span>
+            <input type="number" id="wuerfel-bonus" value="0" step="1" inputmode="numeric">
+          </label>
+          <label class="mini-feld">
+            <span>SG</span>
+            <input type="number" id="wuerfel-sg" value="15" step="5" inputmode="numeric">
+          </label>
+          <button type="button" class="knopf-wuerfeln" id="btn-wuerfeln">W20</button>
+        </div>
+        <div class="wuerfel-ergebnis" id="wuerfel-ergebnis">
+          <span class="wuerfel-zahl">—</span>
+          <span class="wuerfel-text">Bereit</span>
+        </div>
+      </div>
     </div>
+
   </div>
 
 </div>

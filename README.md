@@ -88,6 +88,7 @@ Was die Regeln tun:
 
 - Spieler sehen die Runden, in denen sie Mitglied sind oder eingeladen wurden — sonst keine.
 - Charaktere: alle in der Runde dürfen sie lesen, ändern darf nur der Besitzer oder du.
+- Notizbuch (private Charakternotizen): nur die betreffende Person selbst schreibt; sie selbst und du als Spielleitung lesen mit — andere Mitspieler sehen es nicht.
 - Gemeinsamer Bereich: alle lesen; Spieler dürfen **ausschließlich Journaleinträge** schreiben, und nur ihre eigenen ändern.
 - Spielleiterbereich: **nur du**. Ein Spieler, der eigene Anfragen an die Datenbank schickt, bekommt hier nichts — nicht einmal die Anzahl der Einträge.
 
@@ -168,6 +169,12 @@ Erst wenn du unter **Runde → Freigaben** das Steigern freischaltest, erscheint
 Du notierst unter **Welt** alles, was du brauchst — inklusive der Geheimnisse. Wenn die Gruppe etwas herausfindet, drückst du **An alle freigeben**. Dann kannst du den Text vorher kürzen, und nur die gekürzte Fassung landet im gemeinsamen Bereich. Dein Original bleibt bei dir.
 
 Das Gleiche gilt für Indizien und Orte: Du legst sie direkt unter **Gemeinsam** an, sobald sie entdeckt wurden.
+
+## Würfeln in der App (optional, standardmäßig aus)
+
+Die Würfelleiste am unteren Rand ist eingeklappt, solange niemand sie aufklappt — die meisten Runden würfeln mit echten Würfeln am Tisch. Der Charakterbogen zeigt in diesem Fall statt eines Würfeln-Knopfs direkt den fertigen Bonus an (Attribut + Fertigkeit), damit man ihn nur noch auf den echten Würfel addieren muss.
+
+Wer lieber in der App würfelt, klappt die Leiste über den Schalter auf — dann erscheinen überall Würfeln-Knöpfe. Die Einstellung merkt sich das jeweilige Gerät, nicht die Runde: Jeder am Tisch entscheidet für sich.
 
 ---
 
