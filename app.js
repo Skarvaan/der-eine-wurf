@@ -18,6 +18,7 @@
 
 import { Auth, Gruppen } from './speicher.js';
 import { REGELN } from './daten/regeln.js';
+import { regelListeHtml } from './daten/regeln-render.js';
 import { starteCharakter, beendeCharakter } from './charakter.js';
 import { starteGeteilt, beendeGeteilt } from './geteilt.js';
 import { starteSL, beendeSL } from './sl.js';
@@ -477,49 +478,13 @@ function zonenAufbauen() {
    REGELN
    ============================================================ */
 
-/**
- * Baut die Reihenfolge der Gruppen aus dem ersten Auftreten in
- * REGELN — eine neue "gruppe" in daten/regeln.js taucht damit
- * automatisch an der richtigen Stelle auf, ohne dass hier etwas
- * gepflegt werden müsste.
- */
-const REGEL_GRUPPEN = [...new Set(REGELN.map(r => r.gruppe))];
-
 function regelnZeichnen(filter = '') {
-  const suche = filter.trim().toLowerCase();
-
   // Einträge mit "nurSL" verraten Spielleitungswissen (wie man
   // improvisiert, wie Hinweise gelegt werden, …) — für Spieler
   // wäre das ein Spoiler auf die eigenen Tricks des Spielleiters.
   // Die Spielleitung selbst sieht hier bewusst mehr als Spieler.
   const sichtbar = REGELN.filter(r => !r.nurSL || sitzung.istSL);
-
-  const treffer = sichtbar.filter(r =>
-    !suche || r.titel.toLowerCase().includes(suche)
-           || r.text.toLowerCase().includes(suche)
-           || (r.schlagworte || '').toLowerCase().includes(suche));
-
-  if (!treffer.length) {
-    $('regel-liste').innerHTML = '<p class="hinweis-schild">Nichts gefunden. Im Zweifel: W20 + Attribut gegen 15.</p>';
-    return;
-  }
-
-  // Nach Gruppe sortiert ausgeben — nur Gruppen mit mindestens
-  // einem Treffer erscheinen überhaupt.
-  $('regel-liste').innerHTML = REGEL_GRUPPEN.map(gruppe => {
-    const eintraege = treffer.filter(r => r.gruppe === gruppe);
-    if (!eintraege.length) return '';
-
-    return `
-      <h3 class="unter">${sicher(gruppe)}</h3>
-      <div class="bogen-gitter gitter-drei">
-        ${eintraege.map(r => `
-          <div class="karte">
-            <div class="karte-kopf"><h2>${sicher(r.titel)}</h2></div>
-            <p class="regel-text">${sicher(r.text)}</p>
-          </div>`).join('')}
-      </div>`;
-  }).join('');
+  $('regel-liste').innerHTML = regelListeHtml(sichtbar, filter);
 }
 
 function regelnAufbauen() {

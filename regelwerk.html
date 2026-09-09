@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Der Eine Wurf — vollständiges Regelwerk</title>
+<meta name="description" content="Alle Regeln von Der Eine Wurf zum Nachschlagen — kurz, vollständig, durchsuchbar. Keine Anmeldung nötig.">
+<meta name="theme-color" content="#12100e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="stil.css">
+<link rel="icon" href="icon-192.png">
+</head>
+<body class="oeffentlich">
+
+<header class="held" style="padding-bottom:40px">
+  <div class="held-innen">
+    <p class="held-vorspann">Nachschlagewerk</p>
+    <h1>Das vollständige Regelwerk</h1>
+    <p class="held-satz">
+      Jede Regel des Spiels an einem Ort — kurz gefasst und durchsuchbar.
+      Keine Anmeldung nötig.
+    </p>
+    <div class="held-knoepfe">
+      <a class="knopf-gross knopf-hohl" href="index.html">Zurück zur Übersicht</a>
+      <a class="knopf-gross" href="spiel.html">Zum Spielbereich</a>
+    </div>
+  </div>
+</header>
+
+<main class="seite">
+  <section class="block">
+    <div class="karte">
+      <div class="karte-kopf">
+        <h2>Suchen</h2>
+        <span class="hinweis">Alle Einträge unten durchsuchbar — auch über Begriffe, die im Text selbst nicht vorkommen.</span>
+      </div>
+      <label class="feld">
+        <span>Suchen</span>
+        <input type="search" id="regel-suche" placeholder="z. B. Manöver, Stabilität, angeschlagen">
+      </label>
+    </div>
+
+    <div id="regel-liste"></div>
+  </section>
+</main>
+
+<footer class="fuss">
+  <p>Der Eine Wurf · Ein privates Regelwerk-Projekt</p>
+</footer>
+
+<script type="module" src="regelwerk.js"></script>
+</body>
+</html>

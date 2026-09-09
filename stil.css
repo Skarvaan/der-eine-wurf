@@ -69,6 +69,14 @@ html, body {
   font-size: 17px; line-height: 1.5;
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
+  /* Ein einzelnes zu langes Wort (lange deutsche Komposita,
+     eine URL) darf nie die Seite breiter machen als der
+     Bildschirm — bricht nötigenfalls mitten im Wort um. */
+  overflow-wrap: anywhere;
+  /* Sicherheitsnetz: Sollte trotzdem irgendwo ein Element zu
+     breit werden, entsteht ein abgeschnittenes Element statt
+     einer seitwärts scrollbaren, wackelnden Seite. */
+  overflow-x: hidden;
 }
 
 /* Ein Hauch Dampf im Hintergrund der ganzen App — sehr schwach,
@@ -217,6 +225,11 @@ h3.unter {
 .attribut-schild {
   display: flex; gap: 14px; align-items: center;
 }
+/* "min-width: 0" statt des Flexbox-Standards "auto": ohne das
+   verweigert der Textblock das Schrumpfen unter seine eigene
+   Inhaltsbreite und drückt das Wappen auf schmalen Bildschirmen
+   aus der Zeile bzw. läuft selbst über den Kartenrand hinaus. */
+.attribut-schild-text { min-width: 0; }
 .wappen {
   flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
   display: grid; place-items: center;
@@ -246,7 +259,7 @@ h3.unter {
   color: #17130c; font-family: var(--schrift-kopf); font-weight: 700; font-size: 17px;
   box-shadow: 0 0 0 3px var(--bg);
 }
-.schritt-text { padding-top: 6px; }
+.schritt-text { padding-top: 6px; min-width: 0; }
 .schritt-text h3 { margin: 0 0 4px; font-size: 17px; font-family: var(--schrift-kopf); }
 .schritt-text p { margin: 0; font-size: 15px; color: var(--text-leise); }
 
@@ -315,9 +328,17 @@ h3.unter {
   padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
   background: var(--bg); border-bottom: 1px solid var(--linie);
 }
+/* Der linke Block (Marke + Rundenname) darf schrumpfen und mit
+   "…" abschneiden, statt die Kopfzeile aufzudrücken — ohne
+   "min-width: 0" ignoriert ein Flex-Kind das und läuft über,
+   z. B. bei einem langen selbstgewählten Rundennamen. */
+.kopf > div:first-child { min-width: 0; overflow: hidden; }
 .kopf-marke { font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--messing); font-weight: 700; }
-.kopf-info { font-size: 12px; color: var(--text-leise); }
-.kopf-rechts { display: flex; align-items: center; gap: 8px; }
+.kopf-info {
+  font-size: 12px; color: var(--text-leise);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.kopf-rechts { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; }
 
 /* --- Zonenumschalter (Spieler / Geteilt / Spielleiter) --- */
 .zonen {
@@ -559,6 +580,13 @@ h3.unter {
 /* --- Zähler (LP, Stabilität, Schicksal) --- */
 .zaehler { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .zaehler > .titel { flex: 0 0 96px; font-size: 13px; color: var(--text-leise); }
+/* Auf schmalen Bildschirmen (LP/Stabilität/Schicksal-Zeile) passt
+   Titel + zwei Knöpfe + Messgerät + Zustandstext nicht in eine
+   Zeile. Statt eng zu stauchen: Titel bekommt eine eigene Zeile,
+   der Rest bricht darunter sauber um. */
+@media (max-width: 420px) {
+  .zaehler > .titel { flex: 1 1 100%; }
+}
 .zaehler button {
   width: 44px; height: 44px;
   border: 1px solid var(--linie); border-radius: 8px;
@@ -701,18 +729,24 @@ button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color:
   display: flex; align-items: center; gap: 10px;
   max-width: 900px; margin: 0 auto; padding: 9px 0;
 }
-.wuerfel-marke { font-size: 13px; font-weight: 700; color: var(--messing); letter-spacing: 0.04em; }
-.wuerfel-kopf .schalter-text { font-size: 12px; color: var(--text-leise); flex: 1; }
+.wuerfel-marke { flex: 0 0 auto; font-size: 13px; font-weight: 700; color: var(--messing); letter-spacing: 0.04em; }
+/* "min-width: 0" erlaubt dem Text zu schrumpfen bzw. innerhalb
+   seiner Zeile umzubrechen, statt den Schalter aus der Leiste
+   auf schmalen Bildschirmen herauszudrücken. */
+.wuerfel-kopf .schalter-text { flex: 1; min-width: 0; font-size: 12px; color: var(--text-leise); }
 .wuerfel-koerper { padding-bottom: 10px; }
-.wuerfel-zeile { display: flex; align-items: flex-end; gap: 8px; max-width: 900px; margin: 0 auto; }
-.segment { display: flex; border: 1px solid var(--linie); border-radius: 8px; overflow: hidden; }
+/* Auf schmalen Bildschirmen bricht die Zeile um: die drei
+   Modus-Knöpfe zuerst in voller Breite, Bonus/SG/Würfeln-Knopf
+   darunter — statt sich gegenseitig zu stauchen. */
+.wuerfel-zeile { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; max-width: 900px; margin: 0 auto; }
+.segment { display: flex; flex: 1 1 100%; border: 1px solid var(--linie); border-radius: 8px; overflow: hidden; }
 .segment button {
-  min-height: var(--tipp); padding: 0 10px; border: none;
+  flex: 1; min-height: var(--tipp); padding: 0 6px; border: none;
   background: var(--bg); color: var(--text-leise);
   font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .segment button.aktiv { background: var(--messing); color: #17130c; }
-.mini-feld { display: flex; flex-direction: column; gap: 2px; width: 66px; }
+.mini-feld { display: flex; flex: 1 1 66px; flex-direction: column; gap: 2px; width: 66px; }
 .mini-feld span { font-size: 11px; color: var(--text-leise); }
 .mini-feld input {
   min-height: var(--tipp); padding: 6px 8px;

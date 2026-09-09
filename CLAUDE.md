@@ -4,9 +4,10 @@ Wird bei jedem Sitzungsstart gelesen. Der größte Einzelhebel dafür, dass Clau
 
 ## Was das ist
 
-Zwei Seiten für das eigene Pen-&-Paper-Regelwerk „Der Eine Wurf":
+Drei Seiten für das eigene Pen-&-Paper-Regelwerk „Der Eine Wurf":
 
 - `index.html` — öffentlich, ohne Anmeldung. Erklärt das Spiel. Wird an Spieler verschickt.
+- `regelwerk.html` — öffentlich, ohne Anmeldung. Die vollständigen Regeln zum Nachschlagen (alles aus `daten/regeln.js` außer Spielleitungswissen).
 - `spiel.html` — Spielbereich mit Anmeldung, drei Zonen, Echtzeit-Synchronisierung.
 
 Benutzt wird das auf einem iPad am Spieltisch, oft bei wenig Licht und schlechtem Netz.
@@ -31,15 +32,21 @@ Benutzt wird das auf einem iPad am Spieltisch, oft bei wenig Licht und schlechte
 ## Architektur
 
 ```
-app.js        Anmeldung, Runden, Rollen, Zonen, Würfelleiste,
-              gemeinsame Hilfsfunktionen (werden exportiert)
-speicher.js   Die EINZIGE Datei mit Firestore-Code
-charakter.js  Zone „Mein Charakter“
-geteilt.js    Zone „Gemeinsam“
-sl.js         Zone „Spielleitung“
+app.js               Anmeldung, Runden, Rollen, Zonen, Würfelleiste,
+                      gemeinsame Hilfsfunktionen (werden exportiert)
+speicher.js           Die EINZIGE Datei mit Firestore-Code
+charakter.js          Zone „Mein Charakter“
+geteilt.js            Zone „Gemeinsam“
+sl.js                 Zone „Spielleitung“
+regelwerk.js          Bootstrapt die öffentliche Seite regelwerk.html
+daten/regeln.js       Die Regeltexte (Datenquelle)
+daten/regeln-render.js  Baut daraus HTML — von app.js UND regelwerk.js
+                      benutzt, absichtlich ohne Firebase-Abhängigkeit
 ```
 
 Die Ansichtsmodule kennen weder Firestore noch Firebase Auth direkt — sie benutzen ausschließlich `Charaktere`, `Geteilt`, `SLNotizen`, `Gruppen` und `Auth` aus `speicher.js`. **Diese Trennung nie durchbrechen.**
+
+`regelwerk.html`/`regelwerk.js` sind bewusst NICHT an `app.js` gekoppelt: `app.js` verbindet sich beim Laden sofort mit Firebase und sucht Elemente wie `#schirm-app`, die es auf einer rein öffentlichen Seite nicht gibt. Neue öffentliche (nicht angemeldete) Seiten bekommen deshalb ein eigenes, schlankes Bootstrap-Skript statt `app.js` einzubinden.
 
 Jedes Modul exportiert `starteX(gid)` und `beendeX()`. Beim Wechsel der Runde werden alle Abos beendet, damit keine Zuhörer auf alten Daten hängenbleiben.
 
@@ -62,6 +69,8 @@ Das System ist bewusst minimal. Einfachheit hat Vorrang vor Vollständigkeit. Ke
 
 Bei der Horror-Mechanik gilt: Der Spieler behält immer die Kontrolle über seine Figur. Der Spielleiter sagt, *dass* etwas passiert, nie *was*.
 
+**Tonfall der Regeltexte: neutral und sachlich, keine Ich/Wir-Perspektive der Autoren.** Also nicht „das ist uns wichtig" oder „wir finden" — die Regel einfach direkt hinschreiben. Betrifft `index.html`, `regelwerk.html` und `daten/regeln.js`.
+
 ## Design — Steampunk-Anmutung
 
 Genietete „Messingplatten" statt Fließtext: `.karte` bekommt vier
@@ -74,6 +83,14 @@ LP/Stabilität/Schicksal zeigen sich als rundes `.messgeraet`
 Cinzel für Überschriften, Special Elite fürs Notizbuch — beide per
 Google Fonts in `index.html`/`spiel.html` eingebunden, mit
 System-Schrift als Fallback.
+
+**Mobil ohne seitliches Scrollen:** `html, body` setzt
+`overflow-wrap: anywhere` (bricht auch mitten in einem langen Wort
+um — wichtig bei deutschen Komposita) und `overflow-x: hidden` als
+Sicherheitsnetz. Ein Flex-Kind mit Text bekommt zusätzlich
+`min-width: 0`, sonst verweigert es laut Flexbox-Standard das
+Schrumpfen unter seine Inhaltsbreite und drückt Nachbarelemente aus
+der Zeile (z. B. `.kopf-info`, `.attribut-schild-text`).
 
 ## Würfeln in der App — standardmäßig AUS
 

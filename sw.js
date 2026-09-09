@@ -10,13 +10,13 @@
    Offline-Speicher mit (siehe speicher.js).
    ============================================================ */
 
-const VERSION = 'dew-v8';
+const VERSION = 'dew-v9';
 
 const DATEIEN = [
-  './', './index.html', './spiel.html', './stil.css',
-  './app.js', './speicher.js', './firebase-konfig.js',
+  './', './index.html', './spiel.html', './regelwerk.html', './stil.css',
+  './app.js', './speicher.js', './firebase-konfig.js', './regelwerk.js',
   './charakter.js', './geteilt.js', './sl.js',
-  './daten/tabellen.js', './daten/regeln.js',
+  './daten/tabellen.js', './daten/regeln.js', './daten/regeln-render.js',
   './manifest.json', './icon-192.png', './icon-512.png'
 ];
 
