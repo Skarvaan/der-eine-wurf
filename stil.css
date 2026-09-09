@@ -416,17 +416,27 @@ h3.unter {
 
 /* --- Hinweis-Schild: ein umrahmter Kasten für erklärenden Text
    MITTEN in einer Karte — ersetzt den bisherigen Fließtext
-   (<p class="leise">) an Stellen, die eine Regel erklären. --- */
+   (<p class="leise">) an Stellen, die eine Regel erklären.
+
+   WICHTIG: bewusst KEIN "display: flex" hier. Der Text darin
+   enthält oft <b>/<i> mitten im Satz (z. B. "Ein Schloss
+   <i>aufbrechen</i> ist …") — Flexbox verpackt dann jedes
+   Textstück zwischen den Inline-Tags in eine eigene, schmale
+   Flex-Box, die einzeln umbricht. Ergebnis: der Text zerfällt in
+   hässliche senkrechte Wortfetzen statt normal zu fließen. Das
+   Zahnrad-Symbol kommt deshalb per Positionierung, nicht per
+   Flex-Kind. --- */
 .hinweis-schild {
-  display: flex; gap: 9px; align-items: flex-start;
-  margin: 10px 0; padding: 10px 12px;
+  position: relative;
+  margin: 10px 0; padding: 10px 12px 10px 30px;
   border: 1px dashed var(--kupfer);
   border-radius: 8px;
   background: rgba(181,101,29,0.08);
   font-size: 13px; line-height: 1.45; color: var(--text-leise);
 }
 .hinweis-schild::before {
-  content: "⚙"; flex: 0 0 auto; font-size: 15px; line-height: 1.3;
+  content: "⚙"; position: absolute; left: 10px; top: 10px;
+  font-size: 15px; line-height: 1.3;
   color: var(--kupfer-hell);
 }
 .hinweis-schild b, .hinweis-schild strong { color: var(--text); }
