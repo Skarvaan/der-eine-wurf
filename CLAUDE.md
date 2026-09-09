@@ -78,8 +78,14 @@ Eck-Nieten und einen doppelten Rahmen rein über CSS-Verläufe
 (kein Bild). Erklärender Text steht in `.hinweis-schild`
 (gestrichelter Kupferrahmen), Zustandswarnungen in `.warnschild`.
 LP/Stabilität/Schicksal zeigen sich als rundes `.messgeraet`
-(Kegelverlauf als Füllstand). Mehrere Karten stehen im responsiven
-`.bogen-gitter` (1 Spalte mobil, 2+ auf Tablet/Desktop). Schriften:
+(Kegelverlauf als Füllstand). Mehrere gleichmäßig hohe Karten stehen im responsiven
+`.bogen-gitter` (1 Spalte mobil, 2+ auf Tablet/Desktop) — für eine
+**lange Liste unterschiedlich langer Karten** (z. B. das
+Regelwerk) stattdessen `.regelwerk-spalten` (CSS-Spalten,
+`break-inside: avoid`): Ein Raster streckt jede Zeile auf die
+höchste Karte darin und reißt darunter Lücken; Spalten lassen
+jede Karte in eigener Höhe direkt an die vorherige andocken.
+Schriften:
 Cinzel für Überschriften, Special Elite fürs Notizbuch — beide per
 Google Fonts in `index.html`/`spiel.html` eingebunden, mit
 System-Schrift als Fallback.

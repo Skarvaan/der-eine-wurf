@@ -25,7 +25,9 @@ export const REGELN = [
 
 Passt keine Fertigkeit: W20 + Attribut. Fertigkeit 0 gibt keinen Bonus, aber auch keinen Abzug — jeder darf alles versuchen.
 
-Gewürfelt wird nur, wenn der Ausgang ungewiss ist UND ein Misserfolg interessant wäre.`
+Gewürfelt wird nur, wenn der Ausgang ungewiss ist UND ein Misserfolg interessant wäre.
+
+Beispiel: Über eine Mauer klettern → W20 + Körper + Athletik gegen SG 15.`
   },
   {
     gruppe: 'Grundmechanik',
@@ -33,7 +35,9 @@ Gewürfelt wird nur, wenn der Ausgang ungewiss ist UND ein Misserfolg interessan
     schlagworte: 'sg schwierigkeit zielwert dc',
     text: `10 leicht · 15 normal · 20 schwierig · 25 sehr schwierig · 30 extrem
 
-Im Zweifel: 15. Kein SG 5 — was so leicht ist, wird nicht gewürfelt.`
+Im Zweifel: 15. Kein SG 5 — was so leicht ist, wird nicht gewürfelt.
+
+Beispiel: ein unverschlossenes Schloss knacken SG 10, ein gutes Vorhängeschloss SG 15, ein Tresor SG 25.`
   },
   {
     gruppe: 'Grundmechanik',
@@ -57,7 +61,9 @@ Nachteil: 2W20, niedrigeres Ergebnis zählt.
 
 Keine Stufen. Vorteil und Nachteil heben sich immer vollständig auf.
 
-Hilfe: genau EIN Mitspieler kann helfen, wenn er beschreibt wie. Das gibt Vorteil. Weitere Helfer geben nichts.`
+Hilfe: genau EIN Mitspieler kann helfen, wenn er beschreibt wie. Das gibt Vorteil. Weitere Helfer geben nichts.
+
+Beispiel: Du kletterst mit einem Seil (Vorteil) im Dunkeln (Nachteil) — beides hebt sich auf, du würfelst ganz normal.`
   },
   {
     gruppe: 'Grundmechanik',
@@ -69,7 +75,9 @@ Gegeneinander: beide würfeln, höher gewinnt. Gleichstand: nichts ändert sich,
 
 Gruppenprobe: schafft die Hälfte, gelingt es der Gruppe.
 
-Wiederholung nur, wenn sich etwas geändert hat.`
+Wiederholung nur, wenn sich etwas geändert hat.
+
+Beispiel: Ein Wächter bemerkt eine schleichende Person, wenn deren Heimlichkeits-Ergebnis unter seinem passiven Wahrnehmungswert liegt — ohne dass dafür gewürfelt wird.`
   },
 
   /* ---------------- Attribute & Fertigkeiten ---------------- */
@@ -101,7 +109,9 @@ Attribut und Fertigkeit sind nicht fest verdrahtet: Schloss aufbrechen = Körper
     text: `2 Stärken + 1 Makel (oder 3 + 2). Ist eine Eigenschaft für die Situation wirklich relevant: Vorteil bzw. Nachteil. Sonst nichts. Keine Sonderregeln.
 
 Wenn dein Makel dir einen Nachteil einbringt, bekommst du einen Schicksalspunkt.
-Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf. Höchstens drei besitzen.`
+Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf. Höchstens drei besitzen.
+
+Beispiel: Die Stärke „Zwölf Jahre Kriminalpolizei" gibt Vorteil beim Verhören eines Verdächtigen. Der Makel „Kann nicht loslassen" bringt einen Nachteil, wenn ein Fall längst geschlossen ist — und dafür einen Schicksalspunkt.`
   },
 
   /* ---------------- Gesundheit ---------------- */
@@ -119,7 +129,9 @@ Wer am Boden liegt und erneut Schaden nimmt, ist tot.
 Wer am Boden liegt und bis Szenenende niemanden hat, der ihn versorgt, ist tot.
 
 Versorgen: Verstand + Heilkunde SG 15 → 1 LP, wach, angeschlagen.
-Erfolg mit Preis: er lebt und behält eine Narbe (neuer dauerhafter Makel).`
+Erfolg mit Preis: er lebt und behält eine Narbe (neuer dauerhafter Makel).
+
+Beispiel: Körper 3 → 16 LP. Bei 8 LP oder weniger angeschlagen, bei 0 am Boden.`
   },
   {
     gruppe: 'Gesundheit',
@@ -151,7 +163,9 @@ Ausweichen: Geschick + Athletik SG 15 halbiert den Schaden.`
 Zonen statt Raster: NAH (Armlänge) — KURZ (selber Raum) — FERN (anderes Ende).
 Pro Runde eine Zone. Aktion opfern für eine zweite Zone.
 
-Aus dem Nahkampf lösen: der Gegner bekommt einen freien Angriff, außer du gibst deine Aktion auf.`
+Aus dem Nahkampf lösen: der Gegner bekommt einen freien Angriff, außer du gibst deine Aktion auf.
+
+Beispiel: Du stehst NAH bei einem Gegner, ein zweiter ist KURZ entfernt. Um beide gleichzeitig zu erreichen, opferst du deine Aktion für eine zweite Zone.`
   },
   {
     gruppe: 'Kampf',
@@ -214,7 +228,9 @@ Pro Schockquelle einmal, nicht pro Anblick.`
     text: `ERSCHÜTTERT (halbe Stabilität oder weniger): Nachteil auf alle Proben mit Wille oder Wahrnehmung, dazu ein Tick, den der Spieler ausspielt.
 
 GEBROCHEN (0): Der SPIELER wählt selbst, wie sein Charakter bricht — fliehen, erstarren, um sich schlagen, zusammenbrechen. Der SL sagt nur, DASS es passiert.
-Dauert bis Szenenende. Danach 1W6 Stabilität und eine neue "Narbe der Seele" (dauerhafter Makel, vom Spieler formuliert).`
+Dauert bis Szenenende. Danach 1W6 Stabilität und eine neue "Narbe der Seele" (dauerhafter Makel, vom Spieler formuliert).
+
+Beispiel-Tick: den Anblick nicht loslassen können und ihn zwanghaft weiter beschreiben, statt zu handeln.`
   },
   {
     gruppe: 'Stabilität',
@@ -234,7 +250,9 @@ Abgeschlossenes Abenteuer: 1W6, bei echtem Sieg 2W6`
 
 Verbotenes Wissen: 1W6 Stabilität ohne Wurf, dafür +1 Mysterien oder eine konkrete Antwort.
 
-Rituale: Wille + Mysterien, SG 15/20/25. Brauchen Zeit, einen Ort und einen Preis, kosten immer Stabilität.`
+Rituale: Wille + Mysterien, SG 15/20/25. Brauchen Zeit, einen Ort und einen Preis, kosten immer Stabilität.
+
+Beispiel: Ein verbotenes Buch lesen, um den Namen einer Sache zu erfahren — 1W6 Stabilität, dafür kennt der Charakter jetzt die Antwort.`
   },
 
   /* ---------------- Technik ---------------- */
@@ -250,7 +268,9 @@ Bauen: Verstand + Technik, SG 15 Behelf / 20 solide / 25 neuartig.
 Erfolg mit Preis: funktioniert EINMAL, dann Schrott — oder mit hässlichem Nebeneffekt.
 
 Drei Grenzen: Material, Zeit, und es tut nur eine Sache.
-Bei natürlicher 1 an einer Maschine geht die Maschine kaputt.`
+Bei natürlicher 1 an einer Maschine geht die Maschine kaputt.
+
+Beispiel: Ein Behelfs-Fallschirm aus Stoffbahnen und Seilen, SG 15 — funktioniert einmal.`
   },
   {
     gruppe: 'Technik',
@@ -313,7 +333,9 @@ Nichts bleibt zweimal bedeutungslos: Kommt ein Spieler auf ein Detail zurück, g
 2. Frage dich: Wie erklärt meine Wahrheitsnotiz das?
 3. Sag die Antwort so, als hätte sie immer festgestanden.
 
-Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.`
+Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.
+
+Beispiel: Ein Spieler fragt, warum der Hausmeister nervös wirkt. Passt „er hat etwas gesehen" zur Wahrheitsnotiz — dann ist es das, gesagt, als wäre es von Anfang an so gewesen.`
   },
   {
     gruppe: 'Spielleitung',
@@ -322,7 +344,9 @@ Erlaubt bei Details, Personen und Orten. Bei der Wahrheit selbst nie.`
     schlagworte: 'festlegen kanon entscheidung improvisation',
     text: `Sobald ein Spieler eine Frage stellt, deren Antwort seine nächste Entscheidung beeinflusst, legst du dich fest — und bleibst dabei. Aufschreiben.
 
-Vorher darf alles Nebel sein. Nachher ist es Kanon.`
+Vorher darf alles Nebel sein. Nachher ist es Kanon.
+
+Beispiel: „War Grothe an dem Abend im Haus?" — sobald die Gruppe danach handelt, ist die Antwort festgelegt und ändert sich nicht mehr.`
   },
   {
     gruppe: 'Spielleitung',

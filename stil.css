@@ -476,6 +476,32 @@ h3.unter {
   .bogen-gitter.gitter-drei { grid-template-columns: 1fr 1fr 1fr; }
 }
 
+/* --- Regelwerk-Spalten ---
+   Für lange Listen sehr unterschiedlich langer Karten (die
+   vollständigen Regeln) ist ein Raster (.bogen-gitter) ungünstig:
+   Grid streckt jede ZEILE auf die höchste Karte darin, darunter
+   bleiben bei kürzeren Karten hässliche Lücken, bevor die nächste
+   Zeile beginnt — die Karten wirken asymmetrisch verstreut statt
+   anzudocken.
+
+   CSS-Spalten lösen das wie ein Zeitungslayout: jede Karte sitzt
+   in ihrer eigenen Höhe direkt unter der vorherigen in derselben
+   Spalte, erst wenn eine Spalte voll ist, geht es in der
+   nächsten weiter. "break-inside: avoid" verhindert, dass eine
+   Karte mitten im Text auf zwei Spalten zerrissen wird. */
+.regelwerk-spalten { column-gap: 14px; }
+.regelwerk-spalten .karte { break-inside: avoid; margin-bottom: 14px; }
+@media (min-width: 700px)  { .regelwerk-spalten { columns: 2; } }
+@media (min-width: 1100px) { .regelwerk-spalten { columns: 3; } }
+
+/* Kleines Messing-Symbol vor jeder Gruppenüberschrift im
+   Regelwerk. Icon und Name stehen in eigenen <span>s, nicht als
+   nackter Text neben dem Icon — sonst droht dieselbe Flexbox-
+   Falle wie bei .hinweis-schild (siehe dort). */
+.regel-gruppen-titel { display: flex; align-items: center; gap: 10px; }
+.gruppen-icon { flex: 0 0 auto; width: 26px; height: 26px; color: var(--messing); }
+.gruppen-icon svg { width: 100%; height: 100%; display: block; }
+
 /* --- Felder --- */
 .feld { display: block; margin-bottom: 12px; }
 .feld > span { display: block; margin-bottom: 4px; font-size: 13px; color: var(--text-leise); }
