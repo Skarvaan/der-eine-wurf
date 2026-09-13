@@ -188,10 +188,18 @@ function zeichneUebersicht(behaelter) {
       <p class="leise" style="margin-bottom:8px">${sicher(beste) || 'Keine Fertigkeiten verteilt.'}</p>
 
       <ul class="liste">
-        ${(c.staerken || []).filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
+        ${(c.staerken || []).slice(0, c.wesen ? 1 : 3).filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
+        ${c.wesen && (c.gabe || '').trim() ? `<li><span style="flex:1">${sicher(c.gabe)}</span><span class="marke indiz">Gabe</span></li>` : ''}
         ${(c.makel || []).filter(Boolean).map(m => `<li><span style="flex:1">${sicher(m)}</span><span class="marke sl">Makel</span></li>`).join('')}
+        ${c.wesen && (c.bann || '').trim() ? `<li><span style="flex:1">${sicher(c.bann)}</span><span class="marke sl">Bann</span></li>` : ''}
+        ${c.wesen && (c.zeichen || '').trim() ? `<li><span style="flex:1">${sicher(c.zeichen)}</span><span class="marke nsc">Zeichen</span></li>` : ''}
         ${(c.narben || []).map(n => `<li><span style="flex:1">${sicher(n)}</span><span class="marke sl">Narbe</span></li>`).join('')}
       </ul>
+
+      ${c.wesen ? `
+      <p class="warnschild" style="margin-top:10px">
+        <b>Ventil:</b> ${sicher((c.ventil || '').trim() || 'nicht festgelegt')} — normale Erholung greift bei dieser Figur nicht.
+      </p>` : ''}
 
       ${c.anker || c.riss ? `
       <p class="hinweis-schild" style="margin-top:10px">

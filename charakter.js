@@ -231,6 +231,12 @@ function leer() {
     lp: 14, stab: 14, sp: 0,
     fp: 0, bonusLp: 0, bonusStab: 0,
     narben: [], tick: '',
+    /* Wesen-Modul (Regelgruppe „Wesen“). Bei Menschen bleibt
+       „wesen“ auf false und die vier Zeilen bleiben leer — dann
+       verhält sich der Bogen exakt wie vorher. Alte Charaktere
+       ohne diese Felder funktionieren weiter, weil überall mit
+       (c.gabe || '') gelesen wird. */
+    wesen: false, gabe: '', bann: '', zeichen: '', ventil: '',
     fertig: false
   };
 }
@@ -283,7 +289,21 @@ function zeichneBaukasten(behaelter) {
   const attributRest   = PUNKTE_ATTRIBUTE - attributPunkte;
   const fertigkeitRest = PUNKTE_FERTIGKEITEN - fertigkeitPunkte;
 
-  const fertigMoeglich = attributRest === 0 && fertigkeitRest === 0 && c.name.trim();
+  const istWesen = !!c.wesen;
+
+  /* Wer ein Wesen spielt, braucht drei der vier Zeilen ausgefüllt.
+     Das Zeichen ist bewusst freiwillig: Manche Figuren haben eins,
+     das erst im Spiel auffällt, und die Spielleitung darf es auch
+     nachreichen. Gabe, Bann und Ventil dagegen greifen sofort in
+     Regeln ein und müssen stehen. */
+  const wesenFehlt = istWesen
+    ? [!(c.gabe || '').trim()   ? 'die Gabe'   : null,
+       !(c.bann || '').trim()   ? 'der Bann'   : null,
+       !(c.ventil || '').trim() ? 'das Ventil' : null].filter(Boolean)
+    : [];
+
+  const fertigMoeglich = attributRest === 0 && fertigkeitRest === 0
+    && c.name.trim() && wesenFehlt.length === 0;
 
   behaelter.innerHTML = `
     ${speichernKopf()}
@@ -336,20 +356,57 @@ function zeichneBaukasten(behaelter) {
     <div class="karte">
       <div class="karte-kopf">
         <h2>Schritt 4 — Eigenschaften</h2>
-        <span class="hinweis">Zwei Stärken, ein Makel. Konkret formulieren: „Hat Medizin studiert“ statt „klug“. Ist eine Eigenschaft relevant, gibt sie Vorteil oder Nachteil.</span>
+        <span class="hinweis">${istWesen
+          ? 'Eine Stärke, ein Makel — deine <b>Gabe</b> nimmt den Platz der zweiten Stärke ein, dein <b>Bann</b> kommt als zusätzlicher Makel dazu (Schritt 5).'
+          : 'Zwei Stärken, ein Makel. Konkret formulieren: „Hat Medizin studiert“ statt „klug“. Ist eine Eigenschaft relevant, gibt sie Vorteil oder Nachteil.'}</span>
       </div>
       <label class="feld"><span>Stärke 1</span>
         <input type="text" data-feld="staerke0" value="${sicher(c.staerken[0] || '')}" placeholder="Zwölf Jahre bei der Kriminalpolizei"></label>
+      ${istWesen ? '' : `
       <label class="feld"><span>Stärke 2</span>
         <input type="text" data-feld="staerke1" value="${sicher(c.staerken[1] || '')}" placeholder="Merkt sich jedes Gesicht"></label>
+      <label class="feld"><span>Stärke 3 <span class="leise">— nur in Runden mit Wesen</span></span>
+        <input type="text" data-feld="staerke2" value="${sicher(c.staerken[2] || '')}" placeholder="Leer lassen, wenn alle am Tisch Menschen sind"></label>`}
       <label class="feld feld-betont"><span>Makel</span>
         <input type="text" data-feld="makel0" value="${sicher(c.makel[0] || '')}" placeholder="Kann nicht aufhören, wenn sie einmal angefangen hat"></label>
       <p class="hinweis-schild">Wenn dein Makel dir einen Nachteil einbringt, bekommst du einen <b>Schicksalspunkt</b>.</p>
     </div>
 
+    <!-- Schritt 5 — das Wesen-Modul. Die Karte steht immer da,
+         auch für Menschen: Nur so bleibt die Schrittnummerierung
+         stabil, egal wie der Schalter steht. -->
     <div class="karte">
       <div class="karte-kopf">
-        <h2>Schritt 5 — Anker und Riss</h2>
+        <h2>Schritt 5 — Mensch oder Wesen?</h2>
+        <span class="schalter-text">Ich bin kein Mensch</span>
+        <label class="schalter" title="Optionales Modul. Aus bedeutet: ganz normaler Mensch.">
+          <input type="checkbox" id="schalter-wesen" ${istWesen ? 'checked' : ''}>
+          <span class="lauf"><span class="griff"></span></span>
+        </label>
+      </div>
+      ${istWesen ? `
+      <p class="hinweis-schild">Es gibt keine Arten — nur Menschen, denen etwas widerfahren ist. Vier Zeilen, sonst ändert sich nichts an deinem Bogen.</p>
+      <label class="feld"><span>Gabe — eine Sache, die ein Mensch nicht kann</span>
+        <input type="text" data-feld="gabe" value="${sicher(c.gabe || '')}"
+          placeholder="Wer mich für ein Kind hält, unterschätzt mich — Vorteil, solange er es glaubt"></label>
+      <label class="feld feld-betont"><span>Bann — was dich zwingt oder dir verwehrt ist</span>
+        <input type="text" data-feld="bann" value="${sicher(c.bann || '')}"
+          placeholder="Bei Tage sehe ich nur Umrisse"></label>
+      <label class="feld"><span>Zeichen — woran man dich erkennt, wenn jemand genau hinsieht</span>
+        <input type="text" data-feld="zeichen" value="${sicher(c.zeichen || '')}"
+          placeholder="Ich wachse nicht"></label>
+      <label class="feld"><span>Ventil — wodurch sich deine Stabilität erholt</span>
+        <input type="text" data-feld="ventil" value="${sicher(c.ventil || '')}"
+          placeholder="Blut und mein Anker"></label>
+      <p class="warnschild">Ein Satz pro Zeile, und die Gabe kostet immer etwas. Gaben geben <b>nie</b> einen Zahlenbonus — sie erlauben etwas oder geben Vorteil.</p>
+      <p class="hinweis-schild">Dein <b>Ventil ersetzt die normale Erholung</b>: Schlaf, Ruhe und ein abgeschlossenes Abenteuer bringen dir keine Stabilität mehr. Nur das Ventil, 1W6 einmal pro Spielabend.</p>
+      ` : `
+      <p class="hinweis-schild">Alles aus? Dann bist du ein Mensch — und darfst überall hin, wo Tageslicht, Einladungen und Behörden sind. In einer Runde voller Wesen ist das mehr wert, als es klingt.</p>`}
+    </div>
+
+    <div class="karte">
+      <div class="karte-kopf">
+        <h2>Schritt 6 — Anker und Riss</h2>
         <span class="hinweis">Die zwei Zeilen, mit denen der Spielleiter am meisten anfangen kann.</span>
       </div>
       <label class="feld"><span>Anker — was dir wirklich etwas bedeutet</span>
@@ -373,7 +430,8 @@ function zeichneBaukasten(behaelter) {
       ${fertigMoeglich ? '' : '<p class="warnschild" style="margin-top:8px">Es fehlt noch: '
         + [ !c.name.trim() ? 'ein Name' : null,
             attributRest !== 0 ? 'die Attributspunkte' : null,
-            fertigkeitRest !== 0 ? 'die Fertigkeitspunkte' : null
+            fertigkeitRest !== 0 ? 'die Fertigkeitspunkte' : null,
+            ...wesenFehlt
           ].filter(Boolean).join(', ') + '.</p>'}
     </div>
   `;
@@ -381,6 +439,22 @@ function zeichneBaukasten(behaelter) {
   bindeSpeichernKopf();
   bindeFelder(behaelter);
   bindeStufen(behaelter);
+
+  /* Der Wesen-Schalter zeichnet neu, weil er die Eigenschaftskarte
+     umbaut (Stärke 2 verschwindet, Gabe und Bann treten an ihre
+     Stelle). Eingetragene Zeilen bleiben dabei im Charakter
+     stehen: Wer versehentlich umschaltet, verliert nichts. */
+  $('schalter-wesen')?.addEventListener('change', (e) => {
+    meiner.wesen = e.target.checked;
+    if (meiner.wesen) {
+      /* Die zweite und dritte Stärke weichen der Gabe — der Text
+         wandert nicht mit, aber er geht auch nicht verloren, falls
+         der Schalter gleich wieder zurückgestellt wird. */
+      meiner.staerken = [meiner.staerken[0] || '', meiner.staerken[1] || '', meiner.staerken[2] || ''];
+    }
+    geaendert();
+    zeichnen();
+  });
 
   $('btn-fertig')?.addEventListener('click', async () => {
     meiner.fertig = true;
@@ -463,6 +537,18 @@ function zeichneSpielbogen(behaelter) {
 
   const darfSteigern = sitzung.gruppe?.freigaben?.steigern || c.steigernFrei;
 
+  const istWesen = !!c.wesen;
+
+  /* Bei einem Wesen bricht nicht der Mensch zusammen, sondern
+     seine Natur übernimmt — wer entscheidet, bleibt aber gleich:
+     der Spieler. Nur die Formulierung ändert sich. */
+  const erschuettertText = istWesen
+    ? 'Erschüttert: Nachteil auf alles mit Wille oder Wahrnehmung. Deine Natur fährt mit — spiel ihren Tick, nicht deinen.'
+    : 'Erschüttert: Nachteil auf alles mit Wille oder Wahrnehmung. Spiel deinen Tick.';
+  const gebrochenText = istWesen
+    ? '<b>Gebrochen — sie übernimmt.</b> Wie sie übernimmt, entscheidest du selbst. Bis zum Ende der Szene.'
+    : '<b>Gebrochen.</b> Du entscheidest selbst, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Bis zum Ende der Szene.';
+
   behaelter.innerHTML = `
     ${speichernKopf()}
     <div class="karte">
@@ -495,8 +581,9 @@ function zeichneSpielbogen(behaelter) {
       </div>
 
       ${angeschlagen && c.lp > 0 ? '<p class="warnschild">Angeschlagen: Nachteil auf alles mit Körper oder Geschick.</p>' : ''}
-      ${erschuettert && c.stab > 0 ? '<p class="warnschild">Erschüttert: Nachteil auf alles mit Wille oder Wahrnehmung. Spiel deinen Tick.</p>' : ''}
-      ${c.stab <= 0 ? '<p class="warnschild kritisch"><b>Gebrochen.</b> Du entscheidest selbst, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Bis zum Ende der Szene.</p>' : ''}
+      ${c.lp <= 0 && istWesen ? '<p class="warnschild kritisch"><b>Am Boden.</b> Wirst du jetzt erneut getroffen, stirbst du nicht — du <b>erlischst</b>: raus aus der Szene, für alle Anwesenden tot, und Stunden später wach. Das kostet 1W6 Stabilität und hinterlässt eine Spur.</p>' : ''}
+      ${erschuettert && c.stab > 0 ? `<p class="warnschild">${erschuettertText}</p>` : ''}
+      ${c.stab <= 0 ? `<p class="warnschild kritisch">${gebrochenText}</p>` : ''}
     </div>
 
     <div class="bogen-gitter">
@@ -531,15 +618,18 @@ function zeichneSpielbogen(behaelter) {
       <div class="karte">
         <div class="karte-kopf"><h2>Eigenschaften</h2></div>
         <ul class="liste">
-          ${c.staerken.filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
+          ${c.staerken.slice(0, istWesen ? 1 : 3).filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
+          ${istWesen && (c.gabe || '').trim() ? `<li><span style="flex:1">${sicher(c.gabe)}</span><span class="marke indiz">Gabe</span></li>` : ''}
           ${c.makel.filter(Boolean).map(m => `<li><span style="flex:1">${sicher(m)}</span><span class="marke sl">Makel</span></li>`).join('')}
+          ${istWesen && (c.bann || '').trim() ? `<li><span style="flex:1">${sicher(c.bann)}</span><span class="marke sl">Bann</span></li>` : ''}
+          ${istWesen && (c.zeichen || '').trim() ? `<li><span style="flex:1">${sicher(c.zeichen)}</span><span class="marke nsc">Zeichen</span></li>` : ''}
           ${(c.narben || []).map(n => `<li><span style="flex:1">${sicher(n)}</span><span class="marke sl">Narbe</span></li>`).join('')}
         </ul>
         <div class="zeile-eingabe" style="margin-top:12px">
           <input type="text" id="narbe-eingabe" placeholder="Neue Narbe (Körper oder Seele)">
           <button type="button" class="knopf-klein" id="btn-narbe">Hinzufügen</button>
         </div>
-        <p class="hinweis-schild">Narben entstehen, wenn du am Boden lagst oder gebrochen warst. Du formulierst sie selbst.</p>
+        <p class="hinweis-schild">Narben entstehen, wenn du am Boden lagst oder gebrochen warst. Du formulierst sie selbst.${istWesen ? ' Dein <b>Bann</b> dagegen bleibt für immer — er wird nie überwunden.' : ''}</p>
       </div>
 
       <div class="karte">
@@ -552,11 +642,18 @@ function zeichneSpielbogen(behaelter) {
       </div>
 
       <div class="karte karte-breit">
-        <div class="karte-kopf"><h2>Anker, Riss, Ausrüstung</h2></div>
+        <div class="karte-kopf"><h2>${istWesen ? 'Natur, Anker, Riss, Ausrüstung' : 'Anker, Riss, Ausrüstung'}</h2></div>
+        ${istWesen ? `
+        <label class="feld"><span>Gabe</span><input type="text" data-feld="gabe" value="${sicher(c.gabe || '')}"></label>
+        <label class="feld feld-betont"><span>Bann</span><input type="text" data-feld="bann" value="${sicher(c.bann || '')}"></label>
+        <label class="feld"><span>Zeichen</span><input type="text" data-feld="zeichen" value="${sicher(c.zeichen || '')}"></label>
+        <label class="feld"><span>Ventil</span><input type="text" data-feld="ventil" value="${sicher(c.ventil || '')}"></label>` : ''}
         <label class="feld"><span>Anker</span><input type="text" data-feld="anker" value="${sicher(c.anker)}"></label>
         <label class="feld"><span>Riss</span><input type="text" data-feld="riss" value="${sicher(c.riss)}"></label>
         <label class="feld"><span>Ausrüstung (sechs Dinge am Körper)</span><textarea data-feld="ausruestung" rows="3">${sicher(c.ausruestung)}</textarea></label>
-        <p class="hinweis-schild">Zeit mit dem Anker gibt 1W6 Stabilität zurück, einmal pro Spielabend.</p>
+        ${istWesen
+          ? `<p class="warnschild">Schlaf, Ruhe und ein abgeschlossenes Abenteuer geben dir <b>keine</b> Stabilität zurück. Nur dein Ventil: <b>${sicher((c.ventil || '').trim() || 'noch nicht festgelegt')}</b> — 1W6, einmal pro Spielabend.</p>`
+          : '<p class="hinweis-schild">Zeit mit dem Anker gibt 1W6 Stabilität zurück, einmal pro Spielabend.</p>'}
       </div>
     </div>
 
