@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Session 0 — Der Eine Wurf</title>
+<meta name="description" content="Der schriftliche Session-0-Bogen für Der Eine Wurf: Weltrahmen, Linien und Schleier, Fragen an Menschen und Wesen.">
+<meta name="theme-color" content="#12100e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="stil.css">
+<link rel="icon" href="icon-192.png">
+
+<!-- ==========================================================
+     NUR FÜR DIESE SEITE
+     Zwei Dinge, die stil.css bewusst nicht kennt:
+     1. Eine nummerierte Frageliste mit Platz zum Antworten.
+     2. Ein Druckbild — dieser Bogen wird erfahrungsgemäß
+        ausgedruckt oder als PDF verschickt, und Dunkelbraun
+        auf Papier ist eine Tonerkatastrophe.
+     ========================================================== -->
+<style>
+  .fragen { list-style: none; margin: 0; padding: 0; counter-reset: frage; }
+  .fragen > li {
+    counter-increment: frage;
+    position: relative;
+    padding: 14px 0 14px 46px;
+    border-top: 1px solid var(--linie);
+  }
+  .fragen > li:first-child { border-top: 0; }
+  .fragen > li::before {
+    content: counter(frage);
+    position: absolute; left: 0; top: 12px;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--messing);
+    border-radius: 50%;
+    color: var(--messing);
+    font-family: var(--schrift-kopf);
+    font-size: 14px;
+  }
+  .fragen b { display: block; margin-bottom: 3px; }
+  .fragen .warum { color: var(--text-leise); font-size: 14px; margin: 0; }
+
+  /* Linien zum Ausfüllen — nur im Druck sichtbar, am Bildschirm
+     schreibt ohnehin niemand mit dem Finger ins HTML. */
+  .schreiblinie { display: none; }
+
+  .welle { border-left: 3px solid var(--messing); padding-left: 16px; margin: 22px 0; }
+  .welle h3 { font-family: var(--schrift-kopf); color: var(--messing); margin: 0 0 4px; }
+  .welle p { margin: 0 0 6px; }
+
+  @media print {
+    :root { --bg: #fff; --flaeche: #fff; --flaeche-hoch: #fff;
+            --text: #000; --text-leise: #444; --linie: #bbb; --messing: #7a5410; }
+    body, .seite { background: #fff !important; color: #000; }
+    .held { background: #fff !important; border-bottom: 2px solid #000; }
+    .karte, .info-karte { background: #fff !important; break-inside: avoid; }
+    .held-knoepfe, .fuss, .nicht-drucken { display: none !important; }
+    .schreiblinie { display: block; border-bottom: 1px solid #ccc; height: 22px; margin-top: 8px; }
+    .block { break-inside: avoid; }
+  }
+</style>
+</head>
+<body class="oeffentlich">
+
+<!-- ==========================================================
+     KOPF
+     ========================================================== -->
+<header class="held">
+  <div class="held-innen">
+    <p class="held-vorspann">Der Eine Wurf</p>
+    <h1>Session&nbsp;0</h1>
+    <p class="held-satz">
+      Bevor gewürfelt wird, einigen wir uns auf die Welt, den Ton und die Grenzen.
+      Weil wir uns selten sehen, machen wir das schriftlich — in Ruhe, jeder für sich.
+    </p>
+    <div class="held-knoepfe">
+      <a class="knopf-gross knopf-hohl" href="index.html">Die Regeln in fünf Minuten</a>
+      <a class="knopf-gross knopf-hohl" href="index.html#wesen">Wesen spielen</a>
+    </div>
+  </div>
+</header>
+
+<main class="seite">
+
+<!-- ==========================================================
+     ABLAUF
+     ========================================================== -->
+<section class="block">
+  <h2>Wie das abläuft</h2>
+  <p class="gross">
+    Drei Wellen. Keine davon dauert länger als eine halbe Stunde, und keine
+    braucht einen gemeinsamen Termin.
+  </p>
+
+  <div class="welle">
+    <h3>Welle 1 — du liest und antwortest</h3>
+    <p>Du liest diese Seite, beantwortest die Fragen weiter unten und schickst sie zurück. Zwei Sätze pro Frage reichen völlig. Wenn dir zu einer Frage nichts einfällt: <b>„weiß ich noch nicht“</b> ist eine gültige Antwort, und manchmal die bessere.</p>
+  </div>
+
+  <div class="welle">
+    <h3>Welle 2 — ich antworte dir</h3>
+    <p>Zu jeder Antwort ein „ja, und&nbsp;…“, höchstens ein Veto. Ich verknüpfe dabei still, was zusammenpasst — es kann also sein, dass dein Charakter jemanden kennt, ohne es zu wissen.</p>
+  </div>
+
+  <div class="welle">
+    <h3>Welle 3 — es steht</h3>
+    <p>Was wir festgelegt haben, landet im Spielbereich unter <b>Gemeinsam</b> und gilt ab dann. Was offen geblieben ist, bleibt offen und wird am Tisch beantwortet.</p>
+  </div>
+
+  <p class="hinweis-schild">Du musst deinen Charakter hier <b>nicht</b> fertig bauen. Werte kommen später im Charakterbaukasten. Hier geht es nur um die Welt und darum, wer du darin bist.</p>
+</section>
+
+<!-- ==========================================================
+     WELTRAHMEN
+     ========================================================== -->
+<section class="block">
+  <h2>Was in dieser Welt gilt</h2>
+
+  <div class="karte">
+    <div class="karte-kopf"><h2>Der eine Satz</h2></div>
+    <p class="gross">Es gibt keine Arten. Es gibt Menschen, denen etwas widerfahren ist.</p>
+    <p>Keine Vampirvölker, keine Werwolfrassen, keine getrennten Schöpfungsgeschichten. Jedes Wesen ist eine Berührung mit dem, was hinter der Welt liegt — und die Form, die diese Berührung angenommen hat. Wer wissen will, was er ist, muss forschen, und Forschen kostet in diesem Spiel Stabilität.</p>
+  </div>
+
+  <div class="karte">
+    <div class="karte-kopf"><h2>Die Zeit</h2></div>
+    <p>Dampf, Ruß, Gaslicht, Werkstätten. Und gleichzeitig: Meldewesen, Fotografie, Fingerabdrücke, Kataster, Chemie. <b>Das Maschinenzeitalter ist gerade dabei, das Übernatürliche zu vermessen.</b></p>
+    <p>Was seit dreihundert Jahren zuverlässig funktioniert hat — verschwinden, den Namen wechseln, nicht auffallen — funktioniert seit dreißig Jahren immer schlechter. Ein Beamter mit einem Notizbuch ist in dieser Welt gefährlicher als ein Monster, und die Ältesten wissen das.</p>
+  </div>
+
+  <div class="karte">
+    <div class="karte-kopf"><h2>Der Ton</h2></div>
+    <div class="karten-gitter">
+      <div class="info-karte"><h3>Ermittlung vor Kampf</h3><p>Kämpfe gibt es, und sie sind gefährlich. Aber die meisten Probleme löst man, indem man etwas herausfindet.</p></div>
+      <div class="info-karte"><h3>Alltag mit Riss</h3><p>Die Welt ist normal, bis sie es an einer Stelle nicht mehr ist. Der Riss ist klein und am falschen Ort.</p></div>
+      <div class="info-karte"><h3>Kosten statt Katastrophen</h3><p>Ihr verliert selten alles. Ihr bezahlt oft ein bisschen — Zeit, Ruf, Stabilität, eine Spur, die bleibt.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     LINIEN UND SCHLEIER
+     ========================================================== -->
+<section class="block">
+  <h2>Linien und Schleier</h2>
+  <p class="gross">
+    Der wichtigste Teil dieses Bogens, und der einzige, bei dem ich dich um Ehrlichkeit bitte
+    statt um Fantasie.
+  </p>
+  <div class="karten-gitter">
+    <div class="info-karte"><h3>Eine Linie</h3><p>Kommt gar nicht vor. Nie, auch nicht angedeutet, auch nicht bei einem Gegner.</p></div>
+    <div class="info-karte"><h3>Ein Schleier</h3><p>Darf es geben, aber nicht ausgespielt. Wir blenden ab, jemand fasst zusammen, wir machen weiter.</p></div>
+  </div>
+  <p>Schreib mir beides auf — und du musst nichts begründen. „Nichts mit X“ ist eine vollständige Antwort. Wenn dir nichts einfällt, schreib „fällt mir nichts ein“, und wir sprechen später noch mal drüber.</p>
+  <p class="warnschild">Bei Vampiren und Wesen lohnt es sich besonders: Es geht dabei fast zwangsläufig um Hunger, Abhängigkeit, Kontrolle über andere und um Körper, die nicht zum Alter passen. Das kann großartig sein und unangenehm werden — und schriftlich beantwortet man die Frage ehrlicher als in der Runde.</p>
+  <p class="hinweis-schild">Es gilt außerdem jederzeit während des Spiels: Wer <b>„Schnitt“</b> sagt, hält die Szene an. Ohne Erklärung, ohne Nachfrage, auch mitten im Satz. Wir spulen zurück und machen anders weiter.</p>
+</section>
+
+<!-- ==========================================================
+     TEIL A — ALLE
+     ========================================================== -->
+<section class="block">
+  <h2>Teil A — Fragen an alle</h2>
+  <p class="leise">Egal ob Mensch oder Wesen. Zwei Sätze pro Frage.</p>
+
+  <div class="karte">
+    <ol class="fragen">
+      <li><b>Wer bist du, in einem Satz?</b>
+        <p class="warum">Beruf, Ruf, wovon du lebst. „Uhrmacherin ohne Werkstatt, lebt von Reparaturen an der falschen Sorte Kundschaft.“</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Was ist dein Anker?</b>
+        <p class="warum">Ein Mensch, ein Ort oder eine Sache, die dir wirklich etwas bedeutet. Der Anker füllt deine Stabilität — und die Spielleitung weiß damit, was sie bedrohen kann.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Was ist dein Riss?</b>
+        <p class="warum">Etwas in deinem Leben, das nicht in Ordnung ist. Eine Schuld, ein Verlust, eine Lüge, die läuft.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Warum bist du bei dieser Gruppe?</b>
+        <p class="warum">Nicht „warum bleibst du“ — das klärt sich im Spiel. Warum bist du überhaupt dabei, an Tag eins?</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Deine Linien und Schleier.</b>
+        <p class="warum">Siehe oben. Ohne Begründung.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Was willst du an Abenden erleben — und was langweilt dich?</b>
+        <p class="warum">Ermittlung, Kampf, Intrigen, Reisen, Basteln, Gespräche, Horror. Sag ruhig, was du <i>nicht</i> magst; das hilft mir mehr.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ==========================================================
+     TEIL B — WESEN
+     ========================================================== -->
+<section class="block">
+  <h2>Teil B — nur wenn du kein Mensch bist</h2>
+  <p class="gross">
+    Ein Wesen hat vier Zeilen mehr auf dem Bogen: <b>Gabe</b>, <b>Bann</b>, <b>Zeichen</b>, <b>Ventil</b>.
+    Die Gabe ersetzt eine deiner Stärken, der Bann kommt als zusätzlicher Makel obendrauf.
+  </p>
+
+  <div class="karte">
+    <div class="karte-kopf"><h2>Drei Regeln für deine Gabe</h2></div>
+    <div class="karten-gitter">
+      <div class="info-karte"><h3>Ein Satz</h3><p>Passt sie nicht in einen Satz, ist sie noch nicht fertig gedacht.</p></div>
+      <div class="info-karte"><h3>Ein Preis</h3><p>Zeit, Blut, Stabilität, eine Spur, die bleibt. Etwas, das jedes Mal fällig wird.</p></div>
+      <div class="info-karte"><h3>Keine Zahlen</h3><p>Gaben geben nie einen Bonus auf einen Wurf. Sie erlauben etwas oder geben Vorteil.</p></div>
+    </div>
+    <p class="hinweis-schild">Klingt nach wenig, ist es nicht: „Wer mich nicht ansieht, vergisst mich“ verändert jede Szene, in der es vorkommt — ganz ohne eine einzige Zahl.</p>
+  </div>
+
+  <div class="karte">
+    <ol class="fragen">
+      <li><b>Was bist du, in einem Satz?</b>
+        <p class="warum">Ohne Fachbegriff, wenn es geht. Beschreib, was man sieht, nicht wie es heißt.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Wann ist es dir widerfahren, und wolltest du es?</b>
+        <p class="warum">Vor Monaten oder vor zweihundert Jahren — das ändert alles daran, wie du redest.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Deine Gabe — und was sie kostet.</b>
+        <p class="warum">Ein Satz für die Gabe, ein Halbsatz für den Preis.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Dein Bann.</b>
+        <p class="warum">Was dich zwingt oder dir verwehrt ist. Je häufiger er im Alltag greift, desto besser — er ist dein zuverlässigster Schicksalspunkt.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Dein Zeichen.</b>
+        <p class="warum">Woran dich jemand erkennt, der genau hinsieht. Es muss etwas sein, das ein aufmerksamer Mensch bemerken <i>kann</i>.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Dein Ventil.</b>
+        <p class="warum">Schlaf und Ruhe bringen dir nichts mehr. Wodurch — und nur wodurch — erholt sich deine Stabilität?</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Wer weiß es und schweigt?</b>
+        <p class="warum">Eine Person. Sie wird vorkommen.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Was schuldet man dem, den man erschaffen hat?</b>
+        <p class="warum">Alles, für immer? Nichts, er ist frei ab der ersten Nacht? Den Tod, wenn er sich nicht bewährt? Deine Antwort gibt dir Verbündete und Feinde, noch bevor das Spiel anfängt.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+
+      <li><b>Welche Frage über dich willst du <i>nicht</i> selbst beantworten?</b>
+        <p class="warum">Die wichtigste Frage auf diesem Bogen. Was soll deine Figur im Spiel über sich herausfinden, statt es von Anfang an zu wissen? Alles, was du hier nennst, lege ich fest — und du erfährst es am Tisch.</p>
+        <div class="schreiblinie"></div><div class="schreiblinie"></div></li>
+    </ol>
+  </div>
+
+  <div class="karte">
+    <div class="karte-kopf"><h2>Zur Unsterblichkeit, ehrlich</h2></div>
+    <p>Du stirbst nicht so leicht wie ein Mensch: Wer am Boden liegt und erneut getroffen wird, <b>erlischt</b> — raus aus der Szene, für alle Anwesenden tot — und erwacht Stunden später, wo immer man ihn hingebracht hat. Das kostet 1W6 Stabilität und hinterlässt eine Spur.</p>
+    <p>Aber: Wer deinen <b>Bann</b> kennt und ihn im Kampf gegen dich nutzt, hebt das auf. Und es gibt genau eine Bedingung, unter der du <b>endgültig</b> stirbst — dein Wahres Ende. Du weißt, dass es existiert. Welches es ist, lege ich fest, und irgendwann spricht es jemand aus.</p>
+    <p class="hinweis-schild">In der Szene selbst bist du damit genauso verwundbar wie alle anderen. Die Unsterblichkeit wirkt erst danach — und macht dafür die Geschichte auf.</p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     BEISPIELE
+     ========================================================== -->
+<section class="block">
+  <h2>Sechs Beispiele, falls du Anlauf brauchst</h2>
+  <p class="leise">Nichts davon ist reserviert. Nimm eins, verändere es, oder bau etwas ganz anderes nach demselben Muster.</p>
+
+  <div class="karten-gitter">
+    <div class="info-karte">
+      <h3>Der Blutwandel</h3>
+      <p><b>Gabe:</b> Was ich trinke, heilt mich sofort — 1W6 LP, aber nur aus einem lebenden Menschen.<br>
+      <b>Bann:</b> Ich betrete kein Haus, in das mich niemand gebeten hat.<br>
+      <b>Zeichen:</b> Ich werfe keinen Schatten im Gaslicht.<br>
+      <b>Ventil:</b> Blut und mein Anker — Schlaf bringt nichts.</p>
+    </div>
+    <div class="info-karte">
+      <h3>Die Zweite Haut</h3>
+      <p><b>Gabe:</b> Ich wechsle in eine Tiergestalt — Vorteil auf Wahrnehmung und Athletik, aber keine Hände, keine Sprache.<br>
+      <b>Bann:</b> Verliere ich die Beherrschung, entscheidet die Spielleitung, welche Gestalt ich trage.<br>
+      <b>Zeichen:</b> Meine Pupillen sind quer.<br>
+      <b>Ventil:</b> Nur draußen, nie in einem Gebäude.</p>
+    </div>
+    <div class="info-karte">
+      <h3>Der Verspätete</h3>
+      <p><b>Gabe:</b> Ich bin bereits tot — Gift, Ersticken, Kälte und Krankheit greifen mich nicht an.<br>
+      <b>Bann:</b> Fremdes Eigentum gleitet mir aus der Hand.<br>
+      <b>Zeichen:</b> Ich atme nur, wenn ich daran denke.<br>
+      <b>Ventil:</b> Wenn ich etwas zu Ende bringe, das ich im Leben liegengelassen habe.</p>
+    </div>
+    <div class="info-karte">
+      <h3>Das Werk</h3>
+      <p><b>Gabe:</b> Ich verstehe jede Mechanik, die ich berühre, ohne Wurf.<br>
+      <b>Bann:</b> Einmal pro Szene setzt etwas in mir aus; die Spielleitung sagt wann.<br>
+      <b>Zeichen:</b> Ich ticke leise.<br>
+      <b>Ventil:</b> Nur beim Arbeiten mit den Händen.</p>
+    </div>
+    <div class="info-karte">
+      <h3>Die Gezeichnete</h3>
+      <p><b>Gabe:</b> Ich sehe, was ein Ort erlebt hat — einmal pro Szene, und es kostet Stabilität.<br>
+      <b>Bann:</b> Ich kann nicht lügen, wenn man mich bei meinem echten Namen anspricht.<br>
+      <b>Zeichen:</b> Schrift verschwimmt, wenn ich zu lange draufschaue.<br>
+      <b>Ventil:</b> Nur an Orten, an denen nie jemand gestorben ist.</p>
+    </div>
+    <div class="info-karte">
+      <h3>Der Namenlose</h3>
+      <p><b>Gabe:</b> Wer mich nicht ansieht, vergisst mich innerhalb weniger Minuten.<br>
+      <b>Bann:</b> Es gilt auch für meine Freunde, wenn ich länger als einen Tag fort bin.<br>
+      <b>Zeichen:</b> Auf Fotografien bin ich ein Fleck.<br>
+      <b>Ventil:</b> Nur wenn mich jemand beim Namen nennt, der ihn behalten hat.</p>
+    </div>
+  </div>
+
+  <p class="hinweis-schild">Das Muster dahinter ist immer dasselbe: <b>Die Gabe löst ein Problem, der Bann schafft ein größeres, und das Ventil bestimmt, wie die Gruppe mit dir umgehen muss.</b></p>
+</section>
+
+<!-- ==========================================================
+     ABSCHLUSS
+     ========================================================== -->
+<section class="block block-abschluss">
+  <h2>Was du nicht festlegen musst</h2>
+  <p class="gross">
+    Deine Werte. Deine Ausrüstung. Wie deine Art funktioniert. Wer sonst noch so ist wie du.
+    Wie die Welt hinter dem Riss aussieht. Und ganz sicher nicht: wie deine Geschichte ausgeht.
+  </p>
+  <p>Das entsteht am Tisch. Dieser Bogen soll nur dafür sorgen, dass wir am ersten Abend nicht mit dem Aushandeln anfangen, sondern mit dem Spielen.</p>
+  <div class="held-knoepfe nicht-drucken">
+    <a class="knopf-gross" href="spiel.html">Zum Spielbereich</a>
+    <a class="knopf-gross knopf-hohl" href="index.html#wesen">Nochmal: Wesen spielen</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="fuss">
+  <p>Der Eine Wurf · Session-0-Bogen</p>
+</footer>
+
+</body>
+</html>
