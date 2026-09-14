@@ -120,8 +120,8 @@ deine eigene Festlegungsregel: Was dort steht, ändert sich nicht mehr.
 > Lesezeit etwa zehn Minuten, Antwortzeit eine halbe Stunde. Zwei Sätze pro Frage reichen, und
 > „weiß ich noch nicht“ ist eine gültige Antwort — bei manchen Fragen sogar die bessere.
 >
-> Der Teil, der mir am wichtigsten ist, ist der über Linien und Schleier. Da bitte ehrlich und
-> ohne Begründung.
+> Der Teil, der mir am wichtigsten ist, ist der mit der Überschrift „Was soll nicht vorkommen?“.
+> Da bitte ehrlich und ohne Begründung.
 >
 > Schick es mir bis zum [Datum], dann melde ich mich bei jedem einzeln zurück.
 
@@ -279,7 +279,8 @@ schreiben statt für *Figuren*. Zurück zum Fundamentsatz.
 - [ ] Jedes Ventil ist etwas, das die Gruppe beschaffen oder verweigern kann.
 - [ ] Jedes Wahre Ende steht geschrieben in deinem Bereich, konkret und auffindbar.
 - [ ] Zu jedem Wahren Ende gibt es zwei Wege, davon zu erfahren.
-- [ ] Linien und Schleier aller Spieler stehen auf einem Zettel, den du am Tisch siehst.
+- [ ] Die Listen aller Spieler (was gar nicht vorkommt / was nicht ausgespielt wird) stehen auf
+      einem Zettel, den du am Tisch siehst.
 - [ ] Mindestens zwei Figuren sind verknüpft, ohne dass sie es wissen.
 - [ ] Es gibt einen menschlichen NSC, der dazugehört und nichts weiß.
 - [ ] Der Kanon aus Welle 3 steht in der Zone **Gemeinsam**.
