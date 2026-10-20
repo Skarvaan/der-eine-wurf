@@ -69,7 +69,15 @@ Das System ist bewusst minimal. Einfachheit hat Vorrang vor Vollständigkeit. Ke
 
 Bei der Horror-Mechanik gilt: Der Spieler behält immer die Kontrolle über seine Figur. Der Spielleiter sagt, *dass* etwas passiert, nie *was*.
 
-**Tonfall der Regeltexte: neutral und sachlich, keine Ich/Wir-Perspektive der Autoren.** Also nicht „das ist uns wichtig" oder „wir finden" — die Regel einfach direkt hinschreiben. Betrifft `index.html`, `regelwerk.html` und `daten/regeln.js`.
+**Tonfall der Regeltexte: neutral und sachlich, keine Ich/Wir-Perspektive der Autoren.** Also nicht „das ist uns wichtig" oder „wir finden", die Regel einfach direkt hinschreiben. Betrifft `index.html`, `regelwerk.html` und `daten/regeln.js`.
+
+**Keine Gedankenstriche (— / –) in Regeltexten**, stattdessen Punkt, Komma oder Doppelpunkt; Bereiche als „1 bis 4". Keine geschraubten Floskeln, die nach KI klingen („sie tragen davon", „nicht X, sondern Y" in jedem Satz). Kurze, normale Sätze.
+
+**Beispiele** sollen nach einem echten Spielabend klingen (konkrete Namen, Orte, ein Moment mit Spannung), nicht nach Lehrbuch. Die Runden spielen gemischt: übernatürliche Wesen, Steampunk, Murder Mystery, Fantasy im D&D-Stil, Horror. Jedes Beispiel in `regeln.js` trägt ein `genre`. **Keine Vampire als Dauerbeispiel**: eine Spielerin will einen spielen, die Texte sollen ihr keine Ideen vorwegnehmen. Übernatürliches allgemein halten (Hexen, Werwesen, Feen …).
+
+**Laienverständlich:** Alltagswörter statt Fachbegriffe (keine „Persenning", kein „Tender"). Was sich nicht einfach erklären lässt, fliegt im Zweifel raus. Begriffe, die aus D&D bekannt sind (natürliche 20, Initiative, Manöver, Rettungswurf, W20), dürfen ohne Erklärung bleiben. Fehlendes regelt die SL per Hausregel am Tisch.
+
+**Übernatürliches läuft über Gaben** (eine Stärke, die Unmenschliches erlaubt, immer mit Preis), nicht über Klassen- oder Zauberlisten.
 
 ## Design — Steampunk-Anmutung
 
@@ -79,12 +87,21 @@ Eck-Nieten und einen doppelten Rahmen rein über CSS-Verläufe
 (gestrichelter Kupferrahmen), Zustandswarnungen in `.warnschild`.
 LP/Stabilität/Schicksal zeigen sich als rundes `.messgeraet`
 (Kegelverlauf als Füllstand). Mehrere gleichmäßig hohe Karten stehen im responsiven
-`.bogen-gitter` (1 Spalte mobil, 2+ auf Tablet/Desktop) — für eine
-**lange Liste unterschiedlich langer Karten** (z. B. das
-Regelwerk) stattdessen `.regelwerk-spalten` (CSS-Spalten,
-`break-inside: avoid`): Ein Raster streckt jede Zeile auf die
-höchste Karte darin und reißt darunter Lücken; Spalten lassen
-jede Karte in eigener Höhe direkt an die vorherige andocken.
+`.bogen-gitter` (1 Spalte mobil, 2+ auf Tablet/Desktop). Für eine
+lange Liste unterschiedlich langer Karten gibt es
+`.regelwerk-spalten` (CSS-Spalten, `break-inside: avoid`).
+
+**Regelwerk und öffentliche Seiten: moderner, ruhiger Stil** (wie
+Dokumentationsseiten) statt Nieten. `daten/regeln.js` ist
+STRUKTURIERT (kurz, skala, stufen, tabelle, punkte, merke,
+warnung, beispiele …, Feldliste oben in der Datei), und
+`daten/regeln-render.js` baut daraus `.regel-karte` in einer
+Spalte (max. 760 px), mit `.regel-punkte` (Symbol im Kästchen),
+`.regel-merke`, `.regel-warnung`, `.beispiel.genre-xyz` und
+Tabellen, die unter 560 px zu Kästen umklappen. Symbole liegen
+als Pfade in `PFADE` im Renderer; index.html nutzt dieselben
+Formen als `<symbol>`-Sammlung mit `<use>`. Genre-Farben stehen
+als `--genre-*` in `:root`.
 Schriften:
 Cinzel für Überschriften, Special Elite fürs Notizbuch — beide per
 Google Fonts in `index.html`/`spiel.html` eingebunden, mit
@@ -92,8 +109,9 @@ System-Schrift als Fallback.
 
 **Mobil ohne seitliches Scrollen:** `html, body` setzt
 `overflow-wrap: anywhere` (bricht auch mitten in einem langen Wort
-um — wichtig bei deutschen Komposita) und `overflow-x: hidden` als
-Sicherheitsnetz. Ein Flex-Kind mit Text bekommt zusätzlich
+um, wichtig bei deutschen Komposita) und `overflow-x: clip` als
+Sicherheitsnetz. **Nicht `hidden`:** das macht body zum
+Scroll-Container, und dann klebt kein `position: sticky` mehr. Ein Flex-Kind mit Text bekommt zusätzlich
 `min-width: 0`, sonst verweigert es laut Flexbox-Standard das
 Schrumpfen unter seine Inhaltsbreite und drückt Nachbarelemente aus
 der Zeile (z. B. `.kopf-info`, `.attribut-schild-text`).

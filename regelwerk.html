@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Der Eine Wurf — vollständiges Regelwerk</title>
-<meta name="description" content="Alle Regeln von Der Eine Wurf zum Nachschlagen — kurz, vollständig, durchsuchbar. Keine Anmeldung nötig.">
+<title>Der Eine Wurf · Regelwerk</title>
+<meta name="description" content="Alle Regeln von Der Eine Wurf zum Nachschlagen. Durchsuchbar, ohne Anmeldung.">
 <meta name="theme-color" content="#12100e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,42 +12,43 @@
 <link rel="stylesheet" href="stil.css">
 <link rel="icon" href="icon-192.png">
 </head>
-<body class="oeffentlich">
+<body class="oeffentlich" id="oben">
 
-<header class="held" style="padding-bottom:40px">
+<nav class="leiste-oben">
+  <a class="leiste-marke" href="index.html">Der Eine Wurf</a>
+  <div class="leiste-links">
+    <a href="index.html">Übersicht</a>
+    <a class="leiste-knopf" href="spiel.html">Spielbereich</a>
+  </div>
+</nav>
+
+<header class="held held-kompakt">
   <div class="held-innen">
     <p class="held-vorspann">Nachschlagewerk</p>
-    <h1>Das vollständige Regelwerk</h1>
-    <p class="held-satz">
-      Jede Regel des Spiels an einem Ort — kurz gefasst und durchsuchbar.
-      Keine Anmeldung nötig.
-    </p>
-    <div class="held-knoepfe">
-      <a class="knopf-gross knopf-hohl" href="index.html">Zurück zur Übersicht</a>
-      <a class="knopf-gross" href="spiel.html">Zum Spielbereich</a>
-    </div>
+    <h1>Das Regelwerk</h1>
+    <p class="held-satz">Alle Regeln an einem Ort. Durchsuchbar, ohne Anmeldung.</p>
+    <label class="such-feld">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg>
+      <span class="nur-vorleser">Regeln durchsuchen</span>
+      <input type="search" id="regel-suche" placeholder="Suchen: Manöver, Vampir, angeschlagen …" autocomplete="off">
+    </label>
   </div>
 </header>
 
-<main class="seite">
-  <section class="block">
-    <div class="karte">
-      <div class="karte-kopf">
-        <h2>Suchen</h2>
-        <span class="hinweis">Alle Einträge unten durchsuchbar — auch über Begriffe, die im Text selbst nicht vorkommen.</span>
-      </div>
-      <label class="feld">
-        <span>Suchen</span>
-        <input type="search" id="regel-suche" placeholder="z. B. Manöver, Stabilität, angeschlagen">
-      </label>
-    </div>
+<!-- Kapitelleiste: klebt beim Scrollen oben, läuft am Handy
+     seitlich durch (wischen), am iPad passt sie meist ganz. -->
+<nav class="kapitel-leiste" id="kapitel-leiste" aria-label="Kapitel"></nav>
 
-    <div id="regel-liste"></div>
-  </section>
+<main class="regel-seite">
+  <div id="regel-liste" class="regel-liste"></div>
 </main>
 
+<a class="nach-oben" href="#oben" aria-label="Nach oben">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</a>
+
 <footer class="fuss">
-  <p>Der Eine Wurf · Ein privates Regelwerk-Projekt</p>
+  <p>Der Eine Wurf · Ein privates Regelwerk</p>
 </footer>
 
 <script type="module" src="regelwerk.js"></script>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Der Eine Wurf — ein Pen-&-Paper-Regelwerk</title>
-<meta name="description" content="Ein schlankes Pen-&-Paper-Regelwerk: ein Würfel, sechs Attribute, fünfzehn Fertigkeiten. Gebaut für freies Spiel und improvisierte Spielleitung.">
+<title>Der Eine Wurf · Pen & Paper</title>
+<meta name="description" content="Ein schlankes Pen-&-Paper-Regelwerk für übernatürliche Wesen, Steampunk, Murder Mystery und Fantasy. Ein W20, sechs Attribute, fünfzehn Fertigkeiten.">
 <meta name="theme-color" content="#12100e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,21 +14,59 @@
 </head>
 <body class="oeffentlich">
 
+<!-- Symbolsammlung: einmal definiert, unten per <use> benutzt.
+     Spart viel doppeltes SVG und hält die Seite ohne JavaScript.
+     Dieselben Formen wie in daten/regeln-render.js. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-feder" viewBox="0 0 24 24"><path d="M20 4c-7 0-13 5-13 13v3M7 17c6 0 10-4 11-9M4 20l3-3"/></symbol>
+    <symbol id="i-blitz" viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+    <symbol id="i-schluessel" viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="4"/><path d="M11.5 12H21M17.5 12v3.5M20.5 12v2.5"/></symbol>
+    <symbol id="i-herz" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.5-9.3-9.3C1.5 7.3 3.6 4.5 6.8 4.5c2 0 3.6 1.2 5.2 3.2 1.6-2 3.2-3.2 5.2-3.2 3.2 0 5.3 2.8 4.1 6.2C19.5 15.5 12 20 12 20z"/></symbol>
+    <symbol id="i-tropfen" viewBox="0 0 24 24"><path d="M12 3c3.5 4.5 6 7.8 6 11a6 6 0 0 1-12 0c0-3.2 2.5-6.5 6-11z"/></symbol>
+    <symbol id="i-zahnrad" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="12" cy="12" r="6.5"/></symbol>
+    <symbol id="i-lupe" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></symbol>
+    <symbol id="i-schwert" viewBox="0 0 24 24"><path d="M14.5 4H20v5.5L10 19.5 4.5 14z"/><path d="M7 17l-3 3M4.5 14l5.5 5.5"/></symbol>
+    <symbol id="i-mond" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-idee" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-warnung" viewBox="0 0 24 24"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".9" fill="currentColor"/></symbol>
+    <symbol id="i-hoch" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-runter" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+    <symbol id="i-funke" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M12 8l1.5 2.5L16 12l-2.5 1.5L12 16l-1.5-2.5L8 12l2.5-1.5z"/></symbol>
+    <symbol id="i-stern" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-szene" viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 8.5h8M8 11.5h5"/></symbol>
+  </defs>
+</svg>
+
+<nav class="leiste-oben">
+  <a class="leiste-marke" href="index.html">Der Eine Wurf</a>
+  <div class="leiste-links">
+    <a href="regelwerk.html">Regelwerk</a>
+    <a class="leiste-knopf" href="spiel.html">Spielbereich</a>
+  </div>
+</nav>
+
 <!-- ==========================================================
      KOPF
      ========================================================== -->
 <header class="held">
   <div class="held-innen">
-    <p class="held-vorspann">Ein Pen-&-Paper-Regelwerk</p>
+    <p class="held-vorspann">Pen & Paper für freie Runden</p>
     <h1>Der Eine&nbsp;Wurf</h1>
     <p class="held-satz">
-      Du sagst, was dein Charakter tut. Der Spielleiter sagt, worauf gewürfelt wird.
-      Ein W20 entscheidet. Weiter.
+      Du sagst, was deine Figur tut. Die Spielleitung sagt, worauf gewürfelt wird.
+      Ein W20 entscheidet, und die Geschichte läuft weiter.
     </p>
     <div class="held-knoepfe">
       <a class="knopf-gross" href="#regeln">Die Regeln in fünf Minuten</a>
-      <a class="knopf-gross knopf-hohl" href="regelwerk.html">Das vollständige Regelwerk</a>
-      <a class="knopf-gross knopf-hohl" href="spiel.html">Zum Spielbereich</a>
+      <a class="knopf-gross knopf-hohl" href="regelwerk.html">Vollständiges Regelwerk</a>
+    </div>
+    <div class="genre-reihe" aria-label="Geeignet für">
+      <span class="genre-wesen"><svg><use href="#i-funke"/></svg>Übernatürliches</span>
+      <span class="genre-steampunk"><svg><use href="#i-zahnrad"/></svg>Steampunk</span>
+      <span class="genre-mystery"><svg><use href="#i-lupe"/></svg>Murder Mystery</span>
+      <span class="genre-fantasy"><svg><use href="#i-schwert"/></svg>Fantasy</span>
+      <span class="genre-horror"><svg><use href="#i-mond"/></svg>Horror</span>
     </div>
   </div>
 </header>
@@ -36,36 +74,36 @@
 <main class="seite">
 
 <!-- ==========================================================
-     WAS IST DAS
+     WORUM ES GEHT
      ========================================================== -->
 <section class="block">
   <h2>Worum es geht</h2>
   <p class="gross">
-    Die meisten Rollenspiele wachsen mit den Jahren zu. Irgendwann sitzt man am Tisch
-    und blättert, statt zu spielen. Dieses Regelwerk geht den anderen Weg: <b>eine Regel,
-    sechs Attribute, fünfzehn Fertigkeiten.</b> Alles Übrige entsteht im Gespräch.
+    Viele Rollenspiele werden mit jeder Erweiterung dicker, bis am Tisch mehr geblättert
+    als gespielt wird. Der Eine Wurf kommt mit <b>einer Regel, sechs Attributen und
+    fünfzehn Fertigkeiten</b> aus. Den Rest klärt ihr im Gespräch. Was fehlt, legt die Spielleitung als Hausregel fest und schreibt es auf.
   </p>
 
   <div class="karten-gitter">
     <div class="info-karte">
+      <span class="info-icon"><svg><use href="#i-feder"/></svg></span>
       <h3>Frei</h3>
-      <p>Es gibt keine Klassen und keine Stufen. Du beschreibst, was du versuchst — und wenn
-      es plausibel ist, geht es. Auch wenn niemand es „gelernt“ hat.</p>
+      <p>Keine Klassen, keine Stufen. Was plausibel klingt, darf versucht werden, auch wenn die Figur es nie gelernt hat.</p>
     </div>
     <div class="info-karte">
+      <span class="info-icon"><svg><use href="#i-blitz"/></svg></span>
       <h3>Schnell</h3>
-      <p>Ein Charakter ist in einer Viertelstunde fertig. Ein Kampf braucht keine Karte und
-      keine Figuren, nur drei Entfernungen: nah, kurz, fern.</p>
+      <p>Eine Figur ist in einer Viertelstunde fertig. Kämpfe brauchen keinen Spielplan, nur drei Entfernungen: nah, kurz, fern.</p>
     </div>
     <div class="info-karte">
+      <span class="info-icon"><svg><use href="#i-schluessel"/></svg></span>
       <h3>Offen</h3>
-      <p>Eine verschlossene Tür kann man aufbrechen, knacken, umgehen, aushängen oder die
-      Wache dazu überreden, sie zu öffnen. Das System bevorzugt keinen dieser Wege.</p>
+      <p>Eine verschlossene Tür lässt sich eintreten, knacken, aushängen oder der Wache ausreden. Die Regeln bevorzugen keinen dieser Wege.</p>
     </div>
     <div class="info-karte">
+      <span class="info-icon"><svg><use href="#i-herz"/></svg></span>
       <h3>Gefährlich</h3>
-      <p>Charaktere können sterben, und sie tragen davon. Nicht durch Würfelpech allein,
-      sondern weil jemand gegangen ist, statt zu bleiben.</p>
+      <p>Figuren können sterben. Meistens dann, wenn die Gruppe jemanden zurückgelassen hat. Wer überlebt, behält Narben, und die bleiben Teil der Figur.</p>
     </div>
   </div>
 </section>
@@ -76,27 +114,23 @@
 <section class="block" id="regeln">
   <h2>Die Regeln in fünf Minuten</h2>
 
-  <div class="formel">
-    W20 + Attribut + Fertigkeit &nbsp;≥&nbsp; Schwierigkeitsgrad
-  </div>
+  <div class="formel">W20 + Attribut + Fertigkeit &nbsp;≥&nbsp; Schwierigkeitsgrad</div>
   <p class="formel-fuss">Das ist das ganze System. Alles andere beantwortet nur: welches Attribut, welche Fertigkeit, welcher Schwierigkeitsgrad.</p>
 
   <!-- --- Attribute --- -->
-  <div class="karte">
-    <div class="karte-kopf">
-      <h2>Sechs Attribute</h2>
-      <span class="hinweis">Werte von 1 bis 5 zu Beginn. 3 ist ein durchschnittlicher Mensch.</span>
-    </div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Sechs Attribute</h3>
+    <p class="regel-kurz">Werte von 1 bis 5 zu Beginn. 3 ist ein durchschnittlicher Mensch.</p>
     <div class="bogen-gitter gitter-drei">
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/><line x1="6" y1="12" x2="18" y2="12"/>
         </svg></div>
-        <div class="attribut-schild-text"><h3>Körper</h3><p>Muskeln, Zähigkeit, Kondition. Türen eintreten, Gift überstehen, einen Schlag wegstecken.</p></div>
+        <div class="attribut-schild-text"><h3>Körper</h3><p>Kraft und Ausdauer. Türen eintreten, Gift überstehen, einen Schlag einstecken.</p></div>
       </div>
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-        <div class="attribut-schild-text"><h3>Geschick</h3><p>Feinmotorik, Reflexe, Balance. Schlösser, Zielen, Ausweichen, lautlos gehen.</p></div>
+        <div class="attribut-schild-text"><h3>Geschick</h3><p>Schnelligkeit und geschickte Hände. Klettern, Zielen, Ausweichen, Schlösser öffnen.</p></div>
       </div>
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -108,162 +142,193 @@
           <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(240 12 12)"/>
           <rect x="10.5" y="1" width="3" height="6" rx="1" fill="currentColor" stroke="none" transform="rotate(300 12 12)"/>
         </svg></div>
-        <div class="attribut-schild-text"><h3>Verstand</h3><p>Wissen, Logik, Planung. Maschinen verstehen, Zusammenhänge schließen, eine Chiffre knacken.</p></div>
+        <div class="attribut-schild-text"><h3>Verstand</h3><p>Wissen und Nachdenken. Rätsel lösen, Maschinen verstehen, den Täter überführen.</p></div>
       </div>
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
           <ellipse cx="12" cy="12" rx="9" ry="5.5"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>
         </svg></div>
-        <div class="attribut-schild-text"><h3>Wahrnehmung</h3><p>Sinne, Instinkt, Menschenkenntnis. Etwas Verstecktes bemerken, eine Lüge im Gesicht lesen.</p></div>
+        <div class="attribut-schild-text"><h3>Wahrnehmung</h3><p>Augen, Ohren und Bauchgefühl. Etwas bemerken, eine Lüge durchschauen.</p></div>
       </div>
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
           <path d="M12 2L20 5V11C20 16 16.5 20 12 22C7.5 20 4 16 4 11V5Z"/>
         </svg></div>
-        <div class="attribut-schild-text"><h3>Wille</h3><p>Mut, Selbstbeherrschung, geistige Härte. Panik unterdrücken, einem Verhör standhalten.</p></div>
+        <div class="attribut-schild-text"><h3>Wille</h3><p>Mut und Nerven. Nicht in Panik geraten, Versuchungen widerstehen.</p></div>
       </div>
       <div class="attribut-schild">
         <div class="wappen"><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,3 14.12,9.09 20.56,9.22 15.42,13.11 17.29,19.28 12,15.6 6.71,19.28 8.58,13.11 3.44,9.22 9.88,9.09"/></svg></div>
-        <div class="attribut-schild-text"><h3>Ausstrahlung</h3><p>Auftreten, Überzeugen, Präsenz. Verhandeln, bluffen, befehlen, eine Menge aufwiegeln.</p></div>
+        <div class="attribut-schild-text"><h3>Ausstrahlung</h3><p>Wie du auf andere wirkst. Überreden, Lügen, Anführen.</p></div>
       </div>
     </div>
-  </div>
+  </article>
 
   <!-- --- Fertigkeiten --- -->
-  <div class="karte">
-    <div class="karte-kopf">
-      <h2>Fünfzehn Fertigkeiten</h2>
-      <span class="hinweis">Werte von 0 bis 3 zu Beginn. <b>Eine Fertigkeit auf 0 gibt keinen Bonus, aber auch keinen Abzug</b> — jeder darf alles versuchen.</span>
-    </div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Fünfzehn Fertigkeiten</h3>
+    <p class="regel-kurz">Werte von 0 bis 3 zu Beginn. <b>Wer eine Fertigkeit nicht hat, bekommt keinen Abzug.</b> Jede Figur darf alles versuchen.</p>
     <p class="marken">
       <span>Athletik</span><span>Nahkampf</span><span>Fernkampf</span><span>Heimlichkeit</span><span>Fingerfertigkeit</span><span>Technik</span><span>Handwerk</span><span>Ermittlung</span><span>Wissen</span><span>Mysterien</span><span>Heilkunde</span><span>Überzeugen</span><span>Widerstand</span><span>Überleben</span><span>Steuern</span>
     </p>
-    <p class="hinweis-schild">Attribut und Fertigkeit sind nicht fest verdrahtet. Ein Schloss <i>aufbrechen</i> ist Körper + Athletik, <i>knacken</i> ist Geschick + Fingerfertigkeit, <i>verstehen</i> ist Verstand + Technik. Der Spielleiter entscheidet, was zu deiner Beschreibung passt.</p>
-  </div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Attribut und Fertigkeit sind frei kombinierbar. Eine Tür <i>eintreten</i> ist Körper + Athletik, das Schloss <i>öffnen</i> ist Geschick + Fingerfertigkeit. Die Spielleitung sucht aus, was zu deiner Beschreibung passt.</p></div>
+  </article>
 
   <!-- --- Schwierigkeit --- -->
-  <div class="karte">
-    <div class="karte-kopf"><h2>Schwierigkeitsgrade</h2></div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Schwierigkeitsgrade</h3>
     <div class="sg-leiste">
       <div><b>10</b><span>leicht</span></div>
       <div><b>15</b><span>normal</span></div>
       <div><b>20</b><span>schwierig</span></div>
       <div><b>25</b><span>sehr schwierig</span></div>
-      <div><b>30</b><span>extrem</span></div>
+      <div><b>30</b><span>fast unmöglich</span></div>
     </div>
-    <p class="hinweis-schild">Der Spielleiter muss sich genau eine Zahl merken: <b>15</b>.</p>
-  </div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Die Spielleitung muss sich genau eine Zahl merken: <b>15</b>.</p></div>
+  </article>
 
   <!-- --- Ergebnisse --- -->
-  <div class="karte">
-    <div class="karte-kopf"><h2>Vier Ergebnisse, nicht zwei</h2></div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Vier Ergebnisse statt zwei</h3>
     <div class="ergebnis-leiter">
-      <div class="stufe gut"><b>5 oder mehr über dem SG</b><span>Erfolg und ein Bonus — schneller, leiser, eine zusätzliche Information.</span></div>
+      <div class="stufe gut"><b>5 oder mehr über dem SG</b><span>Erfolg mit Bonus. Schneller, leiser oder du erfährst etwas zusätzlich.</span></div>
       <div class="stufe gut"><b>SG erreicht</b><span>Erfolg.</span></div>
-      <div class="stufe mittel"><b>1 bis 4 darunter</b><span><b>Erfolg mit Preis.</b> Es klappt — aber es kostet Zeit, Lärm, Material, eine Verletzung, oder es bleibt eine Spur zurück. Du darfst ablehnen.</span></div>
-      <div class="stufe schlecht"><b>5 oder mehr darunter</b><span>Misserfolg mit Komplikation. Die Lage wird schlechter.</span></div>
+      <div class="stufe mittel"><b>1 bis 4 darunter</b><span><b>Erfolg mit Preis.</b> Es klappt, aber es kostet etwas: Zeit, Lärm, eine Verletzung, oder jemand bemerkt dich. Du darfst ablehnen.</span></div>
+      <div class="stufe schlecht"><b>5 oder mehr darunter</b><span>Misserfolg, und die Lage wird schlechter.</span></div>
     </div>
-    <p class="hinweis-schild">„Erfolg mit Preis“ ist das Herzstück. Ein Misserfolg blockiert nie den einzigen Weg — er kostet etwas oder öffnet einen anderen.</p>
-  </div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Der Erfolg mit Preis ist das Herzstück. Ein Misserfolg ist nie eine Sackgasse. Es geht immer weiter, nur schwieriger oder teurer.</p></div>
+  </article>
 
   <!-- --- Vorteil --- -->
-  <div class="karte">
-    <div class="karte-kopf"><h2>Vorteil und Nachteil</h2></div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Vorteil und Nachteil</h3>
     <div class="zwei-spalten">
-      <div class="info-karte">
-        <h3>▲ Vorteil</h3>
-        <p>Zwei W20, das <b>höhere</b> zählt. Gibt es für: passende Eigenschaft, gutes Werkzeug, Vorbereitung, Überraschung, Hilfe eines Mitspielers.</p>
+      <div class="info-karte info-gut">
+        <span class="info-icon"><svg><use href="#i-hoch"/></svg></span>
+        <h3>Vorteil</h3>
+        <p>Zwei W20, der <b>höhere</b> zählt. Für eine passende Stärke, gutes Werkzeug, Vorbereitung, Überraschung oder Hilfe.</p>
       </div>
-      <div class="info-karte">
-        <h3>▼ Nachteil</h3>
-        <p>Zwei W20, das <b>niedrigere</b> zählt. Gibt es für: hinderliche Eigenschaft, Dunkelheit, Zeitdruck, Verletzung, falsches Werkzeug.</p>
+      <div class="info-karte info-schlecht">
+        <span class="info-icon"><svg><use href="#i-runter"/></svg></span>
+        <h3>Nachteil</h3>
+        <p>Zwei W20, der <b>niedrigere</b> zählt. Für eine passende Schwäche, Dunkelheit, Zeitdruck, Verletzungen oder falsches Werkzeug.</p>
       </div>
     </div>
-    <p class="hinweis-schild">Keine Stufen, kein Aufrechnen. Liegt beides vor, würfelst du ganz normal einen W20.</p>
-  </div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Liegt beides vor, heben sie sich auf und du würfelst ganz normal einen W20.</p></div>
+  </article>
 
   <!-- --- Gesundheit --- -->
-  <div class="karte">
-    <div class="karte-kopf">
-      <h2>Gesundheit</h2>
-      <span class="hinweis">Lebenspunkte = <b>10 + (Körper × 2)</b>.</span>
-    </div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Gesundheit</h3>
+    <p class="regel-kurz">Lebenspunkte = <b>10 + (Körper × 2)</b>.</p>
     <div class="zustand-leiter">
-      <div><b>Unversehrt</b><span>über der Hälfte</span></div>
-      <div class="warn"><b>Angeschlagen</b><span>auf der Hälfte oder darunter — Nachteil auf alles mit Körper oder Geschick</span></div>
-      <div class="gefahr"><b>Am Boden</b><span>0 LP — du liegst und kannst nicht handeln</span></div>
+      <div class="gut"><b>Unverletzt</b><span>mehr als die Hälfte</span></div>
+      <div class="mittel"><b>Angeschlagen</b><span>Hälfte oder weniger. Nachteil auf alles mit Körper oder Geschick.</span></div>
+      <div class="schlecht"><b>Am Boden</b><span>0 LP. Du liegst und kannst nichts tun.</span></div>
     </div>
-    <p class="warnschild kritisch">Es gibt <b>keine Rettungswürfe</b>. Wer am Boden liegt und erneut Schaden nimmt, ist tot. Wer am Boden liegt und bis zum Ende der Szene niemanden hat, der ihn versorgt, ist tot.</p>
-    <p class="hinweis-schild">Sterben ist damit eine Frage der Geschichte, nicht des Würfelglücks. Bleiben deine Kameraden, lebst du wahrscheinlich.</p>
-  </div>
+    <div class="regel-warnung kritisch"><svg class="kasten-icon"><use href="#i-warnung"/></svg><p>Es gibt <b>keine Rettungswürfe</b>. Wer am Boden liegt und noch einmal getroffen wird, stirbt. Wer am Boden liegt und bis zum Ende der Szene von niemandem versorgt wird, stirbt auch.</p></div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Ob jemand stirbt, entscheidet also die Gruppe. Wer seine Leute nicht zurücklässt, überlebt meistens.</p></div>
+  </article>
+
+  <!-- --- Gaben --- -->
+  <article class="regel-karte">
+    <h3 class="regel-titel">Gaben: Magie und Übernatürliches</h3>
+    <p class="regel-kurz">Eine Gabe ist eine Stärke, die etwas erlaubt, was kein Mensch kann: zaubern, sich in ein Tier verwandeln, mit Toten sprechen. Gewürfelt wird wie immer.</p>
+    <div class="regel-warnung"><svg class="kasten-icon"><use href="#i-tropfen"/></svg><p>Jede Gabe hat einen Preis. Dazu gehört eine passende Schwäche, oder jeder Einsatz kostet etwas, zum Beispiel Lebenspunkte.</p></div>
+  </article>
 
   <!-- --- Stabilität --- -->
-  <div class="karte">
-    <div class="karte-kopf">
-      <h2>Stabilität</h2>
-      <span class="hinweis">Für Kampagnen mit Horror: Stabilität = <b>10 + (Wille × 2)</b>.</span>
-    </div>
-    <p>Wenn du etwas siehst, das nicht sein kann, würfelst du Wille + Widerstand. Bei Erfolg passiert nichts. Bei Misserfolg verlierst du Fassung.</p>
-    <p class="warnschild">Wenn deine Stabilität auf null fällt, entscheidest <i>du</i>, wie dein Charakter bricht — fliehen, erstarren, zusammenbrechen. Der Spielleiter sagt nur, <i>dass</i> es passiert, nie <i>was</i>. Niemand nimmt dir deine Figur weg. Zurück bleibt eine Narbe, die du selbst formulierst.</p>
-  </div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Stabilität</h3>
+    <p class="regel-kurz">Für Runden mit Horror: Stabilität = <b>10 + (Wille × 2)</b>. Sieht deine Figur etwas Grauenhaftes, würfelst du Wille + Widerstand. Misslingt das, verliert sie Stabilität.</p>
+    <div class="regel-warnung"><svg class="kasten-icon"><use href="#i-warnung"/></svg><p>Fällt die Stabilität auf null, entscheidest <i>du</i>, wie deine Figur bricht: wegrennen, erstarren, zusammensacken. Die Spielleitung sagt nur, <i>dass</i> es passiert, nie <i>wie</i>. Danach bleibt eine seelische Narbe, die du selbst aufschreibst.</p></div>
+  </article>
 
   <!-- --- Charakter --- -->
-  <div class="karte">
-    <div class="karte-kopf"><h2>Dein Charakter in fünf Schritten</h2></div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Deine Figur in fünf Schritten</h3>
     <div class="schritt-kette">
       <div class="schritt-glied"><span class="schritt-nr">1</span>
-        <div class="schritt-text"><h3>Attribute</h3><p>Alle starten auf 2, du verteilst 7 Punkte. Maximum 5.</p></div></div>
+        <div class="schritt-text"><h4>Attribute</h4><p>Alle beginnen bei 2, du verteilst 7 Punkte. Höchstens 5.</p></div></div>
       <div class="schritt-glied"><span class="schritt-nr">2</span>
-        <div class="schritt-text"><h3>Fertigkeiten</h3><p>Alle starten auf 0, du verteilst 10 Punkte. Maximum 3.</p></div></div>
+        <div class="schritt-text"><h4>Fertigkeiten</h4><p>Alle beginnen bei 0, du verteilst 10 Punkte. Höchstens 3.</p></div></div>
       <div class="schritt-glied"><span class="schritt-nr">3</span>
-        <div class="schritt-text"><h3>Eigenschaften</h3><p>Zwei Stärken, ein Makel. <i>Veteran des Kolonialkriegs. Ruhige Hände. Höhenangst.</i> Relevant heißt Vorteil oder Nachteil, sonst passiert nichts.</p></div></div>
+        <div class="schritt-text"><h4>Eigenschaften</h4><p>Zwei Stärken, eine Schwäche. Zum Beispiel: <i>Zehn Jahre Seefahrt. Ruhige Hände. Höhenangst.</i></p></div></div>
       <div class="schritt-glied"><span class="schritt-nr">4</span>
-        <div class="schritt-text"><h3>Hintergrund</h3><p>Ein Satz, wer du bist. Dazu ein <b>Anker</b> (was dir wirklich etwas bedeutet) und ein <b>Riss</b> (was in deinem Leben nicht in Ordnung ist).</p></div></div>
+        <div class="schritt-text"><h4>Hintergrund</h4><p>Ein Satz, wer du bist und warum du dabei bist. Dazu ein <b>Anker</b>, der dir Halt gibt, und ein <b>Riss</b>, der dein Leben schwer macht.</p></div></div>
       <div class="schritt-glied"><span class="schritt-nr">5</span>
-        <div class="schritt-text"><h3>Ausrüstung</h3><p>Eine Waffe, Werkzeug deines Berufs, drei besondere Gegenstände. Alltagskram wird nicht aufgeschrieben.</p></div></div>
+        <div class="schritt-text"><h4>Ausrüstung</h4><p>Eine Waffe, Werkzeug deines Berufs, drei besondere Gegenstände.</p></div></div>
     </div>
-    <p class="hinweis-schild">Dauert eine Viertelstunde. Der Charakterbaukasten im Spielbereich rechnet alles mit.</p>
-  </div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Dauert eine Viertelstunde. Der Charakterbaukasten im Spielbereich rechnet alles mit.</p></div>
+  </article>
 
   <!-- --- Schicksalspunkte --- -->
-  <div class="karte">
-    <div class="karte-kopf"><h2>Schicksalspunkte</h2></div>
-    <p>Wenn dein <b>Makel</b> dir einen Nachteil einbringt, bekommst du einen Schicksalspunkt. Einen Schicksalspunkt ausgeben: Vorteil auf einen beliebigen Wurf.</p>
-    <p class="hinweis-schild">Deshalb lohnt es sich, seine Schwächen selbst ins Spiel zu bringen, statt sie zu verstecken.</p>
-  </div>
+  <article class="regel-karte">
+    <h3 class="regel-titel">Schicksalspunkte</h3>
+    <p class="regel-kurz">Bringt dir deine <b>Schwäche</b> einen Nachteil ein, bekommst du einen Schicksalspunkt. Ausgeben kannst du ihn für Vorteil auf einen Wurf oder für eine kleine Tatsache in der Szene: Du kennst den Wirt, die Hintertür ist offen.</p>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Schwächen ins Spiel zu bringen lohnt sich also.</p></div>
+  </article>
+
+  <p class="weiter-link"><a class="knopf-gross knopf-hohl" href="regelwerk.html">Alle Regeln mit Beispielen</a></p>
 </section>
 
 <!-- ==========================================================
      WIE SICH DAS ANFÜHLT
      ========================================================== -->
 <section class="block">
-  <h2>Wie sich eine Szene anfühlt</h2>
+  <h2>So klingt das am Tisch</h2>
 
   <div class="szene">
-    <p><span class="wer sl">SL</span> Die Werkstatt ist leer. Werkbank voller Späne. An der Wand hängen vierzehn identische Uhren — alle stehen auf 3:40. In der Ecke ein Druckbohrer, der Kessel ist noch warm.</p>
-    <p><span class="wer sp">Spielerin</span> Ich gehe zu den Uhren. Sind die kaputt oder hat die jemand angehalten?</p>
-    <p><span class="wer sl">SL</span> Verstand + Technik gegen 15.</p>
-    <p><span class="wer sp">Spielerin</span> Verstand 4, Technik 2… achtzehn.</p>
-    <p><span class="wer sl">SL</span> Sie sind nicht kaputt. Jemand stellt sie jeden Morgen neu, und jede Nacht bleiben sie wieder um 3:40 stehen.</p>
-    <p><span class="wer sp">Spieler 2</span> Ich schaue mir den Bohrer an. Wenn der Kessel noch warm ist, war vor kurzem jemand hier — ich will wissen, wie lange.</p>
-    <p><span class="wer sl">SL</span> Gute Idee, das ist Wahrnehmung + Ermittlung. Und weil du selbst mit solchen Maschinen arbeitest, hast du Vorteil.</p>
+    <p><span class="wer sl">SL</span> Der Ballsaal der Ashworths. Ein Streichquartett, zweihundert Gäste, und oben auf der Galerie steht der Mann, der deine Schwester auf dem Gewissen hat. Er hat dich noch nicht gesehen.</p>
+    <p><span class="wer sp">Spielerin</span> Ich schiebe mich durch die Menge zur Treppe. Er darf mich auf keinen Fall bemerken.</p>
+    <p><span class="wer sl">SL</span> Geschick + Heimlichkeit gegen 15.</p>
+    <p><span class="wer sp">Spielerin</span> Geschick 3, Heimlichkeit 2, gewürfelt eine 8. Dreizehn.</p>
+    <p><span class="wer sl">SL</span> Erfolg mit Preis. Du stehst an der Treppe, er hat nichts gemerkt. Aber unterwegs hast du einer Dame Rotwein über das Kleid gekippt, und die zeigt gerade sehr laut auf dich.</p>
+    <p><span class="wer sp">Spieler 2</span> Ich gehe dazwischen und entschuldige mich überschwänglich. Ich bin doch ihr Cousin dritten Grades, erinnert sie sich nicht?</p>
+    <p><span class="wer sl">SL</span> Ausstrahlung + Überzeugen. Und weil das so frech ist: Vorteil.</p>
   </div>
 
-  <p class="leise">Kein Nachschlagen, keine Sonderregeln. Der Spielleiter hört zu, was ihr versucht, und nennt eine Kombination.</p>
+  <p class="leise">Kein Nachschlagen, keine Sonderregeln. Die Spielleitung hört zu, was ihr vorhabt, und nennt eine Kombination.</p>
 </section>
 
 <!-- ==========================================================
-     SETTING
+     WELTEN
      ========================================================== -->
 <section class="block">
-  <h2>Das Setting</h2>
-  <p class="gross">
-    Gedacht ist es für düsteren Steampunk mit kosmischem Horror: Dampf, Ruß, Erfindungen,
-    und darunter etwas, das nicht sein kann. Aber <b>die Regeln hängen nicht daran</b>.
-    Es gibt keine Sonderregel für Luftschiffe und keine für Kultisten — beides läuft über
-    dieselben sechs Attribute.
-  </p>
-  <p>Dasselbe System trägt genauso eine Detektivgeschichte, eine Expedition oder ein Piratenabenteuer. Wenn wir umziehen wollen, ziehen wir um.</p>
+  <h2>Für welche Runden?</h2>
+  <p class="gross">Die Regeln hängen an keiner Welt. Luftschiffe, Hexen und Drachen laufen über dieselben sechs Attribute.</p>
+
+  <div class="genre-gitter">
+    <div class="genre-karte genre-wesen">
+      <span class="info-icon"><svg><use href="#i-funke"/></svg></span>
+      <h3>Übernatürliche Wesen</h3>
+      <p>Hexen, Werwesen, Feen, Geisterseher und was euch sonst einfällt. Kräfte laufen über Gaben, und jede hat ihren Preis.</p>
+    </div>
+    <div class="genre-karte genre-steampunk">
+      <span class="info-icon"><svg><use href="#i-zahnrad"/></svg></span>
+      <h3>Steampunk</h3>
+      <p>Luftschiffe, Dampfmaschinen, verrückte Erfindungen. Die Erfinderin baut aus Plane und Gasflaschen einen Ballon, der genau einmal fliegt.</p>
+    </div>
+    <div class="genre-karte genre-mystery">
+      <span class="info-icon"><svg><use href="#i-lupe"/></svg></span>
+      <h3>Murder Mystery</h3>
+      <p>Eine Tote im Wintergarten, sechs Verdächtige. Wichtige Hinweise findet ihr immer. Den Fall lösen müsst ihr selbst.</p>
+    </div>
+    <div class="genre-karte genre-fantasy">
+      <span class="info-icon"><svg><use href="#i-schwert"/></svg></span>
+      <h3>Fantasy im D&amp;D-Stil</h3>
+      <p>Gewölbe, Drachen, Magie. Ohne Klassenliste: Wer zaubern will, nimmt eine Gabe und sucht sich ihren Preis aus.</p>
+    </div>
+    <div class="genre-karte genre-horror">
+      <span class="info-icon"><svg><use href="#i-mond"/></svg></span>
+      <h3>Horror</h3>
+      <p>Wenn das Grauen kommt, wackeln die Nerven. Wie deine Figur zerbricht, bestimmst du selbst.</p>
+    </div>
+    <div class="genre-karte">
+      <span class="info-icon"><svg><use href="#i-funke"/></svg></span>
+      <h3>Alles gemischt</h3>
+      <p>Ein Mord auf einem Luftschiff. Hexen in einer Stadt voller Dampfmaschinen. Ein Drache als Hauptverdächtiger. Erlaubt ist, was der Runde Spaß macht.</p>
+    </div>
+  </div>
 </section>
 
 <!-- ==========================================================
@@ -271,20 +336,20 @@
      ========================================================== -->
 <section class="block block-abschluss">
   <h2>Und jetzt?</h2>
-  <p class="gross">Wenn dir das gefällt: Im Spielbereich kannst du dir einen Charakter bauen. Dauert eine Viertelstunde, das Werkzeug rechnet alles selbst.</p>
+  <p class="gross">Im Spielbereich baust du dir eine Figur. Das Werkzeug rechnet alle Werte mit.</p>
   <div class="held-knoepfe">
     <a class="knopf-gross" href="spiel.html">Zum Spielbereich</a>
   </div>
   <p class="leise" style="margin-top:20px">
-    Du brauchst eine Einladung vom Spielleiter, um einer Gruppe beizutreten.
-    Umsehen und einen Charakter probieren kannst du auch ohne.
+    Um einer Gruppe beizutreten, brauchst du eine Einladung der Spielleitung.
+    Eine Figur ausprobieren geht auch ohne.
   </p>
 </section>
 
 </main>
 
 <footer class="fuss">
-  <p>Der Eine Wurf · Ein privates Regelwerk-Projekt</p>
+  <p>Der Eine Wurf · Ein privates Regelwerk</p>
 </footer>
 
 </body>
