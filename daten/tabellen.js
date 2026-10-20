@@ -845,6 +845,206 @@ export const TABELLEN = {
         ]
       }
     }
+  },
+
+  /* ==========================================================
+     WESEN
+     Baukasten für spielbare Wesen (Regelgruppe "Wesen" in
+     regeln.js). Gedacht als Vorschlagsmaschine für die
+     schriftliche Session 0: würfeln, verwerfen, umformulieren.
+     Die Einträge sind bewusst als Ich-Sätze geschrieben — sie
+     lassen sich unverändert auf den Charakterbogen übernehmen.
+     ========================================================== */
+  wesen: {
+    titel: 'Wesen',
+    listen: {
+
+      widerfahren: {
+        titel: 'Was dir widerfahren ist',
+        eintraege: [
+          'Du bist gestorben und wieder aufgestanden, ohne dass jemand es wollte',
+          'Jemand hat dich verwandelt und dann allein gelassen',
+          'Du hast etwas getrunken, das kein Wasser war',
+          'Du warst in einer Maschine, als sie ansprang',
+          'Du hast einen Namen gelesen, den man nicht lesen soll',
+          'Du bist an einem Ort geboren, an dem niemand geboren werden darf',
+          'Ein Tier hat dich gebissen, das kein Tier war',
+          'Du hast einen Handel geschlossen und die Bedingungen nicht verstanden',
+          'Du bist der Letzte einer Familie, in der es immer einen gab',
+          'Du hast überlebt, wo alle anderen starben — es war kein Zufall',
+          'Man hat an dir gearbeitet, in einem Keller, über Monate',
+          'Du bist nie etwas anderes gewesen und hast es lange nicht gewusst',
+          'Etwas hat in dir Platz genommen und ist geblieben',
+          'Du hast jemanden zurückgeholt, der schon fort war — und etwas kam mit'
+        ]
+      },
+
+      wann: {
+        titel: 'Wann es geschah',
+        eintraege: [
+          'Vor wenigen Monaten — du lernst es noch',
+          'Vor sieben Jahren, und du hast dich eingerichtet',
+          'Vor einer Generation; die, die dich kannten, sind alt',
+          'Vor achtzig Jahren, du hast schon einen Namen verbraucht',
+          'Vor zweihundert Jahren, du erinnerst eine andere Stadt',
+          'Vor so langer Zeit, dass die Zahl dir nichts mehr sagt',
+          'In der Nacht, bevor die Gruppe dich kennenlernte',
+          'Du weißt es nicht — es fehlt ein Stück'
+        ]
+      },
+
+      gabe: {
+        titel: 'Gabe (ein Satz, ein Preis)',
+        eintraege: [
+          'Was ich trinke, heilt mich sofort — aber nur aus einem lebenden Menschen',
+          'Ich höre, was ein Mensch denkt, wenn ich seine Haut berühre — und er spürt es',
+          'Ich sehe, was ein Ort erlebt hat; einmal pro Szene, und es kostet mich Stabilität',
+          'Ich weiß nach einem Satz, wovor jemand Angst hat',
+          'Ich wechsle in eine Tiergestalt — ohne Hände, ohne Sprache, ohne Werkzeug',
+          'Gift, Ersticken, Kälte und Krankheit greifen mich nicht an',
+          'Wer mich nicht ansieht, vergisst mich innerhalb weniger Minuten',
+          'Ich verstehe jede Mechanik, die ich berühre, ohne Wurf',
+          'Ich gehe durch jede Tür, die schon einmal offen stand',
+          'Ich bin zäher, als mein Körper aussieht — Vorteil auf Manöver, nie auf Schaden',
+          'Ich rieche eine Lüge, aber nicht, worin sie besteht',
+          'Ich sehe im Dunkeln so gut wie bei Tag — und bei Tag schlechter als alle',
+          'Ich heile über Nacht vollständig, wenn ich in Erde liege',
+          'Ich spreche jede Sprache, die einmal zu mir gesprochen wurde',
+          'Ich kann eine Wunde auf mich nehmen, die jemand anderes erlitten hat',
+          'Tiere tun, worum ich sie bitte — und fürchten mich danach',
+          'Ich weiß immer, wo Norden ist und wo mein Anker ist',
+          'Einmal pro Abend darf ich sagen: Das habe ich vorhergesehen'
+        ]
+      },
+
+      bann: {
+        titel: 'Bann (nicht verhandelbar)',
+        eintraege: [
+          'Ich betrete kein Haus, in das mich niemand gebeten hat',
+          'Bei Tage sehe ich nur Umrisse — Nachteil auf alles mit Wahrnehmung oder Fernkampf',
+          'Ich kann nicht lügen, wenn mich jemand bei meinem echten Namen anspricht',
+          'Ich muss zählen, was verstreut vor mir liegt, bevor ich weitergehe',
+          'Fremdes Eigentum gleitet mir aus der Hand',
+          'Ich kann kein fließendes Wasser überqueren, ohne getragen zu werden',
+          'Ich schlafe nicht; nach zwei Tagen ohne Ruhe merkt man mir das an',
+          'Ich muss jedes gegebene Wort halten, auch ein leichtfertiges',
+          'Einmal pro Szene setzt etwas in mir aus — die Spielleitung sagt wann',
+          'Ich kann meinen Anker nicht anlügen, egal was auf dem Spiel steht',
+          'Mein Spiegelbild kommt eine Sekunde zu spät; Glas mag mich nicht',
+          'Feuer schreckt mich — Nachteil, solange offene Flammen brennen',
+          'Ich darf nichts wegwerfen, was mir jemand geschenkt hat',
+          'Ich vergesse Gesichter innerhalb von Tagen, wenn ich sie nicht aufschreibe',
+          'Wo ich geblutet habe, finde ich nie wieder hin',
+          'Ich muss jeden Namen beantworten, mit dem man mich ruft',
+          'Salz auf einer Schwelle hält mich auf, bis jemand es wegwischt',
+          'Ich altere nicht, aber alles, was ich lange bei mir trage, verfällt'
+        ]
+      },
+
+      zeichen: {
+        titel: 'Zeichen (wenn jemand genau hinsieht)',
+        eintraege: [
+          'Ich wachse nicht — wer mich zweimal im Abstand von Jahren sieht, weiß Bescheid',
+          'Ich werfe keinen Schatten im Gaslicht, nur im Sonnenlicht',
+          'Auf Fotografien bin ich ein Fleck',
+          'Ich atme nur, wenn ich daran denke',
+          'Meine Pupillen sind quer',
+          'Ich ticke leise',
+          'Schrift verschwimmt, wenn ich zu lange draufschaue',
+          'Meine Hände sind immer kälter als der Raum',
+          'Hunde weichen zurück, ohne zu bellen',
+          'Ich habe eine Narbe, die jede Woche an einer anderen Stelle ist',
+          'Mein Puls ist zu langsam zum Leben',
+          'Ich esse mit, aber nichts wird weniger auf meinem Teller',
+          'Meine Stimme klingt auf Wachswalzen doppelt',
+          'Wenn man meinen Namen in ein Register schreibt, verblasst die Tinte'
+        ]
+      },
+
+      ventil: {
+        titel: 'Ventil (nur so füllt sich Stabilität)',
+        eintraege: [
+          'Blut und mein Anker — Schlaf bringt mir nichts',
+          'Nur draußen, nie in einem Gebäude',
+          'Nur beim Arbeiten mit den Händen',
+          'Nur an Orten, an denen nie jemand gestorben ist',
+          'Nur wenn mich jemand beim Namen nennt, der ihn behalten hat',
+          'Nur wenn ich etwas zu Ende bringe, das ich im Leben liegengelassen habe',
+          'Nur in völliger Dunkelheit und Stille',
+          'Nur wenn ich jemandem etwas geschenkt habe, das mir wehtut',
+          'Nur in Musik, live gespielt, nicht aus einer Maschine',
+          'Nur wenn ich einem Menschen die Wahrheit über mich gesagt habe',
+          'Nur beim Gebet, an das ich nicht mehr glaube',
+          'Nur wenn ich einen Tag lang niemanden belogen habe'
+        ]
+      },
+
+      wahresEnde: {
+        titel: 'Wahres Ende (Spielleitung, geheim)',
+        eintraege: [
+          'Wenn sie ihren eigenen Namen auf einem Grabstein liest',
+          'Wenn der, der sie erschaffen hat, endgültig stirbt',
+          'Wenn ihr Zeichen amtlich festgehalten und beglaubigt wird',
+          'Wenn sie bei Tageslicht ohne Schutz über eine Schwelle gebeten wird',
+          'Wenn ihr Herz verbrannt und die Asche geteilt wird',
+          'Wenn jemand, den sie liebt, sie freiwillig aufgibt',
+          'Wenn sie ihren Bann bricht — sie kann es genau einmal',
+          'Wenn das Werkzeug, das sie erschuf, zerstört wird',
+          'Wenn drei Menschen gleichzeitig ihren echten Namen aussprechen',
+          'Wenn sie das Haus wieder betritt, in dem es geschah, und bleibt',
+          'Wenn ihr Blut in eine Maschine gerät, die es vermisst',
+          'Wenn sie einen Tag lang vollständig vergessen wird'
+        ]
+      },
+
+      werWeiss: {
+        titel: 'Wer es weiß und schweigt',
+        eintraege: [
+          'Ein Arzt, der dich einmal behandelt hat',
+          'Deine Wirtin, die nie fragt, warum du nicht isst',
+          'Ein Beamter, der es notiert und nicht gemeldet hat',
+          'Ein Kind, dem niemand glaubt',
+          'Ein Priester, der dafür seinen Glauben verloren hat',
+          'Der Mann, der dich erschaffen hat — er beobachtet dich',
+          'Eine Zeitung, die es als Ente gedruckt hat',
+          'Jemand, der dich erpresst, aber freundlich dabei ist',
+          'Ein anderes Wesen, das dich für gefährlich hält',
+          'Niemand mehr — der Letzte ist vor kurzem gestorben',
+          'Ein Fotograf, der die Platte aufgehoben hat',
+          'Deine eigene Familie, seit vier Generationen'
+        ]
+      },
+
+      jagd: {
+        titel: 'Wer oder was dich sucht',
+        eintraege: [
+          'Ein Amt, das Akten anlegt, aber nie jemanden schickt',
+          'Ein einzelner Mann mit einem Notizbuch und viel Zeit',
+          'Eine Gesellschaft von Gelehrten, die dich vermessen wollen',
+          'Der, den du zurückgelassen hast',
+          'Ein anderes Wesen, das dein Ventil braucht',
+          'Ein Erfinder, der glaubt, dich erklären zu können',
+          'Ein Kult, der dich für etwas hält, das du nicht bist',
+          'Eine Versicherung, der zu viele Zahlen nicht aufgehen',
+          'Deine eigene Art, weil du eine Regel gebrochen hast',
+          'Ein Gläubiger, dem du etwas anderes schuldest als Geld',
+          'Niemand — und genau das beunruhigt dich',
+          'Der Beamte von damals, inzwischen alt und sehr sicher'
+        ]
+      },
+
+      haltung: {
+        titel: 'Haltung: Was schuldet man dem, den man erschaffen hat?',
+        eintraege: [
+          'Alles. Für immer. Wer erschafft, haftet — auch nach hundert Jahren',
+          'Nichts. Er ist frei ab der ersten Nacht, und Bindung ist Besitz',
+          'Den Tod, wenn er sich nicht bewährt. Wir sind zu wenige für Fehler',
+          'Die Wahrheit, sofort und vollständig — und danach nichts mehr',
+          'Eine Aufgabe. Wer keine hat, wird gefährlich',
+          'Verschwiegenheit. Man erschafft nicht. Wer es tat, spricht nicht darüber'
+        ]
+      }
+    }
   }
 };
 
@@ -890,6 +1090,32 @@ export const KOMBIS = [
       { pfad: 'unheimlich.bewegung',       label: 'Bewegung' },
       { pfad: 'unheimlich.falschesDetail', label: 'Falsches Detail' },
       { pfad: 'unheimlich.wesenWill',      label: 'Will' }
+    ]
+  },
+  {
+    titel: 'Wesen erschaffen',
+    listen: [
+      { pfad: 'wesen.widerfahren', label: 'Dir widerfuhr' },
+      { pfad: 'wesen.wann',        label: 'Wann' },
+      { pfad: 'wesen.gabe',        label: 'Gabe' },
+      { pfad: 'wesen.bann',        label: 'Bann' },
+      { pfad: 'wesen.zeichen',     label: 'Zeichen' },
+      { pfad: 'wesen.ventil',      label: 'Ventil' }
+    ]
+  },
+  {
+    titel: 'Wesen: Umfeld',
+    listen: [
+      { pfad: 'wesen.werWeiss', label: 'Weiß es' },
+      { pfad: 'wesen.jagd',     label: 'Sucht dich' },
+      { pfad: 'wesen.haltung',  label: 'Haltung' }
+    ]
+  },
+  {
+    titel: 'Wahres Ende (geheim)',
+    listen: [
+      { pfad: 'wesen.wahresEnde', label: 'Endgültig stirbt es' },
+      { pfad: 'wesen.werWeiss',   label: 'Davon weiß' }
     ]
   },
   {

@@ -34,6 +34,8 @@
     <symbol id="i-runter" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
     <symbol id="i-funke" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M12 8l1.5 2.5L16 12l-2.5 1.5L12 16l-1.5-2.5L8 12l2.5-1.5z"/></symbol>
     <symbol id="i-stern" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+    <symbol id="i-mauer" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 9.7h18M3 14.3h18M9 5v4.7M15 5v4.7M6 9.7v4.6M12 9.7v4.6M18 9.7v4.6M9 14.3V19M15 14.3V19"/></symbol>
+    <symbol id="i-auge" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="i-szene" viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 8.5h8M8 11.5h5"/></symbol>
   </defs>
 </svg>
@@ -229,11 +231,24 @@
     <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Ob jemand stirbt, entscheidet also die Gruppe. Wer seine Leute nicht zurücklässt, überlebt meistens.</p></div>
   </article>
 
-  <!-- --- Gaben --- -->
-  <article class="regel-karte">
-    <h3 class="regel-titel">Gaben: Magie und Übernatürliches</h3>
-    <p class="regel-kurz">Eine Gabe ist eine Stärke, die etwas erlaubt, was kein Mensch kann: zaubern, sich in ein Tier verwandeln, mit Toten sprechen. Gewürfelt wird wie immer.</p>
-    <div class="regel-warnung"><svg class="kasten-icon"><use href="#i-tropfen"/></svg><p>Jede Gabe hat einen Preis. Dazu gehört eine passende Schwäche, oder jeder Einsatz kostet etwas, zum Beispiel Lebenspunkte.</p></div>
+  <!-- --- Wesen ---
+       Kurzfassung des Wesen-Moduls (Kapitel „Wesen“ in
+       daten/regeln.js). Bewusst ohne Vampir-Beispiel. -->
+  <article class="regel-karte" id="wesen">
+    <h3 class="regel-titel">Wesen spielen</h3>
+    <p class="regel-kurz">Deine Figur muss kein Mensch sein. Ein Wesen hat vier Zeilen mehr auf dem Bogen, sonst gelten dieselben Regeln.</p>
+    <ul class="regel-punkte">
+      <li><span class="punkt-icon"><svg class="symbol"><use href="#i-funke"/></svg></span><div class="punkt-text"><b>Gabe</b><span>Eine Sache, die ein Mensch nicht kann. Sie kostet jedes Mal etwas und gibt nie Zahlen, nur Möglichkeiten oder Vorteil.</span></div></li>
+      <li><span class="punkt-icon"><svg class="symbol"><use href="#i-mauer"/></svg></span><div class="punkt-text"><b>Bann</b><span>Etwas, das dich zwingt oder dir verwehrt ist. Wirkt wie eine Schwäche, die nie verschwindet.</span></div></li>
+      <li><span class="punkt-icon"><svg class="symbol"><use href="#i-auge"/></svg></span><div class="punkt-text"><b>Zeichen</b><span>Woran man dich erkennt, wenn jemand genau hinsieht.</span></div></li>
+      <li><span class="punkt-icon"><svg class="symbol"><use href="#i-herz"/></svg></span><div class="punkt-text"><b>Ventil</b><span>Das Einzige, wodurch sich deine Stabilität erholt.</span></div></li>
+    </ul>
+    <div class="regel-warnung"><svg class="kasten-icon"><use href="#i-warnung"/></svg><p>Wesen sind zäh: Wer am Boden liegt und noch einmal getroffen wird, <b>erlischt</b> nur und wacht Stunden später wieder auf. Aber jedes Wesen hat ein <b>Wahres Ende</b>, eine einzige Art, endgültig zu sterben. Welche, findest du im Spiel heraus.</p></div>
+    <div class="regel-merke"><svg class="kasten-icon"><use href="#i-idee"/></svg><p>Die Gabe ersetzt eine Stärke, der Bann kommt als Schwäche dazu. Menschen bekommen in einer Runde mit Wesen dafür eine dritte Stärke.</p></div>
+    <div class="held-knoepfe" style="justify-content:flex-start">
+      <a class="knopf-gross knopf-hohl" href="regelwerk.html#kapitel-wesen">Alle Wesen-Regeln</a>
+      <a class="knopf-gross knopf-hohl" href="session-0.html">Der Session-0-Bogen</a>
+    </div>
   </article>
 
   <!-- --- Stabilität --- -->
@@ -301,7 +316,7 @@
     <div class="genre-karte genre-wesen">
       <span class="info-icon"><svg><use href="#i-funke"/></svg></span>
       <h3>Übernatürliche Wesen</h3>
-      <p>Hexen, Werwesen, Feen, Geisterseher und was euch sonst einfällt. Kräfte laufen über Gaben, und jede hat ihren Preis.</p>
+      <p>Hexen, Werwesen, Feen, Geisterseher und was euch sonst einfällt. Jedes Wesen hat eine Gabe, einen Bann und ein Geheimnis: wie es endgültig sterben kann.</p>
     </div>
     <div class="genre-karte genre-steampunk">
       <span class="info-icon"><svg><use href="#i-zahnrad"/></svg></span>
@@ -316,7 +331,7 @@
     <div class="genre-karte genre-fantasy">
       <span class="info-icon"><svg><use href="#i-schwert"/></svg></span>
       <h3>Fantasy im D&amp;D-Stil</h3>
-      <p>Gewölbe, Drachen, Magie. Ohne Klassenliste: Wer zaubern will, nimmt eine Gabe und sucht sich ihren Preis aus.</p>
+      <p>Gewölbe, Drachen, Elfen und Zwerge. Ohne Klassenliste: Wer zaubern will, nimmt eine Gabe und sucht sich ihren Preis aus.</p>
     </div>
     <div class="genre-karte genre-horror">
       <span class="info-icon"><svg><use href="#i-mond"/></svg></span>

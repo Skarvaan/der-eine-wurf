@@ -236,7 +236,7 @@ h3.unter {
 /* Für Symbole, die per <use href="#i-…"> aus der Symbolsammlung
    in index.html kommen: Dort stehen keine Strich-Attribute am
    <svg>, deshalb kommen sie hier aus dem CSS. */
-.info-icon svg, .genre-reihe svg, svg.kasten-icon {
+.info-icon svg, .genre-reihe svg, svg.kasten-icon, .punkt-icon svg {
   fill: none; stroke: currentColor; stroke-width: 1.8;
   stroke-linecap: round; stroke-linejoin: round;
 }

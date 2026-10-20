@@ -77,7 +77,9 @@ Bei der Horror-Mechanik gilt: Der Spieler behält immer die Kontrolle über sein
 
 **Laienverständlich:** Alltagswörter statt Fachbegriffe (keine „Persenning", kein „Tender"). Was sich nicht einfach erklären lässt, fliegt im Zweifel raus. Begriffe, die aus D&D bekannt sind (natürliche 20, Initiative, Manöver, Rettungswurf, W20), dürfen ohne Erklärung bleiben. Fehlendes regelt die SL per Hausregel am Tisch.
 
-**Übernatürliches läuft über Gaben** (eine Stärke, die Unmenschliches erlaubt, immer mit Preis), nicht über Klassen- oder Zauberlisten.
+**Übernatürliches läuft über das Wesen-Modul** (Kapitel „Wesen“ in `daten/regeln.js`, Hilfe für die SL in `WESEN-SL.md`): Gabe, Bann, Zeichen, Ventil, dazu Zähigkeit und Wahres Ende. Keine Klassen- oder Zauberlisten, keine neue Zahl auf dem Bogen. „Keine Arten, nur Menschen, denen etwas widerfahren ist“ gilt je nach Welt; in Fantasy-Runden darf es Völker geben.
+
+**Dateien gehören in `daten/`**, nicht in den Hauptordner. Beim Hochladen über die GitHub-Weboberfläche landen sie leicht im falschen Ordner, und die App liest sie dann nicht.
 
 ## Design — Steampunk-Anmutung
 

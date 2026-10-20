@@ -107,6 +107,7 @@ export function symbol(name, klasse = 'symbol') {
 const GRUPPEN_SYMBOLE = {
   'Grundregeln':            'wuerfel',
   'Dein Charakter':         'person',
+  'Wesen':                  'funke',
   'Reden und Ermitteln':    'lupe',
   'Gesundheit':             'herz',
   'Kampf':                  'schwert',

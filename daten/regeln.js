@@ -51,6 +51,7 @@
 export const GRUPPEN_INFO = {
   'Grundregeln':            'Ein Wurf, eine Zahl, vier mögliche Ausgänge. Alles andere baut darauf auf.',
   'Dein Charakter':         'In einer Viertelstunde fertig. Zahlen sagen, wie gut deine Figur etwas kann. Eigenschaften sagen, wer sie ist.',
+  'Wesen':                  'Für Figuren, die keine gewöhnlichen Menschen sind. Wer nur Menschen spielt, überspringt dieses Kapitel.',
   'Reden und Ermitteln':    'Für Verhöre, Verhandlungen, Intrigen und Tatorte.',
   'Gesundheit':             'Figuren können sterben. Aber selten nur durch Würfelpech.',
   'Kampf':                  'Schnell, gefährlich und ohne Spielplan.',
@@ -167,11 +168,11 @@ export const REGELN = [
     schritte: [
       { titel: 'Attribute',     text: 'Alle sechs beginnen bei 2. Verteile 7 Punkte, höchstens 5 pro Attribut. 3 ist ein ganz normaler Mensch.' },
       { titel: 'Fertigkeiten',  text: 'Alle beginnen bei 0. Verteile 10 Punkte, höchstens 3 pro Fertigkeit.' },
-      { titel: 'Eigenschaften', text: 'Zwei Stärken und eine Schwäche (Makel). Wer ein übernatürliches Wesen spielt, macht aus einer Stärke eine Gabe.' },
+      { titel: 'Eigenschaften', text: 'Zwei Stärken und eine Schwäche (Makel). Wer ein Wesen spielt, findet alles dazu im Kapitel „Wesen“. Wer in einer Runde mit Wesen einen Menschen spielt, bekommt eine dritte Stärke.' },
       { titel: 'Hintergrund',   text: 'Ein Satz, wer du bist und warum du dabei bist. Dazu ein **Anker**: eine Person, ein Ort oder etwas, woran du glaubst und das dir Halt gibt. Und ein **Riss**: etwas in deinem Leben, das nicht in Ordnung ist.' },
       { titel: 'Ausrüstung',    text: 'Eine Waffe, Werkzeug für deinen Beruf und drei besondere Gegenstände. Kleinkram schreibt niemand auf.' }
     ],
-    merke: 'Je genauer, desto besser. „War fünf Jahre Hebamme im Armenviertel" sagt viel mehr als „kann heilen". Ideen für Wesen, Berufe und Beweggründe stehen weiter unten.'
+    merke: 'Je genauer, desto besser. „War fünf Jahre Hebamme im Armenviertel" sagt viel mehr als „kann heilen". Ideen für Berufe und Beweggründe stehen weiter unten, Ideen für Wesen im Kapitel „Wesen“.'
   },
   {
     gruppe: 'Dein Charakter',
@@ -227,43 +228,6 @@ export const REGELN = [
     beispiele: [
       { genre: 'steampunk', text: 'Stärke „Hat zehn Jahre im Kesselraum eines Dampfschiffs gearbeitet": Vorteil, als in der Fabrik der Kessel zu pfeifen anfängt und alle anderen wegrennen. Schwäche „Hat Spielschulden bei den falschen Leuten": Nachteil, als dich in der Oper ein Geldeintreiber erkennt. Dafür gibt es einen Schicksalspunkt.' }
     ]
-  },
-  {
-    gruppe: 'Dein Charakter',
-    titel: 'Gaben: übernatürliche Kräfte',
-    schlagworte: 'gabe gaben magie zauber kraft kräfte wesen übernatürlich segen fluch fähigkeit',
-    kurz: 'Eine Gabe ist eine Stärke, die etwas erlaubt, was kein Mensch kann. Sie ersetzt eine deiner Stärken.',
-    punkte: [
-      { icon: 'feder',   titel: 'Ein Satz', text: 'Schreib genau auf, was die Gabe kann: „Kann im Dunkeln sehen wie eine Katze" oder „Kann Feuer mit bloßen Händen entfachen".' },
-      { icon: 'wuerfel', titel: 'Einsetzen', text: 'Die Gabe macht etwas möglich. Gewürfelt wird wie immer, meist mit Wille + Mysterien. Je größer die Wirkung, desto höher der SG: 10 für eine Kleinigkeit, bis 25 für etwas Gewaltiges.' },
-      { icon: 'tropfen', titel: 'Jede Gabe hat einen Preis', text: 'Zur Gabe gehört eine passende Schwäche. Oder jeder Einsatz kostet etwas, zum Beispiel Lebenspunkte. Was es ist, legt ihr gemeinsam fest.' }
-    ],
-    merke: 'Spielt eure Runde ganz ohne Übernatürliches, lasst Gaben einfach weg.',
-    beispiele: [
-      { genre: 'fantasy', text: 'Die Hängebrücke reißt, die halbe Gruppe ist noch drauf. Die Magierin will sie mit ihrer Gabe festhalten: Wille + Mysterien gegen 20. Sie würfelt 18, Erfolg mit Preis. Die Brücke hält, bis alle drüben sind. Dann blutet sie aus der Nase und verliert 1W6 Lebenspunkte.' },
-      { genre: 'wesen', text: 'Gabe: „Ich kann mich in einen großen Wolf verwandeln." Schwäche dazu: „Wenn ich wütend werde, verwandle ich mich, ob ich will oder nicht." Beides zusammen ergibt eine Figur, bei der jeder Streit am Tisch plötzlich gefährlich wird.' }
-    ]
-  },
-  {
-    gruppe: 'Dein Charakter',
-    titel: 'Ideen: Wesen',
-    schlagworte: 'wesen rasse volk spezies übernatürlich elf zwerg hexe werwolf geist automat',
-    kurz: 'Deine Figur muss kein Mensch sein. Ein paar Ideen, die ihr frei abändern könnt. Ob ein Wesen in eure Welt passt, klärt ihr mit der SL.',
-    tabelle: {
-      kopf: ['Wesen', 'Mögliche Gabe', 'Möglicher Preis'],
-      zeilen: [
-        ['Hexe oder Magier', 'Zaubern', 'Jeder Zauber kostet Lebenspunkte'],
-        ['Werwesen', 'Sich in ein Tier verwandeln', 'Verwandelt sich bei Wut von selbst'],
-        ['Vampir', 'Übermenschlich stark und schnell', 'Braucht Blut, verträgt keine Sonne'],
-        ['Elf', 'Sieht im Dunkeln, spürt Magie', 'Eisen brennt auf der Haut'],
-        ['Fee', 'Kann Trugbilder erschaffen', 'Kann nicht lügen und muss Versprechen halten'],
-        ['Medium', 'Spricht mit den Toten', 'Die Toten lassen einen nie ganz in Ruhe'],
-        ['Wiedergänger', 'Spürt keinen Schmerz', 'Der Körper zerfällt langsam'],
-        ['Uhrwerkmensch', 'Körper aus Metall', 'Muss täglich aufgezogen werden'],
-        ['Dämonenblut', 'Kann Feuer rufen', 'Geweihte Orte sind unerträglich']
-      ]
-    },
-    merke: 'Nicht jedes Wesen braucht eine Gabe. Ein Zwerg oder ein Halbling kann ganz normale Stärken haben, zum Beispiel „Zäh wie ein alter Stiefel".'
   },
   {
     gruppe: 'Dein Charakter',
@@ -324,6 +288,150 @@ export const REGELN = [
     ]
   },
 
+  /* ---------------- Wesen ----------------
+     Das Wesen-Modul: Gabe, Bann, Zeichen, Ventil, Zähigkeit,
+     Wahres Ende. Leitgedanke: KEINE neue Regelschicht, nur vier
+     Zeilen, die an Bekanntes andocken (Stärke, Schwäche,
+     Stabilität). charakter.js und sl.js lesen die Felder gabe,
+     bann, zeichen, ventil. Ausführliche Hilfe für die SL steht in
+     WESEN-SL.md. Beispiele bewusst ohne Vampire, damit die
+     Spieler ihre eigenen Ideen nicht vorgekaut bekommen. */
+  {
+    gruppe: 'Wesen',
+    titel: 'Was ein Wesen ist',
+    schlagworte: 'wesen gabe bann zeichen ventil übernatürlich unmensch',
+    kurz: 'Ein Wesen ist eine Figur mit etwas Übernatürlichem. Dafür stehen vier Zeilen mehr auf dem Bogen. Sonst gelten dieselben Regeln wie für alle.',
+    punkte: [
+      { icon: 'funke',  titel: 'Gabe',    text: 'Eine Sache, die ein Mensch nicht kann. Ein Satz.' },
+      { icon: 'mauer',  titel: 'Bann',    text: 'Etwas, das dich zwingt oder dir verwehrt ist.' },
+      { icon: 'auge',   titel: 'Zeichen', text: 'Woran man dich erkennt, wenn jemand genau hinsieht.' },
+      { icon: 'herz',   titel: 'Ventil',  text: 'Das Einzige, wodurch sich deine Stabilität erholt.' }
+    ],
+    merke: 'Die Gabe ersetzt eine deiner Stärken, und der Bann kommt als zusätzliche Schwäche dazu. Auf dem Papier ist ein Wesen also etwas schwächer als ein Mensch. Der Gewinn liegt in der Geschichte.',
+    beispiele: [
+      { genre: 'steampunk', text: 'Ein Uhrmacher, der nach einem Unfall halb aus Zahnrädern besteht. Gabe: „Ich höre, wenn eine Maschine gleich kaputtgeht.“ Bann: „Ich muss jede stehende Uhr aufziehen, an der ich vorbeikomme.“ Zeichen: „Wenn es still ist, hört man mich ticken.“ Ventil: „Nur stundenlanges Basteln in meiner Werkstatt beruhigt mich.“' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Woher Wesen kommen',
+    schlagworte: 'arten volk rasse herkunft elf zwerg widerfahren',
+    kurz: 'Das hängt von eurer Welt ab. Die SL legt es vor dem ersten Abend fest.',
+    punkte: [
+      { icon: 'person', titel: 'Ohne Arten', text: 'In düsteren Welten gibt es keine Völker von Wesen, nur Menschen, denen etwas widerfahren ist: ein Fluch, ein Biss, ein Unfall mit einer Maschine. Jede Figur ist ein Einzelfall.' },
+      { icon: 'welt',   titel: 'Mit Arten', text: 'In Fantasy-Welten gibt es ganze Völker wie Elfen, Zwerge oder Feen. Dann beschreibt die Gabe, was dieses Volk kann.' }
+    ],
+    merke: 'Nicht jedes Volk braucht eine Gabe. Ein Zwerg ohne Magie ist einfach eine Figur mit passenden Stärken, zum Beispiel „Zäh wie ein alter Stiefel“.'
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Ideen für Wesen',
+    schlagworte: 'wesen ideen liste hexe werwolf elf fee medium wiedergänger automat dämon',
+    kurz: 'Vorschläge zum Abändern. Ob ein Wesen in eure Welt passt, klärt ihr mit der SL. Im Spielbereich gibt es dazu auch Würfeltabellen.',
+    tabelle: {
+      kopf: ['Wesen', 'Mögliche Gabe', 'Möglicher Bann'],
+      zeilen: [
+        ['Hexe', 'Kann jemandem Unglück anhängen', 'Kann fließendes Wasser nicht überqueren'],
+        ['Werwesen', 'Kann sich in ein Tier verwandeln', 'Verwandelt sich bei Wut von selbst'],
+        ['Vampir', 'Übermenschlich stark', 'Verträgt keine Sonne'],
+        ['Elf', 'Sieht im Dunkeln', 'Eisen brennt auf der Haut'],
+        ['Fee', 'Kann Trugbilder erschaffen', 'Kann nicht lügen'],
+        ['Medium', 'Kann mit Toten sprechen', 'Muss jeder Bitte eines Toten nachgehen'],
+        ['Wiedergänger', 'Spürt keinen Schmerz', 'Muss jede Nacht in seinem Grab liegen'],
+        ['Uhrwerkmensch', 'Braucht weder Essen noch Schlaf', 'Muss jeden Tag aufgezogen werden'],
+        ['Dämonenblut', 'Kann Feuer rufen', 'Kann keinen geweihten Ort betreten']
+      ]
+    }
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Was eine Gabe darf',
+    schlagworte: 'gabe kräfte fähigkeit magie zauber grenze bonus',
+    kurz: 'Eine Gabe macht etwas möglich oder gibt Vorteil. Sie gibt nie Zahlen: keine zusätzlichen LP, keine bessere Verteidigung, keinen Extra-Schaden.',
+    punkte: [
+      { icon: 'eins',    titel: 'Eine Sache', text: 'Die Gabe kann genau eine Sache.' },
+      { icon: 'tropfen', titel: 'Ein Preis', text: 'Jeder Einsatz kostet etwas, das man benennen kann: Zeit, Stabilität, Lebenspunkte oder eine Spur, die bleibt.' },
+      { icon: 'uhr',     titel: 'Starke Gaben', text: 'Höchstens einmal pro Szene.' },
+      { icon: 'wuerfel', titel: 'Würfeln', text: 'Wie immer, meist Wille + Mysterien. Je größer die Wirkung, desto höher der SG.' }
+    ],
+    merke: 'Passt die Gabe in einen Satz und hat sie einen Preis, ist sie in Ordnung. Braucht sie einen ganzen Absatz, ist sie zu groß.',
+    beispiele: [
+      { genre: 'fantasy', text: 'Die Hängebrücke reißt, die halbe Gruppe ist noch drauf. Die Magierin hält sie mit ihrer Gabe fest: Wille + Mysterien gegen 20. Sie würfelt 18, Erfolg mit Preis. Die Brücke hält, bis alle drüben sind. Dann blutet sie aus der Nase und verliert 1W6 LP.' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Der Bann',
+    schlagworte: 'bann makel zwang schwäche schicksalspunkt',
+    kurz: 'Der Bann funktioniert wie eine Schwäche: Bringt er dir Nachteil, bekommst du einen Schicksalspunkt.',
+    punkte: [
+      { icon: 'mauer', titel: 'Er gilt immer', text: 'Wenn der Bann greift, greift er. Darüber wird nicht verhandelt.' },
+      { icon: 'narbe', titel: 'Er bleibt', text: 'Eine Schwäche kann die Figur im Spiel überwinden. Einen Bann nie.' },
+      { icon: 'plus',  titel: 'Er lohnt sich', text: 'Wer seinen Bann selbst ins Spiel bringt, sammelt zuverlässig Schicksalspunkte.' }
+    ],
+    beispiele: [
+      { genre: 'wesen', text: 'Bann der Fee: „Ich kann nicht lügen.“ Der Kommissar fragt sie direkt, ob sie den Toten kannte. Sie kannte ihn. Am Tisch hält die ganze Gruppe die Luft an, und die Spielerin bekommt einen Schicksalspunkt.' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Das Ventil',
+    schlagworte: 'ventil stabilität hunger durst erholung wesen',
+    kurz: 'Ein Wesen erholt seine Stabilität nur über sein Ventil: 1W6, einmal pro Spielabend. Schlaf, Ruhe und ein beendetes Abenteuer bringen nichts.',
+    zustaende: [
+      { ton: 'mittel',   titel: 'Erschüttert', text: 'Das Übernatürliche drängt nach oben. Die Macke, die du ausspielst, gehört zu deiner Natur.' },
+      { ton: 'schlecht', titel: 'Zusammengebrochen', text: 'Deine Natur übernimmt. Wie das aussieht, entscheidest weiterhin du.' }
+    ],
+    beispiele: [
+      { genre: 'wesen', text: 'Das Werwesen kommt nur bei einem Lauf durch den Wald zur Ruhe. Nach drei Tagen Ermittlung mitten in der Stadt steht es bei halber Stabilität, und alle merken, wie gereizt es ist.' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Zähigkeit im Kampf',
+    schlagworte: 'kampf zähigkeit unsterblich erlöschen erlischt tod wesen am boden',
+    kurz: 'Wesen haben normale LP und kämpfen nach denselben Regeln wie alle. Nur eins ist anders.',
+    warnung: { text: 'Liegt ein Wesen am Boden und wird noch einmal getroffen, stirbt es nicht. Es **erlischt**: Es liegt da wie tot und ist raus aus der Szene. Stunden später wacht es wieder auf, dort, wo es lag, oder dort, wohin man es gebracht hat.' },
+    punkte: [
+      { icon: 'tropfen', titel: 'Der Preis', text: '1W6 Stabilität und eine sichtbare Spur, die bleibt.' },
+      { icon: 'schluessel', titel: 'Wer den Bann kennt', text: 'Nutzt ein Gegner deinen Bann im Kampf gegen dich, gilt die Zähigkeit in dieser Szene nicht. Dann ist ein Treffer am Boden tödlich.' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Das Wahre Ende',
+    schlagworte: 'wahres ende sterben endgültig tod vernichtung schwachstelle',
+    kurz: 'Jedes Wesen kann auf genau eine Art endgültig sterben.',
+    punkte: [
+      { icon: 'frage', titel: 'Du weißt, dass es eins gibt', text: 'Aber nicht, welches. Die SL legt es fest und schreibt es geheim auf.' },
+      { icon: 'buch',  titel: 'Du findest es im Spiel heraus', text: 'Aus einem alten Buch, von einem Feind oder von jemandem, der mehr weiß.' }
+    ],
+    merke: 'Deshalb fängt ein Kampf gegen ein Wesen oft mit Ermittlung an: Was ist es, was ist sein Bann, wie kann es enden?'
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Entdeckt werden',
+    schlagworte: 'zeichen entdeckung geheimnis verrat tarnung verbergen',
+    kurz: 'Das Zeichen fällt nur auf, wenn jemand genau hinsieht: jemand mit einem Grund, beim zweiten Treffen oder mit einem Fotoapparat.',
+    punkte: [
+      { icon: 'auge',   titel: 'Bemerken', text: 'Die SL rechnet 10 + Wahrnehmung + Ermittlung der anderen Person.' },
+      { icon: 'schild', titel: 'Verbergen', text: 'Ausstrahlung + Überzeugen oder Geschick + Heimlichkeit, je nachdem, wie du es versteckst.' },
+      { icon: 'schluessel', titel: 'Entdeckt ist nicht verloren', text: 'Macht über dich hat erst, wer deinen Bann kennt.' }
+    ],
+    beispiele: [
+      { genre: 'steampunk', text: 'Der Uhrwerkmensch steht zum zweiten Mal vor demselben Polizisten. Der sagt nichts. Aber er hat das Ticken gehört, und er schreibt etwas in sein Notizbuch.' }
+    ]
+  },
+  {
+    gruppe: 'Wesen',
+    titel: 'Menschen in einer Runde mit Wesen',
+    schlagworte: 'mensch ausgleich gruppe gemischt dritte stärke',
+    kurz: 'Wer in einer Runde mit Wesen einen Menschen spielt, bekommt eine dritte Stärke.',
+    punkte: [
+      { icon: 'person', titel: 'Menschen dürfen überall hin', text: 'Tageslicht, Kirchen, Ämter, Fotografen: Was Wesen Ärger macht, ist für Menschen kein Problem. In einer Runde voller Wesen geht ohne sie oft nichts.' }
+    ]
+  },
+
   /* ---------------- Reden und Ermitteln ---------------- */
   {
     gruppe: 'Reden und Ermitteln',
@@ -368,6 +476,7 @@ export const REGELN = [
     ],
     warnung: { kritisch: true, text: 'Es gibt **keine Rettungswürfe**. Wer am Boden liegt und noch einmal getroffen wird, stirbt. Wer am Boden liegt und bis zum Ende der Szene von niemandem versorgt wird, stirbt auch.' },
     punkte: [
+      { icon: 'mauer', titel: 'Wesen', text: 'Für sie gilt stattdessen die Zähigkeit (siehe Kapitel „Wesen“).' },
       { icon: 'herz', titel: 'Jemanden retten', text: 'Verstand + Heilkunde gegen 15: Die Figur wacht mit 1 LP auf. Bei Erfolg mit Preis überlebt sie, behält aber eine Narbe. Das ist eine neue Schwäche, die bleibt.' }
     ],
     merke: 'Ob jemand stirbt, entscheidet also vor allem die Gruppe. Wer seine Leute nicht im Stich lässt, überlebt meistens.',
@@ -388,7 +497,7 @@ export const REGELN = [
         ['Mehrere Tage Ruhe', 'alle']
       ]
     },
-    merke: 'Heilt ein Wesen in eurer Welt anders, zum Beispiel nur im Mondlicht, ist das Teil seiner Gabe. Eine eigene Regel braucht es dafür nicht.'
+    merke: 'Heilt ein Wesen in eurer Welt anders, zum Beispiel nur im Mondlicht, gehört das zu seinem Bann oder Ventil. Eine eigene Regel braucht es dafür nicht.'
   },
   {
     gruppe: 'Gesundheit',
@@ -540,7 +649,8 @@ export const REGELN = [
         ['Jemand redet dir gut zu (Ausstrahlung + Überzeugen gegen 15)', '1W6'],
         ['Ein Abenteuer erfolgreich beendet', '1W6']
       ]
-    }
+    },
+    merke: 'Wesen erholen sich anders: nur über ihr Ventil (siehe Kapitel „Wesen“).'
   },
   {
     gruppe: 'Horror und Stabilität',
@@ -621,10 +731,10 @@ export const REGELN = [
     schlagworte: 'setting genre welt wesen übernatürlich steampunk krimi mystery fantasy dnd horror',
     kurz: 'Die Regeln funktionieren in jeder Welt. Je nach Runde sind manche Teile wichtiger und andere fallen weg.',
     punkte: [
-      { icon: 'funke',   titel: 'Übernatürliche Wesen', text: 'Gaben, jede mit Preis. Viel Reden und Intrigen. Stabilität, wenn es gruselig werden soll.' },
-      { icon: 'zahnrad', titel: 'Steampunk', text: 'Maschinen und Erfindungen, Luftschiffe, Dampf. Gaben nur, wenn es Magie geben soll.' },
+      { icon: 'funke',   titel: 'Übernatürliche Wesen', text: 'Das Kapitel „Wesen“ mit Gabe, Bann, Zeichen und Ventil. Viel Reden, Geheimnisse und die Angst, entdeckt zu werden.' },
+      { icon: 'zahnrad', titel: 'Steampunk', text: 'Maschinen und Erfindungen, Luftschiffe, Dampf. Wesen nur, wenn es Übernatürliches geben soll.' },
       { icon: 'lupe',    titel: 'Murder Mystery', text: 'Spuren und Hinweise stehen im Mittelpunkt. Kämpfe sind selten und gefährlich.' },
-      { icon: 'kampf',   titel: 'Fantasy im D&D-Stil', text: 'Gaben für Magie, viele Gegner, Schätze und Ausrüstung. Stabilität meist nicht nötig.' },
+      { icon: 'kampf',   titel: 'Fantasy im D&D-Stil', text: 'Völker wie Elfen und Zwerge, Gaben für Magie, viele Gegner, Schätze und Ausrüstung.' },
       { icon: 'mond',    titel: 'Horror', text: 'Stabilität und verbotenes Wissen. Wenig Kampf, viel Unbekanntes.' }
     ],
     merke: 'Mischen ist ausdrücklich erlaubt: ein Mord auf einem Luftschiff, Hexen in einer Dampfmaschinenstadt, ein Drache als Hauptverdächtiger.'
@@ -688,6 +798,56 @@ export const REGELN = [
     beispiele: [
       { genre: 'mystery', text: '„War der Bruder in der Brandnacht in der Stadt?" Die Gruppe entscheidet danach, wen sie beschuldigt. Ab dieser Antwort ändert sich daran nichts mehr, auch wenn später eine andere Wendung besser gepasst hätte.' }
     ]
+  },
+  {
+    gruppe: 'Spielleitung',
+    nurSL: true,
+    titel: 'Eine Gabe prüfen',
+    schlagworte: 'gabe prüfen genehmigen balance spielleitung wesen',
+    schritte: [
+      { titel: 'Passt sie in einen Satz?', text: 'Wenn nicht, kürzen lassen.' },
+      { titel: 'Was kostet sie jedes Mal?', text: 'Lautet die Antwort „nichts“, fehlt noch die Hälfte der Gabe.' },
+      { titel: 'Welches Abenteuer macht sie kaputt?', text: 'Die wichtigste Frage. „Ich sehe, was ein Ort erlebt hat“ erledigt jede Spurensuche. Dann einen Preis oder eine Bedingung dranhängen, zum Beispiel: nur Bruchstücke, nur einmal pro Szene.' }
+    ],
+    merke: 'Eine Gabe darf einen Weg abkürzen. Sie darf nie die Frage beantworten, um die es im Abenteuer geht.'
+  },
+  {
+    gruppe: 'Spielleitung',
+    nurSL: true,
+    titel: 'Wesen als Gegner',
+    schlagworte: 'gegner wesen nsc monster werte ältester',
+    kurz: 'Eine Zeile aus der Gegnertabelle plus genau eine Besonderheit. Mehr braucht kein Wesen, auch kein uraltes.',
+    punkte: [
+      { icon: 'mauer', titel: 'Zähigkeit gilt auch hier', text: 'Die Gruppe muss den Bann des Wesens herausfinden, sonst steht es wieder auf. Das ist der eigentliche Fall.' },
+      { icon: 'drei',  titel: 'Drei Hinweise', text: 'Auf den Bann, an drei Orten, über drei Fertigkeiten. Wie immer.' }
+    ],
+    beispiele: [
+      { genre: 'horror', text: 'Ein uraltes Wesen, Stufe Monster. Besonderheit: „Wer ihm in die Augen sieht, kann seine nächste Aktion nicht nutzen (Wille + Widerstand gegen 20).“ Bann: Es muss alles zählen, was verstreut vor ihm liegt. Ein Sack Reis auf dem Boden kann die Gruppe retten.' }
+    ]
+  },
+  {
+    gruppe: 'Spielleitung',
+    nurSL: true,
+    titel: 'Das Wahre Ende festlegen',
+    schlagworte: 'wahres ende festlegen spielleitung geheimnis',
+    punkte: [
+      { icon: 'ziel',  titel: 'Konkret', text: 'Eine Handlung mit Dingen, kein Gefühl. Nicht „wenn sie alle Hoffnung verliert“, sondern „wenn sie ihren eigenen Namen auf einem Grabstein liest“.' },
+      { icon: 'lupe',  titel: 'Auffindbar', text: 'Es gibt mindestens zwei Wege, davon zu erfahren.' },
+      { icon: 'muenze', titel: 'Machbar', text: 'Auch ein Feind muss es schaffen können.' }
+    ],
+    merke: 'Nie als Regel ansagen, sondern als Fund: ein Eintrag in einem Register, ein Satz eines Sterbenden, ein Bild in einem Buch. Vor dem ersten Abend im Spielleitungsbereich aufschreiben.'
+  },
+  {
+    gruppe: 'Spielleitung',
+    nurSL: true,
+    titel: 'Der Druck, der alle Wesen trifft',
+    schlagworte: 'setting vermessung behörden fotografie zeitalter spielleitung',
+    kurz: 'Im Zeitalter der Maschinen wird alles erfasst: Meldeämter, Fotografie, Fingerabdrücke, Akten. Verschwinden und den Namen wechseln klappt immer schlechter.',
+    punkte: [
+      { icon: 'buch',   titel: 'Keine Kampfwerte nötig', text: 'Ein Beamter mit Notizbuch ist bedrohlicher als ein Monster, weil man ihn nicht einfach erschlagen kann.' },
+      { icon: 'gruppe', titel: 'Trifft alle', text: 'Jedes Wesen hat dieses Problem, egal welche Gabe. Das schweißt die Gruppe zusammen.' }
+    ],
+    merke: 'Am Tisch: Akten, Stempel, eine Fotoplatte. Dinge, die man stehlen, fälschen oder verbrennen muss. Daraus werden Abenteuer.'
   },
   {
     gruppe: 'Spielleitung',

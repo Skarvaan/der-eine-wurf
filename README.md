@@ -23,6 +23,7 @@ Der Schutz ist echt, nicht nur ausgeblendet: Der Spielleiterbereich liegt in ein
 
 ```
 index.html            Öffentliche Seite — das Spiel erklärt
+session-0.html        Öffentlicher Session-0-Bogen — schickst du vor dem ersten Abend
 spiel.html            Der Spielbereich (Hülle)
 stil.css              Design für beide Seiten
 
@@ -33,8 +34,10 @@ charakter.js          Zone „Mein Charakter“
 geteilt.js            Zone „Gemeinsam“
 sl.js                 Zone „Spielleitung“
 
-daten/tabellen.js     47 Würfeltabellen, 608 Einträge
-daten/regeln.js       Regeltexte für die Suche
+daten/tabellen.js     Würfeltabellen (inkl. Gruppe „Wesen“)
+daten/regeln.js       Regeltexte für die Suche (inkl. Gruppe „Wesen“)
+
+WESEN-SL.md           Handreichung zum Wesen-Modul — nur für dich
 
 firestore.rules       ← Die Sicherheitsregeln. Muss eingespielt werden.
 manifest.json, sw.js  Damit die App vom Home-Bildschirm läuft
