@@ -48,6 +48,19 @@ service cloud.firestore {
     // --------------------------------------------------------
     match /nutzer/{uid} {
       allow read, write: if angemeldet() && request.auth.uid == uid;
+
+      // ------------------------------------------------------
+      // WERKSTATT: Charaktere ohne Runde
+      // Ein Spieler baut seinen Charakter, bevor es eine Runde
+      // für ihn gibt, und übernimmt ihn später als KOPIE in die
+      // Runde. Die Werkstatt gehört nur ihm: niemand sonst liest
+      // oder schreibt hier, auch keine Spielleitung.
+      // (Die Regel oben gilt nur für das Profildokument selbst,
+      // nicht für Unter-Sammlungen. Deshalb dieser eigene Block.)
+      // ------------------------------------------------------
+      match /charaktere/{cid} {
+        allow read, write: if angemeldet() && request.auth.uid == uid;
+      }
     }
 
     // --------------------------------------------------------

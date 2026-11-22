@@ -302,3 +302,55 @@ export const Notizbuch = {
     });
   }
 };
+
+/* ============================================================
+   WERKSTATT — Charaktere ohne Runde
+   ============================================================
+   nutzer/{uid}/charaktere/{cid}
+
+   Damit Spieler ihren Charakter bauen können, bevor die
+   Spielleitung eine Runde für sie angelegt hat. Beim Beitritt
+   wird der Werkstatt-Charakter als KOPIE in die Runde übernommen
+   (Charaktere.anlegen). Die Werkstatt-Fassung bleibt als Vorlage
+   liegen; spätere Änderungen in der Runde wirken nicht zurück.
+   Lesen und schreiben darf nur der Besitzer, siehe
+   firestore.rules, match /nutzer/{uid}/charaktere/{cid}. */
+function werkstattSammlung(uid) {
+  return collection(db, 'nutzer', uid, 'charaktere');
+}
+
+export const Werkstatt = {
+
+  abonnieren(uid, rueckruf) {
+    return onSnapshot(werkstattSammlung(uid),
+      s => rueckruf(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      fehler => {
+        console.warn('Werkstatt nicht lesbar:', fehler.code);
+        rueckruf([]);
+      }
+    );
+  },
+
+  /** Einmal laden, ohne Abo (für Listen auf der Rundenwahl) */
+  async alle(uid) {
+    const s = await getDocs(werkstattSammlung(uid));
+    return s.docs.map(d => ({ id: d.id, ...d.data() }));
+  },
+
+  async anlegen(uid, daten) {
+    const verweis = await addDoc(werkstattSammlung(uid), {
+      ...daten, angelegt: serverTimestamp(), geaendert: serverTimestamp()
+    });
+    return verweis.id;
+  },
+
+  async aendern(uid, id, daten) {
+    await updateDoc(doc(db, 'nutzer', uid, 'charaktere', id), {
+      ...daten, geaendert: serverTimestamp()
+    });
+  },
+
+  async loeschen(uid, id) {
+    await deleteDoc(doc(db, 'nutzer', uid, 'charaktere', id));
+  }
+};

@@ -69,7 +69,7 @@
 <div id="schirm-gruppen" class="anmelde-schirm" hidden>
   <div class="anmelde-karte">
     <h1>Deine Runden</h1>
-    <p class="leise">Wähle eine Runde, tritt einer Einladung bei oder gründe eine eigene.</p>
+    <p class="leise">Wähle eine Runde oder tritt einer Einladung bei. Noch keine Einladung? Dann bau deinen Charakter schon in der Werkstatt.</p>
 
     <div id="gruppen-liste"></div>
 
@@ -77,6 +77,14 @@
       <h3 class="unter" style="font-size:16px">Einladungen</h3>
       <div id="einladungen-liste"></div>
     </div>
+
+    <!-- WERKSTATT: Charaktere ohne Runde. Wer noch keine Einladung
+         hat, baut hier schon seinen Charakter und übernimmt ihn
+         später beim Beitritt (siehe charakter.js, zeichneStart). -->
+    <h3 class="unter" style="font-size:16px">Deine Werkstatt</h3>
+    <p class="leise" style="margin-bottom:10px">Charaktere ohne Runde. Bau deinen Charakter schon jetzt; wenn du einer Runde beitrittst, übernimmst du ihn dort.</p>
+    <div id="werkstatt-liste"></div>
+    <button type="button" class="knopf" id="btn-werkstatt-neu" style="width:100%">Charakter ohne Runde bauen</button>
 
     <details style="margin-top:20px">
       <summary style="cursor:pointer;color:var(--messing-hell)">Eigene Runde gründen</summary>
@@ -113,7 +121,7 @@
        ausgeblendet — der echte Schutz sind aber die Regeln. -->
   <nav class="zonen">
     <button type="button" class="zone-knopf aktiv" data-zone="zone-spieler">Mein Charakter</button>
-    <button type="button" class="zone-knopf geteilt" data-zone="zone-geteilt">Gemeinsam</button>
+    <button type="button" class="zone-knopf geteilt" data-zone="zone-geteilt" id="zone-knopf-geteilt">Gemeinsam</button>
     <button type="button" class="zone-knopf" data-zone="zone-regeln">Regeln</button>
     <button type="button" class="zone-knopf" data-zone="zone-sl" id="zone-knopf-sl" hidden>Spielleitung</button>
   </nav>

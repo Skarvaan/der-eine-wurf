@@ -13,7 +13,7 @@
    Der Spielleiter sieht alle — das steckt aber in sl.js.
    ============================================================ */
 
-import { Charaktere, Notizbuch } from './speicher.js';
+import { Charaktere, Notizbuch, Werkstatt } from './speicher.js';
 import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, wuerfelnAktiv, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, verwirfAenderung, alleSpeichern } from './app.js';
 
@@ -87,6 +87,14 @@ let meiner = null;         // mein Charakter oder null
 let aboBeenden = null;
 let zeichnenAusstehend = false;
 
+/* Wo der Charakter liegt:
+     null        → in der Runde gid (Normalfall)
+     '<cid>'     → in der eigenen Werkstatt (nutzer/{uid}/charaktere),
+                   also ohne Runde. Dann gibt es kein Notizbuch und
+                   keine Steigerung, beides hängt an einer Runde. */
+let werkstattId = null;
+const inWerkstatt = () => werkstattId !== null;
+
 /* Das Notizbuch lebt bewusst NICHT im Charakterdokument (das
    dürfen alle in der Runde lesen), sondern in einer eigenen,
    wirklich geschützten Sammlung — siehe Notizbuch in speicher.js
@@ -130,7 +138,8 @@ function geaendert() {
 async function speichernAlles() {
   if (!meiner) return;
   const { id, ...daten } = meiner;
-  await Charaktere.aendern(gid, id, daten);
+  if (inWerkstatt()) await Werkstatt.aendern(sitzung.nutzer.uid, id, daten);
+  else               await Charaktere.aendern(gid, id, daten);
   aktualisiereSpeicherhinweis();
   zeichnenSicher();
 }
@@ -184,10 +193,36 @@ export function beendeCharakter() {
   if (notizenAboBeenden) { notizenAboBeenden(); notizenAboBeenden = null; }
   meiner = null;
   notizenText = '';
+  werkstattId = null;
+  gid = null;
+  // Abgebrochene Übernahme-Liste darf nicht in die nächste
+  // Runde hineinzeichnen (siehe zeichneStart).
+  startZaehler++;
+}
+
+/* Die Dokument-Ereignisse nur EINMAL binden. Früher kam bei
+   jedem Rundenwechsel ein weiterer Zuhörer dazu, und nach drei
+   Wechseln wurde dreimal gezeichnet. */
+let ereignisseGebunden = false;
+function ereignisseBinden() {
+  if (ereignisseGebunden) return;
+  ereignisseGebunden = true;
+
+  // Wenn der Spielleiter die Steigerung freischaltet, neu zeichnen
+  document.addEventListener('gruppe-geaendert', zeichnenSicher);
+
+  // Der Würfeln-Schalter entscheidet, ob Würfeln-Knöpfe oder nur
+  // der Bonus zu sehen sind — bei Änderung neu zeichnen.
+  document.addEventListener('wuerfeln-umgeschaltet', zeichnenSicher);
+
+  // Nach dem Speichern oder Verwerfen darf wieder gezeichnet werden
+  document.addEventListener('gespeichert', () => zeichnenSicher());
+  document.addEventListener('verworfen', () => { zeichnenAusstehend = false; zeichnen(); });
 }
 
 export function starteCharakter(gruppenId) {
   gid = gruppenId;
+  werkstattId = null;
 
   aboBeenden = Charaktere.abonnieren(gid, (alle) => {
     meiner = alle.find(c => c.besitzer === sitzung.nutzer.uid) || null;
@@ -201,16 +236,32 @@ export function starteCharakter(gruppenId) {
   });
   merkeAbo(notizenAboBeenden);
 
-  // Wenn der Spielleiter die Steigerung freischaltet, neu zeichnen
-  document.addEventListener('gruppe-geaendert', zeichnenSicher);
+  ereignisseBinden();
+}
 
-  // Der Würfeln-Schalter entscheidet, ob Würfeln-Knöpfe oder nur
-  // der Bonus zu sehen sind — bei Änderung neu zeichnen.
-  document.addEventListener('wuerfeln-umgeschaltet', zeichnenSicher);
+/**
+ * Öffnet einen Charakter aus der eigenen Werkstatt, also ohne
+ * Runde. Derselbe Baukasten und Bogen wie in einer Runde, nur
+ * ohne Notizbuch und Steigerung (beides gehört zu einer Runde).
+ */
+export function starteWerkstatt(charakterId) {
+  gid = null;
+  werkstattId = charakterId;
+  meiner = null;
+  $('charakter-bereich').innerHTML = '<p class="leise">Lade …</p>';
 
-  // Nach dem Speichern oder Verwerfen darf wieder gezeichnet werden
-  document.addEventListener('gespeichert', () => zeichnenSicher());
-  document.addEventListener('verworfen', () => { zeichnenAusstehend = false; zeichnen(); });
+  aboBeenden = Werkstatt.abonnieren(sitzung.nutzer.uid, (alle) => {
+    meiner = alle.find(c => c.id === werkstattId) || null;
+    zeichnenSicher();
+  });
+  merkeAbo(aboBeenden);
+
+  ereignisseBinden();
+}
+
+/** Legt einen leeren Charakter in der Werkstatt an, gibt die ID zurück */
+export async function neuerWerkstattCharakter() {
+  return Werkstatt.anlegen(sitzung.nutzer.uid, leer());
 }
 
 /* ------------------------------------------------------------
@@ -249,28 +300,120 @@ function zeichnen() {
   const behaelter = $('charakter-bereich');
   if (!behaelter) return;
 
+  if (!meiner && inWerkstatt()) {
+    behaelter.innerHTML = `
+      <div class="karte">
+        <div class="karte-kopf"><h2>Charakter nicht gefunden</h2></div>
+        <p class="hinweis-schild">Dieser Charakter liegt nicht mehr in deiner Werkstatt. Über „Runde“ oben rechts geht es zurück zur Übersicht.</p>
+      </div>`;
+    return;
+  }
   if (!meiner) { zeichneStart(behaelter); return; }
-  if (!meiner.fertig) { zeichneBaukasten(behaelter); return; }
-  zeichneSpielbogen(behaelter);
+
+  const kopf = inWerkstatt() ? werkstattHinweis() : '';
+  if (!meiner.fertig) zeichneBaukasten(behaelter);
+  else                zeichneSpielbogen(behaelter);
+  if (kopf) behaelter.insertAdjacentHTML('afterbegin', kopf);
+}
+
+/** Kurzer Hinweis über dem Bogen, solange er in der Werkstatt liegt */
+function werkstattHinweis() {
+  return `
+    <p class="hinweis-schild">Dieser Charakter liegt in deiner <b>Werkstatt</b>, noch ohne Runde.
+    Sobald dich die Spielleitung eingeladen hat und du beigetreten bist, übernimmst du ihn dort unter „Mein Charakter“.</p>`;
 }
 
 /* ------------------------------------------------------------
-   Noch kein Charakter
-   ------------------------------------------------------------ */
+   Noch kein Charakter (in einer Runde)
+   ------------------------------------------------------------
+   Hat der Spieler schon Charaktere in seiner Werkstatt gebaut,
+   bietet die Ansicht an, einen davon zu übernehmen. Übernehmen
+   heißt KOPIEREN: Der Werkstatt-Charakter bleibt als Vorlage
+   liegen, die Runde bekommt ihre eigene Fassung. So kann derselbe
+   Entwurf auch in einer zweiten Runde verwendet werden. */
+
+// Zählt jeden Aufruf hoch. Kommt die (asynchrone) Werkstatt-Liste
+// erst an, wenn längst etwas anderes gezeichnet wurde, verwirft
+// sie sich selbst, statt fremden Inhalt zu überschreiben.
+let startZaehler = 0;
 
 function zeichneStart(behaelter) {
+  const meinAufruf = ++startZaehler;
+
   behaelter.innerHTML = `
     <div class="karte">
-      <div class="karte-kopf"><h2>Noch kein Charakter</h2></div>
+      <div class="karte-kopf"><h2>Noch kein Charakter in dieser Runde</h2></div>
+      <div id="werkstatt-auswahl"><p class="leise">Suche nach Charakteren in deiner Werkstatt …</p></div>
+    </div>
+    <div class="karte">
+      <div class="karte-kopf"><h2>Neu anfangen</h2></div>
       <p>Ein Charakter ist in einer Viertelstunde fertig. Das Werkzeug rechnet alles mit,
       du musst nur entscheiden.</p>
-      <button type="button" class="knopf knopf-haupt" id="btn-char-neu">Charakter anlegen</button>
+      <button type="button" class="knopf knopf-haupt" id="btn-char-neu">Neuen Charakter anlegen</button>
     </div>`;
 
   $('btn-char-neu').addEventListener('click', async () => {
     $('btn-char-neu').disabled = true;
     await Charaktere.anlegen(gid, leer());
     // Das Abo zeichnet automatisch neu
+  });
+
+  werkstattAuswahlZeichnen(meinAufruf);
+}
+
+async function werkstattAuswahlZeichnen(meinAufruf) {
+  let vorlagen = [];
+  try {
+    vorlagen = await Werkstatt.alle(sitzung.nutzer.uid);
+  } catch (fehler) {
+    console.warn('Werkstatt nicht lesbar:', fehler);
+  }
+
+  const ziel = $('werkstatt-auswahl');
+  if (meinAufruf !== startZaehler || !ziel) return;   // inzwischen veraltet
+
+  if (!vorlagen.length) {
+    ziel.innerHTML = `<p class="hinweis-schild">Du hast noch keinen Charakter in deiner Werkstatt.
+      Leg unten einen neuen an, direkt in dieser Runde.</p>`;
+    return;
+  }
+
+  ziel.innerHTML = `
+    <p>Du hast schon ${vorlagen.length === 1 ? 'einen Charakter' : vorlagen.length + ' Charaktere'} vorbereitet.
+    Wähle, mit wem du in dieser Runde spielst:</p>
+    <ul class="liste">
+      ${vorlagen.map(v => `
+        <li>
+          <span style="flex:1"><b>${sicher(v.name || 'Ohne Namen')}</b><br>
+            <span class="leise" style="font-size:13px">${v.fertig ? 'fertig' : 'noch im Bau'}${v.hintergrund ? ' · ' + sicher(v.hintergrund) : ''}</span></span>
+          <button type="button" class="knopf knopf-haupt" data-uebernehmen="${sicher(v.id)}">Übernehmen</button>
+        </li>`).join('')}
+    </ul>
+    <p class="hinweis-schild">Übernehmen legt eine Kopie in dieser Runde an. Die Fassung in deiner Werkstatt bleibt unverändert liegen.</p>`;
+
+  ziel.querySelectorAll('[data-uebernehmen]').forEach(knopf => {
+    knopf.addEventListener('click', async () => {
+      const vorlage = vorlagen.find(v => v.id === knopf.dataset.uebernehmen);
+      if (!vorlage) return;
+      ziel.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      // Verwaltungsfelder der Werkstatt nicht mitnehmen; die Runde
+      // setzt ihre eigenen (angelegt, autorUid …).
+      const { id, angelegt, geaendert, autorUid, autorName, ...daten } = vorlage;
+      try {
+        await Charaktere.anlegen(gid, {
+          ...daten,
+          besitzer: sitzung.nutzer.uid,   // die Regeln verlangen das
+          ausWerkstatt: id
+        });
+        status('Charakter übernommen');
+        // Das Abo auf die Runde zeichnet den Bogen automatisch
+      } catch (fehler) {
+        console.error(fehler);
+        alert('Der Charakter konnte nicht übernommen werden.');
+        ziel.querySelectorAll('button').forEach(b => b.disabled = false);
+      }
+    });
   });
 }
 
@@ -632,6 +775,7 @@ function zeichneSpielbogen(behaelter) {
         <p class="hinweis-schild">Narben entstehen, wenn du am Boden lagst oder gebrochen warst. Du formulierst sie selbst.${istWesen ? ' Dein <b>Bann</b> dagegen bleibt für immer — er wird nie überwunden.' : ''}</p>
       </div>
 
+      ${inWerkstatt() ? '' : `
       <div class="karte">
         <div class="karte-kopf"><h2>Notizbuch</h2>
           <span class="hinweis">Nur du und deine Spielleitung sehen das. Verdächtige, Gedächtnisstützen, was dein Charakter denkt.</span></div>
@@ -639,7 +783,7 @@ function zeichneSpielbogen(behaelter) {
           <textarea class="notizbuch-feld" data-notizbuch rows="8"
             placeholder="Verdacht: der Hausmeister hat gelogen …">${sicher(notizenText)}</textarea>
         </div>
-      </div>
+      </div>`}
 
       <div class="karte karte-breit">
         <div class="karte-kopf"><h2>${istWesen ? 'Natur, Anker, Riss, Ausrüstung' : 'Anker, Riss, Ausrüstung'}</h2></div>
@@ -657,7 +801,7 @@ function zeichneSpielbogen(behaelter) {
       </div>
     </div>
 
-    ${steigerungsKarte(c, darfSteigern)}
+    ${inWerkstatt() ? '' : steigerungsKarte(c, darfSteigern)}
   `;
 
   bindeSpeichernKopf();

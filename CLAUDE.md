@@ -138,6 +138,17 @@ Rules-Update immer daran denken: die Datei muss erneut in der
 Firebase-Konsole eingespielt werden, sonst greift die alte Fassung
 weiter.**
 
+## Werkstatt — Charaktere ohne Runde
+
+Spieler können vor der Einladung schon bauen: `nutzer/{uid}/charaktere/{cid}`
+(`Werkstatt` in speicher.js, eigene Regel in `firestore.rules`, nur
+der Besitzer liest/schreibt). Die Rundenwahl listet sie, `werkstattOeffnen()`
+in app.js öffnet die App ohne Runde (nur „Mein Charakter“ und „Regeln“),
+charakter.js läuft dann mit `werkstattId` statt `gid`, ohne Notizbuch und
+Steigerung. In einer Runde ohne eigenen Charakter bietet `zeichneStart()`
+die Werkstatt-Charaktere zum **Übernehmen** an: Das ist eine KOPIE
+(`ausWerkstatt` merkt die Herkunft), die Vorlage bleibt unverändert.
+
 ## Offene Punkte
 
 - Bilder werden verlinkt, nicht hochgeladen (Firebase Storage bräuchte den Blaze-Tarif)

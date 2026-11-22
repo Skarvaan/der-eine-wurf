@@ -16,10 +16,10 @@
      sl.js          Zone „Spielleitung“
    ============================================================ */
 
-import { Auth, Gruppen } from './speicher.js';
+import { Auth, Gruppen, Werkstatt } from './speicher.js';
 import { REGELN } from './daten/regeln.js';
 import { regelListeHtml } from './daten/regeln-render.js';
-import { starteCharakter, beendeCharakter } from './charakter.js';
+import { starteCharakter, beendeCharakter, starteWerkstatt, neuerWerkstattCharakter } from './charakter.js';
 import { starteGeteilt, beendeGeteilt } from './geteilt.js';
 import { starteSL, beendeSL } from './sl.js';
 
@@ -216,7 +216,8 @@ function speicherleisteAufbauen() {
 export const sitzung = {
   nutzer: null,     // Firebase-Nutzer
   gruppe: null,     // { id, name, slUid, mitglieder, freigaben, ... }
-  istSL: false
+  istSL: false,
+  werkstatt: false  // true, solange ein Charakter OHNE Runde offen ist
 };
 
 /** Alle laufenden Firestore-Abos, damit wir sie beim Wechsel schließen können */
@@ -371,6 +372,74 @@ async function gruppenSchirmAufbauen() {
     });
     eLi.appendChild(knopf);
   });
+
+  werkstattListeZeichnen();
+}
+
+/* ------------------------------------------------------------
+   Werkstatt-Liste auf der Rundenwahl
+   ------------------------------------------------------------ */
+
+async function werkstattListeZeichnen() {
+  const ziel = $('werkstatt-liste');
+  ziel.innerHTML = '';
+  let vorlagen = [];
+  try {
+    vorlagen = await Werkstatt.alle(sitzung.nutzer.uid);
+  } catch (fehler) {
+    // Meist: firestore.rules noch nicht neu eingespielt. Dann
+    // lieber ehrlich sagen als eine leere Liste vorzutäuschen.
+    console.warn('Werkstatt nicht lesbar:', fehler);
+    ziel.innerHTML = '<p class="fehler">Die Werkstatt konnte nicht geladen werden.</p>';
+    return;
+  }
+  if (!vorlagen.length) return;
+
+  ziel.innerHTML = `
+    <ul class="liste" style="margin-bottom:10px">
+      ${vorlagen.map(v => `
+        <li>
+          <span style="flex:1;min-width:0"><b>${sicher(v.name || 'Ohne Namen')}</b><br>
+            <span class="leise" style="font-size:13px">${v.fertig ? 'fertig' : 'noch im Bau'}</span></span>
+          <button type="button" class="knopf-klein" data-werkstatt-oeffnen="${sicher(v.id)}">Öffnen</button>
+          <button type="button" class="loeschen" data-werkstatt-weg="${sicher(v.id)}" title="Löschen">×</button>
+        </li>`).join('')}
+    </ul>`;
+
+  ziel.querySelectorAll('[data-werkstatt-oeffnen]').forEach(k =>
+    k.addEventListener('click', () => werkstattOeffnen(k.dataset.werkstattOeffnen)));
+
+  // Achtung: data-werkstatt-weg landet als dataset.werkstattWeg
+  ziel.querySelectorAll('[data-werkstatt-weg]').forEach(k =>
+    k.addEventListener('click', async () => {
+      const v = vorlagen.find(x => x.id === k.dataset.werkstattWeg);
+      if (!confirm(`„${v?.name || 'Ohne Namen'}“ endgültig aus der Werkstatt löschen? Kopien in Runden bleiben erhalten.`)) return;
+      await Werkstatt.loeschen(sitzung.nutzer.uid, k.dataset.werkstattWeg);
+      werkstattListeZeichnen();
+    }));
+}
+
+/**
+ * Öffnet die App ohne Runde, nur mit „Mein Charakter“ und
+ * „Regeln“. Gemeinsam und Spielleitung brauchen eine Runde und
+ * bleiben ausgeblendet.
+ */
+function werkstattOeffnen(charakterId) {
+  alleAbosBeenden();
+  beendeCharakter(); beendeGeteilt(); beendeSL();
+
+  sitzung.gruppe = null;
+  sitzung.istSL = false;
+  sitzung.werkstatt = true;
+
+  $('kopf-info').textContent = 'Werkstatt · ohne Runde';
+  $('zone-knopf-sl').hidden = true;
+  $('zone-knopf-geteilt').hidden = true;
+  zoneWaehlen('zone-spieler');
+  regelnZeichnen($('regel-suche')?.value || '');
+
+  zeigeSchirm('schirm-app');
+  starteWerkstatt(charakterId);
 }
 
 function gruppenSchirmKnoepfe() {
@@ -391,6 +460,19 @@ function gruppenSchirmKnoepfe() {
   });
 
   $('link-abmelden-gruppen').addEventListener('click', (e) => { e.preventDefault(); Auth.abmelden(); });
+
+  $('btn-werkstatt-neu').addEventListener('click', async () => {
+    $('btn-werkstatt-neu').disabled = true;
+    try {
+      const id = await neuerWerkstattCharakter();
+      werkstattOeffnen(id);
+    } catch (fehler) {
+      console.error(fehler);
+      alert('Der Charakter konnte nicht angelegt werden. (Sind die Firestore-Regeln aktuell eingespielt?)');
+    } finally {
+      $('btn-werkstatt-neu').disabled = false;
+    }
+  });
 }
 
 /* ============================================================
@@ -416,6 +498,8 @@ function gruppeOeffnen(gid) {
 
     const ersterAufruf = !sitzung.gruppe;
     sitzung.gruppe = gruppe;
+    sitzung.werkstatt = false;
+    $('zone-knopf-geteilt').hidden = false;
     sitzung.istSL = gruppe.slUid === sitzung.nutzer.uid;
 
     $('kopf-info').textContent =
@@ -428,6 +512,7 @@ function gruppeOeffnen(gid) {
     regelnZeichnen($('regel-suche')?.value || '');
 
     if (ersterAufruf) {
+      zoneWaehlen('zone-spieler');
       zeigeSchirm('schirm-app');
       starteCharakter(gid);
       starteGeteilt(gid);
@@ -452,6 +537,7 @@ async function zurZurGruppenwahl() {
   beendeCharakter(); beendeGeteilt(); beendeSL();
   sitzung.gruppe = null;
   sitzung.istSL = false;
+  sitzung.werkstatt = false;
   localStorage.removeItem('dew:letzteGruppe');
   zeigeSchirm('schirm-gruppen');
   gruppenSchirmAufbauen();
@@ -461,13 +547,18 @@ async function zurZurGruppenwahl() {
    ZONEN
    ============================================================ */
 
+/** Schaltet auf eine Zone um (auch von außen, z. B. beim Öffnen
+    der Werkstatt, damit man nicht in einer ausgeblendeten Zone
+    der vorigen Runde hängenbleibt). */
+function zoneWaehlen(zone) {
+  $$('.zone-knopf').forEach(k => k.classList.toggle('aktiv', k.dataset.zone === zone));
+  $$('.ansicht').forEach(a => a.classList.toggle('aktiv', a.id === zone));
+  window.scrollTo({ top: 0 });
+}
+
 function zonenAufbauen() {
   $$('.zone-knopf').forEach(knopf => {
-    knopf.addEventListener('click', () => {
-      $$('.zone-knopf').forEach(k => k.classList.toggle('aktiv', k === knopf));
-      $$('.ansicht').forEach(a => a.classList.toggle('aktiv', a.id === knopf.dataset.zone));
-      window.scrollTo({ top: 0 });
-    });
+    knopf.addEventListener('click', () => zoneWaehlen(knopf.dataset.zone));
   });
 
   $('btn-abmelden').addEventListener('click', () => Auth.abmelden());
