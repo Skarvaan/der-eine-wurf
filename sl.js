@@ -18,7 +18,7 @@
    niemand sehen soll.
    ============================================================ */
 
-import { SLNotizen, Geteilt, Charaktere, Gruppen } from './speicher.js';
+import { SLNotizen, Geteilt, Charaktere, Gruppen, Einladungen } from './speicher.js';
 import { $, $$, sicher, status, sitzung, merkeAbo, zufall, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, alleSpeichern } from './app.js';
 import { TABELLEN, KOMBIS } from './daten/tabellen.js';
@@ -629,10 +629,34 @@ function zeichneRunde(behaelter) {
   const g = sitzung.gruppe;
   const mitglieder = Object.entries(g.mitglieder || {});
 
+  // Der Link zeigt auf dieselbe spiel.html, egal wo die Seite
+  // liegt (GitHub Pages, lokal zum Testen …).
+  const linkCode = g.einladungsCode || '';
+  const link = linkCode
+    ? `${location.origin}${location.pathname}?einladung=${encodeURIComponent(linkCode)}`
+    : '';
+
   behaelter.innerHTML = `
     <div class="bogen-gitter">
+      <div class="karte karte-breit">
+        <div class="karte-kopf"><h2>Einladungslink</h2>
+          <span class="hinweis">Am einfachsten: Link erzeugen und in eure Gruppe schicken, zum Beispiel bei Signal. Wer ihn öffnet, meldet sich an (oder legt ein Konto an) und tritt mit einem Tipp bei.</span></div>
+        ${link ? `
+          <label class="feld"><span>Dein Link</span>
+            <input type="text" id="einladungslink" value="${sicher(link)}" readonly></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="knopf knopf-haupt" id="btn-link-teilen">Teilen</button>
+            <button type="button" class="knopf" id="btn-link-kopieren">Kopieren</button>
+            <button type="button" class="knopf" id="btn-link-erneuern">Neuen Link erzeugen</button>
+            <button type="button" class="knopf knopf-gefahr" id="btn-link-aus">Link abschalten</button>
+          </div>
+          <p class="hinweis-schild">Jeder mit diesem Link kann beitreten, solange er gilt. Ist die Runde vollständig, schalte ihn ab. Ein neuer Link macht den alten ungültig.</p>`
+        : `
+          <button type="button" class="knopf knopf-haupt" id="btn-link-erneuern">Einladungslink erzeugen</button>`}
+      </div>
+
       <div class="karte">
-        <div class="karte-kopf"><h2>Spieler einladen</h2>
+        <div class="karte-kopf"><h2>Per E-Mail einladen</h2>
           <span class="hinweis">Trag die E-Mail ein, mit der sich der Spieler anmeldet. Er sieht die Einladung dann beim nächsten Start.</span></div>
         <div class="zeile-eingabe">
           <input type="email" id="einladung-mail" placeholder="name@beispiel.de" inputmode="email">
@@ -675,6 +699,52 @@ function zeichneRunde(behaelter) {
         </div>
       </div>
     </div>`;
+
+  // --- Einladungslink ---
+  $('btn-link-erneuern')?.addEventListener('click', async () => {
+    if (linkCode && !confirm('Neuen Link erzeugen? Der bisherige Link funktioniert dann nicht mehr.')) return;
+    $('btn-link-erneuern').disabled = true;
+    try {
+      await Einladungen.erneuern(gid, g.name, linkCode || null);
+      status('Link erzeugt');
+      // Die Runde meldet die Änderung (einladungsCode) selbst
+      // zurück, dann zeichnet sich die Karte mit dem Link neu.
+    } catch (fehler) {
+      console.error(fehler);
+      alert('Der Link konnte nicht erzeugt werden. Sind die Firestore-Regeln aktuell eingespielt?');
+      $('btn-link-erneuern').disabled = false;
+    }
+  });
+
+  $('btn-link-aus')?.addEventListener('click', async () => {
+    if (!confirm('Link abschalten? Wer ihn noch hat, kann dann nicht mehr beitreten.')) return;
+    await Einladungen.abschalten(gid, linkCode);
+    status('Link abgeschaltet');
+  });
+
+  $('btn-link-kopieren')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      status('Link kopiert');
+    } catch (e) {
+      // Ältere Browser oder fehlende Erlaubnis: Feld markieren,
+      // dann geht Kopieren von Hand.
+      $('einladungslink').select();
+      status('Link markiert, jetzt kopieren');
+    }
+  });
+
+  // Teilen öffnet auf dem iPad/Handy das System-Menü (Signal,
+  // WhatsApp, Mail …). Wo es das nicht gibt: wie Kopieren.
+  $('btn-link-teilen')?.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: g.name, text: `Einladung zu „${g.name}“:`, url: link });
+      } catch (e) { /* abgebrochen */ }
+    } else {
+      $('btn-link-kopieren').click();
+    }
+  });
 
   $('btn-einladen').addEventListener('click', async () => {
     const mail = $('einladung-mail').value.trim().toLowerCase();

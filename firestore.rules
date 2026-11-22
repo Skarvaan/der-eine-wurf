@@ -64,6 +64,24 @@ service cloud.firestore {
     }
 
     // --------------------------------------------------------
+    // Einladungslinks
+    // Dokument-ID = der geheime Code aus dem Link. Wer den Link
+    // hat, kann genau dieses eine Dokument lesen (Rundenname +
+    // gid), aber nicht auflisten, welche Codes es gibt. Anlegen
+    // und löschen darf nur die Spielleitung der jeweiligen Runde.
+    // Wird der Link erneuert, löscht die App das alte Dokument:
+    // ab dann funktioniert der alte Link nicht mehr.
+    // --------------------------------------------------------
+    match /einladungen/{code} {
+      allow get: if angemeldet();
+      allow list, update: if false;
+      allow create: if angemeldet()
+        && request.resource.data.gid is string
+        && istSL(request.resource.data.gid);
+      allow delete: if angemeldet() && istSL(resource.data.gid);
+    }
+
+    // --------------------------------------------------------
     // Gruppen
     // --------------------------------------------------------
     match /gruppen/{gid} {
@@ -82,17 +100,32 @@ service cloud.firestore {
         && request.auth.uid in request.resource.data.mitgliederIds;
 
       // Ändern: der Spielleiter darf alles.
-      // Ein eingeladener Spieler darf sich selbst eintragen —
-      // aber NICHT Spielleiter werden und niemanden entfernen.
+      // Ein eingeladener Spieler darf sich selbst eintragen, aber
+      // NICHT Spielleiter werden, niemanden entfernen und sonst
+      // nichts an der Runde ändern (affectedKeys).
+      // Eingeladen ist, wessen E-Mail auf der Liste steht ODER wer
+      // den aktuellen Einladungslink kennt: Dann schreibt er den
+      // Code beim Beitritt mit, und die Regel prüft, dass es zu
+      // diesem Code ein Einladungsdokument für GENAU diese Runde
+      // gibt (siehe match /einladungen unten).
       allow update: if
         (angemeldet() && request.auth.uid == resource.data.slUid)
         || (
           angemeldet()
-          && request.auth.token.email in resource.data.eingeladeneMails
+          && (
+            request.auth.token.email in resource.data.eingeladeneMails
+            || (
+              request.resource.data.beitrittsCode is string
+              && exists(/databases/$(database)/documents/einladungen/$(request.resource.data.beitrittsCode))
+              && get(/databases/$(database)/documents/einladungen/$(request.resource.data.beitrittsCode)).data.gid == gid
+            )
+          )
           && request.resource.data.slUid == resource.data.slUid
           && request.resource.data.mitgliederIds.hasAll(resource.data.mitgliederIds)
           && request.resource.data.mitgliederIds.size() == resource.data.mitgliederIds.size() + 1
           && request.auth.uid in request.resource.data.mitgliederIds
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['mitgliederIds', 'mitglieder', 'beitrittsCode'])
         );
 
       allow delete: if angemeldet() && request.auth.uid == resource.data.slUid;

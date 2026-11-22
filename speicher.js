@@ -175,6 +175,18 @@ export const Gruppen = {
     });
   },
 
+  /** Über einen Einladungslink beitreten. Der Code wird mit
+      geschrieben, damit die Sicherheitsregeln prüfen können,
+      dass der Link wirklich zu dieser Runde gehört. */
+  async beitretenPerLink(gid, code, name) {
+    const uid = auth.currentUser.uid;
+    await updateDoc(doc(db, 'gruppen', gid), {
+      mitgliederIds: arrayUnion(uid),
+      [`mitglieder.${uid}`]: { name, rolle: 'spieler' },
+      beitrittsCode: code
+    });
+  },
+
   /** Der Spielleiter lädt jemanden per E-Mail ein */
   async einladen(gid, email) {
     await updateDoc(doc(db, 'gruppen', gid), {
@@ -352,5 +364,60 @@ export const Werkstatt = {
 
   async loeschen(uid, id) {
     await deleteDoc(doc(db, 'nutzer', uid, 'charaktere', id));
+  }
+};
+
+/* ============================================================
+   EINLADUNGSLINKS
+   ============================================================
+   einladungen/{code}  →  { gid, name }
+
+   Der Code ist zufällig und lang genug, dass man ihn nicht
+   erraten kann. Er steht im Link (spiel.html?einladung=CODE),
+   den die Spielleitung z. B. in einer Signal-Gruppe teilt. Der
+   aktuelle Code steht zusätzlich in der Runde (einladungsCode),
+   damit die Spielleitung ihn wieder anzeigen und erneuern kann.
+   Regeln: firestore.rules, match /einladungen/{code}. */
+
+function zufallsCode() {
+  // Ohne leicht verwechselbare Zeichen (0/O, 1/l/I), falls
+  // jemand den Link doch einmal abtippt.
+  const zeichen = 'abcdefghijkmnpqrstuvwxyz23456789';
+  const zahlen = crypto.getRandomValues(new Uint32Array(20));
+  return Array.from(zahlen, z => zeichen[z % zeichen.length]).join('');
+}
+
+export const Einladungen = {
+
+  /** Liest eine Einladung; null, wenn der Code ungültig ist */
+  async lesen(code) {
+    try {
+      const s = await getDoc(doc(db, 'einladungen', code));
+      return s.exists() ? { code, ...s.data() } : null;
+    } catch (fehler) {
+      console.warn('Einladung nicht lesbar:', fehler.code);
+      return null;
+    }
+  },
+
+  /** Legt einen neuen Link an; ein alter Code wird ungültig */
+  async erneuern(gid, rundenName, alterCode) {
+    const code = zufallsCode();
+    await setDoc(doc(db, 'einladungen', code), {
+      gid, name: rundenName, angelegt: serverTimestamp()
+    });
+    await updateDoc(doc(db, 'gruppen', gid), { einladungsCode: code });
+    if (alterCode) {
+      try { await deleteDoc(doc(db, 'einladungen', alterCode)); }
+      catch (fehler) { console.warn('Alter Link nicht gelöscht:', fehler.code); }
+    }
+    return code;
+  },
+
+  /** Link abschalten, ohne einen neuen anzulegen */
+  async abschalten(gid, code) {
+    await updateDoc(doc(db, 'gruppen', gid), { einladungsCode: null });
+    try { await deleteDoc(doc(db, 'einladungen', code)); }
+    catch (fehler) { console.warn('Link nicht gelöscht:', fehler.code); }
   }
 };

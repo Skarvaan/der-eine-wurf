@@ -149,6 +149,19 @@ Steigerung. In einer Runde ohne eigenen Charakter bietet `zeichneStart()`
 die Werkstatt-Charaktere zum **Übernehmen** an: Das ist eine KOPIE
 (`ausWerkstatt` merkt die Herkunft), die Vorlage bleibt unverändert.
 
+## Einladung per Link
+
+`spiel.html?einladung=CODE`. Der Code ist die Dokument-ID in
+`einladungen/{code}` → `{ gid, name }` (nur per Get lesbar, nicht
+auflistbar; anlegen/löschen nur die SL der Runde). Die Runde merkt
+den aktuellen Code in `einladungsCode`; erneuern löscht das alte
+Dokument, dann gilt der alte Link nicht mehr. Beim Beitritt schreibt
+der Spieler `beitrittsCode` mit, die Gruppen-Update-Regel prüft
+per `get()`, dass der Code zu genau dieser Runde gehört. app.js
+merkt den Code beim Laden in `localStorage['dew:einladungsCode']`
+(überlebt Anmeldung/Registrierung), eingelöst wird er per Knopf auf
+der Rundenwahl. SL-Oberfläche: Tab „Runde“, Karte „Einladungslink“.
+
 ## Offene Punkte
 
 - Bilder werden verlinkt, nicht hochgeladen (Firebase Storage bräuchte den Blaze-Tarif)

@@ -16,7 +16,7 @@
      sl.js          Zone „Spielleitung“
    ============================================================ */
 
-import { Auth, Gruppen, Werkstatt } from './speicher.js';
+import { Auth, Gruppen, Werkstatt, Einladungen } from './speicher.js';
 import { REGELN } from './daten/regeln.js';
 import { regelListeHtml } from './daten/regeln-render.js';
 import { starteCharakter, beendeCharakter, starteWerkstatt, neuerWerkstattCharakter } from './charakter.js';
@@ -355,10 +355,41 @@ async function gruppenSchirmAufbauen() {
     });
   }
 
+  // --- Einladung per Link ---
+  // Ist man schon Mitglied, braucht es keinen Knopf: einfach rein.
+  const link = await offeneLinkEinladung();
+  if (link && meine.some(g => g.id === link.gid)) {
+    linkEinladungVergessen();
+    gruppeOeffnen(link.gid);
+    return;
+  }
+
   // --- Einladungen ---
-  $('einladungen-block').hidden = !einladungen.length;
+  $('einladungen-block').hidden = !einladungen.length && !link;
   const eLi = $('einladungen-liste');
   eLi.innerHTML = '';
+
+  if (link) {
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = 'knopf knopf-haupt';
+    knopf.style.cssText = 'width:100%;margin-bottom:8px';
+    knopf.textContent = `„${link.name || 'Runde'}“ beitreten`;
+    knopf.addEventListener('click', async () => {
+      knopf.disabled = true;
+      try {
+        await Gruppen.beitretenPerLink(link.gid, link.code,
+          sitzung.nutzer.displayName || sitzung.nutzer.email);
+        linkEinladungVergessen();
+        gruppeOeffnen(link.gid);
+      } catch (fehler) {
+        console.error(fehler);
+        alert('Beitritt hat nicht geklappt. Vielleicht wurde der Link inzwischen erneuert. Frag die Spielleitung nach dem aktuellen Link.');
+        knopf.disabled = false;
+      }
+    });
+    eLi.appendChild(knopf);
+  }
   einladungen.forEach(g => {
     const knopf = document.createElement('button');
     knopf.type = 'button';
@@ -708,9 +739,11 @@ Auth.beobachten(async (nutzer) => {
     return;
   }
 
-  // Angemeldet — direkt in die zuletzt benutzte Runde springen
+  // Angemeldet — direkt in die zuletzt benutzte Runde springen.
+  // Ausnahme: Es wartet eine Einladung per Link. Dann zur
+  // Rundenwahl, dort steht der Beitreten-Knopf ganz oben.
   const letzte = localStorage.getItem('dew:letzteGruppe');
-  if (letzte) {
+  if (letzte && !localStorage.getItem(LINK_SCHLUESSEL)) {
     gruppeOeffnen(letzte);
     // Falls die Runde nicht mehr erreichbar ist, fängt das der
     // Rückruf in gruppeOeffnen ab.
@@ -719,6 +752,55 @@ Auth.beobachten(async (nutzer) => {
     gruppenSchirmAufbauen();
   }
 });
+
+/* ============================================================
+   EINLADUNG PER LINK
+   ============================================================
+   spiel.html?einladung=CODE
+
+   Der Code wird beim Laden sofort gemerkt (localStorage) und aus
+   der Adresszeile entfernt. So überlebt er Anmeldung UND
+   Registrierung, auch wenn dabei die Seite neu lädt, und landet
+   nicht versehentlich in einem Lesezeichen. Eingelöst wird er auf
+   der Rundenwahl (gruppenSchirmAufbauen), mit einem Knopf, damit
+   niemand ungefragt in einer Runde landet.
+   ============================================================ */
+
+const LINK_SCHLUESSEL = 'dew:einladungsCode';
+
+function einladungAusLinkMerken() {
+  const adresse = new URL(location.href);
+  const code = adresse.searchParams.get('einladung');
+  if (!code) return;
+  try { localStorage.setItem(LINK_SCHLUESSEL, code.trim()); } catch (e) {}
+  adresse.searchParams.delete('einladung');
+  history.replaceState(null, '', adresse.pathname + adresse.search + adresse.hash);
+}
+
+function linkEinladungVergessen() {
+  try { localStorage.removeItem(LINK_SCHLUESSEL); } catch (e) {}
+}
+
+/** Die wartende Link-Einladung (gid, name, code) oder null. Ein
+    ungültiger Code wird einmal gemeldet und dann vergessen. */
+async function offeneLinkEinladung() {
+  let code = null;
+  try { code = localStorage.getItem(LINK_SCHLUESSEL); } catch (e) {}
+  if (!code) return null;
+
+  const einladung = await Einladungen.lesen(code);
+  if (!einladung) {
+    linkEinladungVergessen();
+    alert('Dieser Einladungslink gilt nicht mehr. Frag die Spielleitung nach dem aktuellen Link.');
+    return null;
+  }
+  return einladung;
+}
+
+einladungAusLinkMerken();
+try {
+  $('anmelde-einladung').hidden = !localStorage.getItem(LINK_SCHLUESSEL);
+} catch (e) {}
 
 /* Dienst für den Offline-Betrieb */
 if ('serviceWorker' in navigator) {
