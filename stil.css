@@ -51,6 +51,16 @@
   --karte-modern:    #1f1b18;
   --karte-rand:      rgba(255,255,255,0.07);
 
+  /* Druckbogen (PDF): helles Papier, dunkle Schrift. Dunkle
+     Flächen würden beim Ausdruck Toner fressen und im PDF auf
+     dem Telefon schlechter lesbar sein als schwarz auf weiß. */
+  --druck-papier:    #ffffff;
+  --druck-text:      #1d1a17;
+  --druck-leise:     #6b6258;
+  --druck-linie:     #cbbfa8;
+  --druck-akzent:    #8a5a12;
+  --druck-flaeche:   #f6f1e6;
+
   --radius:        10px;
   --radius-gross:  18px;
   --tipp:          44px;      /* Mindesthöhe für Finger */
@@ -1111,6 +1121,9 @@ button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color:
 }
 .speichern-oben .stand-text { font-size: 13px; color: var(--text-leise); }
 .speichern-oben .offen { color: var(--messing-hell); font-weight: 600; }
+/* „Als PDF sichern“ rückt nach rechts, damit er nicht mit dem
+   Speichern-Knopf verwechselt wird */
+.speichern-oben .knopf-pdf { margin-left: auto; }
 
 /* --- Würfelleiste ---
    Standardmäßig eingeklappt: nur die Kopfzeile mit dem Schalter
@@ -1210,3 +1223,106 @@ button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color:
 @media (min-width: 760px) {
   .inhalt { padding: 18px; }
 }
+
+/* ============================================================
+   DRUCKBOGEN — Charaktere als PDF (siehe druckbogen.js)
+   ============================================================
+   Am Bildschirm unsichtbar. Beim Drucken mit der Klasse
+   „druckt-bogen“ am body wird ALLES andere ausgeblendet und nur
+   der Bogen gezeigt. Ohne die Klasse (z. B. Strg+P mitten in der
+   App) druckt der Browser wie bisher die App selbst. */
+#druckbogen { display: none; }
+
+@media print {
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+
+  body.druckt-bogen > :not(#druckbogen) { display: none !important; }
+  body.druckt-bogen {
+    background: var(--druck-papier) !important;
+    color: var(--druck-text);
+    /* Farbige Kästen auch dann drucken, wenn der Browser
+       Hintergründe beim Druck sonst weglässt */
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  body.druckt-bogen #druckbogen { display: block; }
+}
+
+#druckbogen {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 10.5pt; line-height: 1.4;
+  /* Georgia setzt Ziffern sonst als Mediävalziffern, dann sieht
+     eine 0 wie ein kleines o aus */
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--druck-text); background: var(--druck-papier);
+}
+/* Jeder Charakter auf eigener Seite, damit die SL beim Sammel-PDF
+   einzelne Bögen herausnehmen kann */
+.db-blatt { break-after: page; page-break-after: always; }
+.db-blatt:last-child { break-after: auto; page-break-after: auto; }
+
+.db-kopf {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 12px;
+  border-bottom: 2px solid var(--druck-akzent); padding-bottom: 6px; margin-bottom: 10px;
+}
+.db-titel { min-width: 0; }
+.db-kopf h1 {
+  font-family: var(--schrift-kopf); font-size: 22pt; margin: 0; line-height: 1.1;
+  color: var(--druck-text);
+}
+.db-unter { margin: 4px 0 0; font-style: italic; color: var(--druck-leise); }
+.db-marke {
+  text-align: right; font-family: var(--schrift-kopf); font-size: 9pt;
+  color: var(--druck-akzent); white-space: nowrap;
+}
+.db-marke span { font-family: Georgia, serif; color: var(--druck-leise); }
+
+.db-werte {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 10px;
+}
+.db-werte div {
+  border: 1px solid var(--druck-linie); border-radius: 6px; padding: 4px 6px;
+  background: var(--druck-flaeche); text-align: center;
+}
+.db-werte span { display: block; font-size: 8pt; color: var(--druck-leise); text-transform: uppercase; letter-spacing: 0.04em; }
+.db-werte b { font-size: 13pt; }
+
+.db-spalten { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+
+.db-kasten {
+  border: 1px solid var(--druck-linie); border-radius: 6px;
+  padding: 6px 10px 8px; margin-bottom: 10px;
+  break-inside: avoid; page-break-inside: avoid;
+}
+.db-kasten h2 {
+  font-family: var(--schrift-kopf); font-size: 11pt; margin: 0 0 4px;
+  color: var(--druck-akzent); letter-spacing: 0.03em;
+}
+
+.db-tabelle { width: 100%; border-collapse: collapse; }
+.db-tabelle td { padding: 2px 0; border-bottom: 1px dotted var(--druck-linie); vertical-align: top; }
+.db-tabelle tr:last-child td { border-bottom: 0; }
+.db-tabelle td:last-child { text-align: right; font-weight: bold; width: 2em; }
+/* Fertigkeiten auf 0 leiser, damit die eigentlichen Stärken
+   der Figur beim Draufschauen sofort auffallen */
+.db-null td { color: var(--druck-leise); font-weight: normal !important; }
+/* 15 Fertigkeiten in zwei Spalten statt einer langen Liste */
+.db-zweispaltig { display: block; column-count: 2; column-gap: 18px; }
+.db-zweispaltig tbody { display: block; }
+.db-zweispaltig tr { display: flex; justify-content: space-between; break-inside: avoid; border-bottom: 1px dotted var(--druck-linie); }
+.db-zweispaltig td { border: 0; }
+
+.db-eigen td:last-child { text-align: left; font-weight: normal; width: auto; }
+.db-art {
+  width: 5.5em; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--druck-akzent);
+}
+
+.db-zeile { display: flex; gap: 8px; padding: 2px 0; }
+.db-bez { flex: 0 0 6.5em; font-weight: bold; }
+.db-zeile > span:last-child { min-width: 0; }
+.db-hinweis { margin: 6px 0 0; font-size: 8.5pt; color: var(--druck-leise); font-style: italic; }
+.db-leer { margin: 0; color: var(--druck-leise); font-style: italic; }
+/* Lange Notizbücher dürfen über die Seite hinweg umbrechen */
+.db-notizbuch { break-inside: auto; page-break-inside: auto; }
+.db-notizbuch p { margin: 0; font-family: var(--schrift-notiz); font-size: 9.5pt; }
+.db-fuss { margin-top: 6px; font-size: 8pt; color: var(--druck-leise); text-align: right; }

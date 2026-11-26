@@ -10,12 +10,12 @@
    Offline-Speicher mit (siehe speicher.js).
    ============================================================ */
 
-const VERSION = 'dew-v17';
+const VERSION = 'dew-v18';
 
 const DATEIEN = [
   './', './index.html', './spiel.html', './regelwerk.html', './session-0.html', './stil.css',
   './app.js', './speicher.js', './firebase-konfig.js', './regelwerk.js',
-  './charakter.js', './geteilt.js', './sl.js',
+  './charakter.js', './geteilt.js', './sl.js', './druckbogen.js',
   './daten/tabellen.js', './daten/regeln.js', './daten/regeln-render.js',
   './manifest.json', './icon-192.png', './icon-512.png'
 ];

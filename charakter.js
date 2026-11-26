@@ -16,6 +16,7 @@
 import { Charaktere, Notizbuch, Werkstatt } from './speicher.js';
 import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, wuerfelnAktiv, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, verwirfAenderung, alleSpeichern } from './app.js';
+import { druckeCharaktere } from './druckbogen.js';
 
 /* ------------------------------------------------------------
    Stammdaten
@@ -162,6 +163,7 @@ function speichernKopf() {
       <span class="stand-text ${offen ? 'offen' : ''}">
         ${offen ? 'Ungespeicherte Änderungen' : 'Alles gespeichert'}
       </span>
+      <button type="button" class="knopf knopf-pdf" id="btn-char-pdf">Als PDF sichern</button>
     </div>`;
 }
 
@@ -177,6 +179,17 @@ function notizenGeaendert() {
 
 function bindeSpeichernKopf() {
   document.getElementById('btn-char-speichern')?.addEventListener('click', () => alleSpeichern());
+
+  /* Gedruckt wird der Stand im Arbeitsspeicher, also genau das,
+     was gerade auf dem Bildschirm steht, auch wenn es noch nicht
+     gespeichert ist. Das eigene Notizbuch kommt mit: Es ist das
+     PDF der Person selbst. In der Werkstatt gibt es keins. */
+  document.getElementById('btn-char-pdf')?.addEventListener('click', () => {
+    if (!meiner) return;
+    druckeCharaktere([meiner], {
+      notizbuecher: inWerkstatt() ? {} : { [meiner.id]: notizenText }
+    });
+  });
 }
 
 // Beim Verlassen eines Feldes nachholen, was übersprungen wurde.

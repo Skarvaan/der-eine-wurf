@@ -22,6 +22,7 @@ import { SLNotizen, Geteilt, Charaktere, Gruppen, Einladungen } from './speicher
 import { $, $$, sicher, status, sitzung, merkeAbo, zufall, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, alleSpeichern } from './app.js';
 import { TABELLEN, KOMBIS } from './daten/tabellen.js';
+import { druckeCharaktere } from './druckbogen.js';
 
 const WELT_ARTEN = {
   ort:        'Ort',
@@ -152,7 +153,16 @@ function zeichneUebersicht(behaelter) {
     return;
   }
 
-  behaelter.innerHTML = `<div class="bogen-gitter">${charaktere.map(c => {
+  /* Die SL sieht hier nur Charaktere, die schon in der Runde liegen
+     (Werkstatt-Charaktere sind laut firestore.rules nur für ihre
+     Besitzer lesbar). Deshalb kann sie auch nur diese als PDF
+     sichern, ohne dass dafür eine eigene Prüfung nötig wäre. */
+  behaelter.innerHTML = `
+    <div class="speichern-oben">
+      <span class="leise" style="font-size:13px">${charaktere.length === 1 ? 'Ein Charakter' : charaktere.length + ' Charaktere'} in dieser Runde</span>
+      <button type="button" class="knopf knopf-pdf" id="btn-alle-pdf">Alle als PDF sichern</button>
+    </div>
+    <div class="bogen-gitter">${charaktere.map(c => {
     const lpMax   = 10 + (c.attribute?.koerper || 0) * 2 + (c.bonusLp || 0);
     const stabMax = 10 + (c.attribute?.wille || 0) * 2 + (c.bonusStab || 0);
     const vt      = 10 + (c.attribute?.geschick || 0) + (c.fertigkeiten?.nahkampf || 0);
@@ -212,6 +222,7 @@ function zeichneUebersicht(behaelter) {
         <button type="button" class="knopf-klein" data-fp="${c.id}:1">+1 FP</button>
         <button type="button" class="knopf-klein" data-fp="${c.id}:2">+2 FP (Abschluss)</button>
         <button type="button" class="knopf-klein" data-heilen="${c.id}">Voll heilen</button>
+        <button type="button" class="knopf-klein" data-pdf="${sicher(c.id)}">PDF</button>
       </div>
     </div>`;
   }).join('')}</div>`;
@@ -223,6 +234,21 @@ function zeichneUebersicht(behaelter) {
       const c = charaktere.find(x => x.id === id);
       await Charaktere.aendern(gid, id, { fp: (c.fp || 0) + parseInt(menge, 10) });
       status('FP vergeben');
+    });
+  });
+
+  behaelter.querySelectorAll('[data-pdf]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      const c = charaktere.find(x => x.id === knopf.dataset.pdf);
+      if (c) druckeCharaktere([c]);
+    });
+  });
+
+  $('btn-alle-pdf')?.addEventListener('click', () => {
+    // Alphabetisch, damit das Sammel-PDF jede Sitzung gleich aussieht
+    const sortiert = [...charaktere].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'de'));
+    druckeCharaktere(sortiert, {
+      dateiname: `Charakterboegen ${sitzung.gruppe?.name || 'Runde'}`
     });
   });
 
