@@ -18,11 +18,12 @@
    niemand sehen soll.
    ============================================================ */
 
-import { SLNotizen, Geteilt, Charaktere, Gruppen, Einladungen } from './speicher.js';
+import { SLNotizen, Geteilt, Charaktere, Gruppen, Einladungen, Notizbuch } from './speicher.js';
 import { $, $$, sicher, status, sitzung, merkeAbo, zufall, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, alleSpeichern } from './app.js';
 import { TABELLEN, KOMBIS } from './daten/tabellen.js';
 import { druckeCharaktere } from './druckbogen.js';
+import { ATTRIBUTE, FERTIGKEITEN, wertZeile, bindeHilfe } from './daten/werte.js';
 
 const WELT_ARTEN = {
   ort:        'Ort',
@@ -167,10 +168,6 @@ function zeichneUebersicht(behaelter) {
     const stabMax = 10 + (c.attribute?.wille || 0) * 2 + (c.bonusStab || 0);
     const vt      = 10 + (c.attribute?.geschick || 0) + (c.fertigkeiten?.nahkampf || 0);
 
-    // Die drei besten Fertigkeiten — reicht für den Überblick
-    const beste = Object.entries(c.fertigkeiten || {})
-      .filter(([, w]) => w > 0).sort((a, b) => b[1] - a[1]).slice(0, 4)
-      .map(([k, w]) => `${k} ${w}`).join(' · ');
 
     return `
     <div class="karte">
@@ -190,12 +187,23 @@ function zeichneUebersicht(behaelter) {
         <span class="stand" style="flex:0 0 auto">${c.sp || 0}</span>
       </div>
 
-      <div class="werte-gitter">
-        ${Object.entries({K:'koerper',G:'geschick',V:'verstand',W:'wahrnehmung',Wi:'wille',A:'ausstrahlung'})
-          .map(([kurz, k]) => `<div class="wert-kachel"><span>${kurz}</span><b>${c.attribute?.[k] ?? '–'}</b></div>`).join('')}
-      </div>
+      ${c.fertig ? '' : '<p class="warnschild">Noch im Baukasten, nicht fertig.</p>'}
 
-      <p class="leise" style="margin-bottom:8px">${sicher(beste) || 'Keine Fertigkeiten verteilt.'}</p>
+      <!-- Alle Werte, nicht nur die besten: Die SL muss am Tisch
+           auch sehen, dass jemand Heimlichkeit 0 hat. Aufklappbar,
+           damit vier Charaktere nebeneinander nicht endlos lang
+           werden. -->
+      <details class="sl-werte" open>
+        <summary>Attribute</summary>
+        ${Object.entries(ATTRIBUTE).map(([k, bez]) =>
+          wertZeile(k, bez, `<span class="stand">${c.attribute?.[k] ?? '–'}</span>`)).join('')}
+      </details>
+      <details class="sl-werte" open>
+        <summary>Fertigkeiten</summary>
+        ${Object.entries(FERTIGKEITEN).map(([k, bez]) =>
+          wertZeile(k, bez, `<span class="stand">${c.fertigkeiten?.[k] || 0}</span>`,
+            { gedimmt: !(c.fertigkeiten?.[k] > 0) })).join('')}
+      </details>
 
       <ul class="liste">
         ${(c.staerken || []).slice(0, c.wesen ? 1 : 3).filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
@@ -217,6 +225,18 @@ function zeichneUebersicht(behaelter) {
         ${c.riss  ? `<b>Riss:</b> ${sicher(c.riss)}` : ''}
       </p>` : ''}
 
+      ${(c.ausruestung || '').trim() ? `
+      <p class="hinweis-schild" style="margin-top:10px;white-space:pre-line"><b>Ausrüstung:</b> ${sicher(c.ausruestung)}</p>` : ''}
+
+      <!-- Das Notizbuch liegt in einer eigenen Sammlung (nur Besitzer
+           und SL lesen). Erst auf Knopfdruck laden: sonst hinge an
+           jeder Karte ein Dauer-Abo, auch wenn niemand hineinsieht. -->
+      ${c.besitzer ? `
+      <details class="sl-werte" data-notizbuch-von="${sicher(c.besitzer)}">
+        <summary>Notizbuch</summary>
+        <p class="notizbuch-lesen leise">Lade …</p>
+      </details>` : ''}
+
       <div class="eintrag-fuss">
         <span class="leise" style="font-size:13px">${c.fp || 0} FP</span>
         <button type="button" class="knopf-klein" data-fp="${c.id}:1">+1 FP</button>
@@ -234,6 +254,28 @@ function zeichneUebersicht(behaelter) {
       const c = charaktere.find(x => x.id === id);
       await Charaktere.aendern(gid, id, { fp: (c.fp || 0) + parseInt(menge, 10) });
       status('FP vergeben');
+    });
+  });
+
+  bindeHilfe(behaelter);
+
+  // Achtung: data-notizbuch-von landet als dataset.notizbuchVon
+  behaelter.querySelectorAll('[data-notizbuch-von]').forEach(det => {
+    det.addEventListener('toggle', () => {
+      if (!det.open || det.dataset.geladen) return;
+      det.dataset.geladen = '1';
+      const ziel = det.querySelector('.notizbuch-lesen');
+      Notizbuch.lesen(gid, det.dataset.notizbuchVon)
+        .then(text => {
+          // textContent statt innerHTML: Spielertext, kein HTML
+          ziel.textContent = text.trim() || 'Noch nichts notiert.';
+          ziel.classList.toggle('leise', !text.trim());
+        })
+        .catch(fehler => {
+          console.warn('Notizbuch nicht lesbar:', fehler.code);
+          ziel.textContent = 'Notizbuch konnte nicht geladen werden.';
+          delete det.dataset.geladen;   // beim nächsten Aufklappen neu versuchen
+        });
     });
   });
 

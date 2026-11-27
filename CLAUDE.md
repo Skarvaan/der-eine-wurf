@@ -42,6 +42,8 @@ regelwerk.js          Bootstrapt die öffentliche Seite regelwerk.html
 daten/regeln.js       Die Regeltexte (Datenquelle)
 daten/regeln-render.js  Baut daraus HTML — von app.js UND regelwerk.js
                       benutzt, absichtlich ohne Firebase-Abhängigkeit
+daten/werte.js        ATTRIBUTE, FERTIGKEITEN und die „?“-Schnellhilfe
+                      (Texte aus regeln.js) — für charakter.js UND sl.js
 ```
 
 Die Ansichtsmodule kennen weder Firestore noch Firebase Auth direkt — sie benutzen ausschließlich `Charaktere`, `Geteilt`, `SLNotizen`, `Gruppen` und `Auth` aus `speicher.js`. **Diese Trennung nie durchbrechen.**

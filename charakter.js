@@ -17,30 +17,14 @@ import { Charaktere, Notizbuch, Werkstatt } from './speicher.js';
 import { $, sicher, status, sitzung, merkeAbo, wuerfelnMit, wuerfelnAktiv, nutzerTippt,
          merkeAenderung, hatOffeneAenderungen, verwirfAenderung, alleSpeichern } from './app.js';
 import { druckeCharaktere } from './druckbogen.js';
+import { ATTRIBUTE, FERTIGKEITEN, wertZeile, bindeHilfe } from './daten/werte.js';
 
 /* ------------------------------------------------------------
    Stammdaten
    ------------------------------------------------------------ */
 
-const ATTRIBUTE = {
-  koerper:      'Körper',
-  geschick:     'Geschick',
-  verstand:     'Verstand',
-  wahrnehmung:  'Wahrnehmung',
-  wille:        'Wille',
-  ausstrahlung: 'Ausstrahlung'
-};
-
-const FERTIGKEITEN = {
-  athletik: 'Athletik',           nahkampf: 'Nahkampf',
-  fernkampf: 'Fernkampf',         heimlichkeit: 'Heimlichkeit',
-  fingerfertigkeit: 'Fingerfertigkeit', technik: 'Technik',
-  handwerk: 'Handwerk',           ermittlung: 'Ermittlung',
-  wissen: 'Wissen',               mysterien: 'Mysterien',
-  heilkunde: 'Heilkunde',         ueberzeugen: 'Überzeugen',
-  widerstand: 'Widerstand',       ueberleben: 'Überleben',
-  steuern: 'Steuern'
-};
+/* ATTRIBUTE und FERTIGKEITEN kommen aus daten/werte.js, damit
+   Spielbogen und SL-Übersicht dieselbe Liste benutzen. */
 
 /* Vorgaben aus dem Regelheft */
 const START_ATTRIBUT   = 2;
@@ -48,6 +32,10 @@ const PUNKTE_ATTRIBUTE = 7;
 const MAX_ATTRIBUT_START = 5;
 const PUNKTE_FERTIGKEITEN = 10;
 const MAX_FERTIGKEIT_START = 3;
+
+/* Obergrenzen im laufenden Spiel (wie beim Steigern) */
+const MAX_ATTRIBUT_SPIEL = 7;
+const MAX_FERTIGKEIT_SPIEL = 5;
 
 /* ------------------------------------------------------------
    Abgeleitete Werte
@@ -85,6 +73,15 @@ function messgeraet(wert, max, mitKlasse = true) {
 
 let gid = null;
 let meiner = null;         // mein Charakter oder null
+
+/* „Werte ändern“ auf dem Spielbogen. Früher ging Ändern nur über
+   den Baukasten, und der prüft die STARTpunkte (7 und 10): Nach
+   der ersten Steigerung kam man dort nie wieder heraus, und
+   „Fertig“ setzte LP und Stabilität auf voll zurück. Der
+   Änderungsmodus erlaubt freie Korrekturen im Rahmen der
+   Spielgrenzen und lässt LP und Stabilität in Ruhe. Gilt nur
+   auf diesem Gerät und nur bis zum Neuladen. */
+let anpassen = false;
 let aboBeenden = null;
 let zeichnenAusstehend = false;
 
@@ -614,8 +611,16 @@ function zeichneBaukasten(behaelter) {
 
   $('btn-fertig')?.addEventListener('click', async () => {
     meiner.fertig = true;
-    meiner.lp = maxLp(meiner);
-    meiner.stab = maxStab(meiner);
+    /* Neu gebaut: mit vollen Werten ins Spiel. Kommt die Figur aus
+       dem Spiel zurück in den Baukasten (warFertig), bleiben ihre
+       aktuellen Wunden stehen, nur gedeckelt auf das neue Maximum. */
+    if (meiner.warFertig) {
+      meiner.lp = Math.min(meiner.lp ?? maxLp(meiner), maxLp(meiner));
+      meiner.stab = Math.min(meiner.stab ?? maxStab(meiner), maxStab(meiner));
+    } else {
+      meiner.lp = maxLp(meiner);
+      meiner.stab = maxStab(meiner);
+    }
     geaendert();
     await alleSpeichern();   // hier lohnt sich das sofortige Schreiben
   });
@@ -710,32 +715,40 @@ function zeichneSpielbogen(behaelter) {
     <div class="karte">
       <div class="karte-kopf">
         <h2>${sicher(c.name)}</h2>
-        <button type="button" class="knopf-klein" id="btn-bearbeiten">Bearbeiten</button>
-        ${c.hintergrund ? `<span class="hinweis">${sicher(c.hintergrund)}</span>` : ''}
+        <button type="button" class="knopf-klein ${anpassen ? 'knopf-haupt' : ''}" id="btn-anpassen">
+          ${anpassen ? 'Fertig mit Ändern' : 'Werte ändern'}</button>
+        ${c.hintergrund && !anpassen ? `<span class="hinweis">${sicher(c.hintergrund)}</span>` : ''}
       </div>
+      ${anpassen ? `
+      <p class="hinweis-schild">Änderungsmodus: Alles auf dem Bogen lässt sich jetzt direkt ändern. Gespeichert wird wie immer über „Speichern“ oben.</p>
+      <label class="feld"><span>Name</span>
+        <input type="text" data-feld="name" value="${sicher(c.name)}"></label>
+      <label class="feld"><span>Ein Satz, wer du bist</span>
+        <input type="text" data-feld="hintergrund" value="${sicher(c.hintergrund)}"></label>` : ''}
 
       <div class="zaehler">
         <span class="titel">Lebenspunkte</span>
-        <button type="button" data-zaehler="lp:-1">−</button>
-        ${messgeraet(c.lp, lpMax)}
+        <button type="button" data-zaehler="lp:-1" aria-label="Lebenspunkte minus 1">−</button>
+        <button type="button" class="messgeraet-knopf" data-direkt="lp" aria-label="Lebenspunkte direkt eingeben">${messgeraet(c.lp, lpMax)}</button>
         <button type="button" data-zaehler="lp:1">+</button>
         ${lpZustand}
       </div>
       <div class="zaehler">
         <span class="titel">Stabilität</span>
-        <button type="button" data-zaehler="stab:-1">−</button>
-        ${messgeraet(c.stab, stabMax)}
+        <button type="button" data-zaehler="stab:-1" aria-label="Stabilität minus 1">−</button>
+        <button type="button" class="messgeraet-knopf" data-direkt="stab" aria-label="Stabilität direkt eingeben">${messgeraet(c.stab, stabMax)}</button>
         <button type="button" data-zaehler="stab:1">+</button>
         ${stabZustand}
       </div>
       <div class="zaehler">
         <span class="titel">Schicksal</span>
-        <button type="button" data-zaehler="sp:-1">−</button>
-        ${messgeraet(c.sp, 3, false)}
+        <button type="button" data-zaehler="sp:-1" aria-label="Schicksal minus 1">−</button>
+        <button type="button" class="messgeraet-knopf" data-direkt="sp" aria-label="Schicksal direkt eingeben">${messgeraet(c.sp, 3, false)}</button>
         <button type="button" data-zaehler="sp:1">+</button>
         <span class="leise" style="font-size:13px">Makel greift → +1</span>
       </div>
 
+      <p class="leise" style="font-size:13px;margin:0 0 10px">− und + ändern um 1. Für mehr Schaden auf einmal die Anzeige antippen und den neuen Wert eingeben.</p>
       ${angeschlagen && c.lp > 0 ? '<p class="warnschild">Angeschlagen: Nachteil auf alles mit Körper oder Geschick.</p>' : ''}
       ${c.lp <= 0 && istWesen ? '<p class="warnschild kritisch"><b>Am Boden.</b> Wirst du jetzt erneut getroffen, stirbst du nicht — du <b>erlischst</b>: raus aus der Szene, für alle Anwesenden tot, und Stunden später wach. Das kostet 1W6 Stabilität und hinterlässt eine Spur.</p>' : ''}
       ${erschuettert && c.stab > 0 ? `<p class="warnschild">${erschuettertText}</p>` : ''}
@@ -746,34 +759,33 @@ function zeichneSpielbogen(behaelter) {
       <div class="karte">
         <div class="karte-kopf">
           <h2>Attribute</h2>
-          ${wuerfelt ? '<span class="hinweis">Antippen würfelt nur mit dem Attribut — für alles, was man nicht lernen kann.</span>' : ''}
+          <span class="hinweis">Was deine Figur von Natur aus mitbringt. Das <b>?</b> erklärt jeden Wert.</span>
         </div>
-        <div class="werte-gitter">
-          ${Object.entries(ATTRIBUTE).map(([k, bez]) => wuerfelt
-            ? `<button type="button" class="wert-kachel" data-wurf="attribut:${k}">
-                <span>${bez}</span><b>${c.attribute[k]}</b></button>`
-            : `<div class="wert-kachel"><span>${bez}</span><b>${c.attribute[k]}</b></div>`
-          ).join('')}
-        </div>
-        <div class="werte-gitter">
+        ${Object.entries(ATTRIBUTE).map(([k, bez]) =>
+          wertZeile(k, bez, wertRechts('attribut', k, c.attribute[k], 1, MAX_ATTRIBUT_SPIEL, wuerfelt))
+        ).join('')}
+        <div class="werte-gitter" style="margin-top:12px">
           <div class="wert-kachel"><span>Verteidigung</span><b>${vert(c)}</b></div>
+          <div class="wert-kachel"><span>Max. LP</span><b>${lpMax}</b></div>
+          <div class="wert-kachel"><span>Max. Stabilität</span><b>${stabMax}</b></div>
         </div>
       </div>
 
       <div class="karte">
         <div class="karte-kopf">
           <h2>Fertigkeiten</h2>
-          <span class="hinweis">Nur der Wert — welches Attribut dazukommt, entscheidet ihr am Tisch je nach Situation. Zusammenrechnen ist Sache des echten Wurfs.</span>
+          <span class="hinweis">Alle fünfzehn. Eine 0 ist kein Abzug, du darfst alles versuchen. Welches Attribut dazukommt, sagt die SL je nach Lage.</span>
         </div>
-        <div class="werte-gitter">
-          ${Object.entries(FERTIGKEITEN).map(([k, bez]) => `
-            <div class="wert-kachel"><span>${bez}</span><b>${c.fertigkeiten[k]}</b></div>`).join('')}
-        </div>
+        ${Object.entries(FERTIGKEITEN).map(([k, bez]) =>
+          wertZeile(k, bez, wertRechts('fertigkeit', k, c.fertigkeiten[k] || 0, 0, MAX_FERTIGKEIT_SPIEL, false),
+            { gedimmt: !anpassen && !(c.fertigkeiten[k] > 0) })
+        ).join('')}
       </div>
 
       <div class="karte">
         <div class="karte-kopf"><h2>Eigenschaften</h2></div>
-        <ul class="liste">
+        ${anpassen ? eigenschaftenFelder(c, istWesen) : ''}
+        <ul class="liste" ${anpassen ? 'hidden' : ''}>
           ${c.staerken.slice(0, istWesen ? 1 : 3).filter(Boolean).map(s => `<li><span style="flex:1">${sicher(s)}</span><span class="marke ort">Stärke</span></li>`).join('')}
           ${istWesen && (c.gabe || '').trim() ? `<li><span style="flex:1">${sicher(c.gabe)}</span><span class="marke indiz">Gabe</span></li>` : ''}
           ${c.makel.filter(Boolean).map(m => `<li><span style="flex:1">${sicher(m)}</span><span class="marke sl">Makel</span></li>`).join('')}
@@ -781,6 +793,11 @@ function zeichneSpielbogen(behaelter) {
           ${istWesen && (c.zeichen || '').trim() ? `<li><span style="flex:1">${sicher(c.zeichen)}</span><span class="marke nsc">Zeichen</span></li>` : ''}
           ${(c.narben || []).map(n => `<li><span style="flex:1">${sicher(n)}</span><span class="marke sl">Narbe</span></li>`).join('')}
         </ul>
+        ${anpassen && (c.narben || []).length ? `
+        <ul class="liste">
+          ${c.narben.map((n, i) => `<li><span style="flex:1;min-width:0">${sicher(n)}</span><span class="marke sl">Narbe</span>
+            <button type="button" class="loeschen" data-narbe-weg="${i}" title="Narbe entfernen">×</button></li>`).join('')}
+        </ul>` : ''}
         <div class="zeile-eingabe" style="margin-top:12px">
           <input type="text" id="narbe-eingabe" placeholder="Neue Narbe (Körper oder Seele)">
           <button type="button" class="knopf-klein" id="btn-narbe">Hinzufügen</button>
@@ -815,6 +832,13 @@ function zeichneSpielbogen(behaelter) {
     </div>
 
     ${inWerkstatt() ? '' : steigerungsKarte(c, darfSteigern)}
+
+    ${anpassen ? `
+    <div class="karte karte-breit">
+      <div class="karte-kopf"><h2>Ganz neu aufbauen</h2>
+        <span class="hinweis">Zurück in den Baukasten, z. B. um Mensch oder Wesen umzustellen. Der Baukasten prüft die Startpunkte (7 und 10). Nach Steigerungen passt das nicht mehr, dann besser hier im Änderungsmodus bleiben.</span></div>
+      <button type="button" class="knopf" id="btn-baukasten">In den Baukasten</button>
+    </div>` : ''}
   `;
 
   bindeSpeichernKopf();
@@ -823,9 +847,19 @@ function zeichneSpielbogen(behaelter) {
   bindeWuerfe(behaelter);
   bindeNotizbuch(behaelter);
   bindeSteigerung(behaelter, darfSteigern);
+  bindeHilfe(behaelter);
+  bindeAnpassen(behaelter);
 
-  $('btn-bearbeiten')?.addEventListener('click', async () => {
+  $('btn-anpassen')?.addEventListener('click', () => {
+    anpassen = !anpassen;
+    zeichnen();
+  });
+
+  $('btn-baukasten')?.addEventListener('click', async () => {
+    if (!confirm('Zurück in den Baukasten? Deine Werte bleiben erhalten, aber du musst dort wieder auf „Fertig“ tippen.')) return;
+    anpassen = false;
     meiner.fertig = false;
+    meiner.warFertig = true;
     geaendert();
     await alleSpeichern();
   });
@@ -848,6 +882,83 @@ function bindeNotizbuch(behaelter) {
   feld.addEventListener('input', () => {
     notizenText = feld.value;
     notizenGeaendert();
+  });
+}
+
+/** Rechte Seite einer Wertzeile: im Änderungsmodus Minus/Plus,
+    sonst die Zahl (bei Attributen mit Würfeln-Knopf, wenn das
+    Würfeln in der App eingeschaltet ist). */
+function wertRechts(art, schluessel, wert, min, max, wuerfelt) {
+  if (anpassen) {
+    return `
+      <button type="button" class="stufe" data-anpassen="${art}:${schluessel}:-1" ${wert <= min ? 'disabled' : ''} aria-label="weniger">−</button>
+      <span class="stand">${wert}</span>
+      <button type="button" class="stufe" data-anpassen="${art}:${schluessel}:1" ${wert >= max ? 'disabled' : ''} aria-label="mehr">+</button>`;
+  }
+  return `
+    ${wuerfelt ? `<button type="button" class="knopf-klein" data-wurf="attribut:${schluessel}">Würfeln</button>` : ''}
+    <span class="stand">${wert}</span>`;
+}
+
+/** Stärken, Makel und Wesen-Zeilen als Eingabefelder. bindeFelder
+    übernimmt staerkeN und makelN schon aus dem Baukasten. Eine
+    leere Zeile am Ende, damit man etwas dazuschreiben kann. */
+function eigenschaftenFelder(c, istWesen) {
+  const staerken = [...(c.staerken || [])];
+  const sichtbar = istWesen ? 1 : 3;
+  while (staerken.length < sichtbar) staerken.push('');
+  // Nicht filtern: Die Nummer im Feldnamen muss zur Stelle im
+  // gespeicherten Feld passen, sonst überschreibt man den falschen.
+  const makel = [...(c.makel || [])];
+  if (!makel.length || (makel[makel.length - 1] || '').trim()) makel.push('');
+  return `
+    ${staerken.map((st, i) => `<label class="feld"><span>Stärke ${i + 1}</span>
+      <input type="text" data-feld="staerke${i}" value="${sicher(st)}"></label>`).join('')}
+    ${makel.map((m, i) => `<label class="feld feld-betont"><span>Makel ${i + 1}${i === makel.length - 1 ? ' (neu, leer lassen wenn keiner)' : ''}</span>
+      <input type="text" data-feld="makel${i}" value="${sicher(m)}"></label>`).join('')}`;
+}
+
+function bindeAnpassen(behaelter) {
+  behaelter.querySelectorAll('[data-anpassen]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      const [art, schluessel, schritt] = knopf.dataset.anpassen.split(':');
+      const ziel = art === 'attribut' ? meiner.attribute : meiner.fertigkeiten;
+      const [min, max] = art === 'attribut' ? [1, MAX_ATTRIBUT_SPIEL] : [0, MAX_FERTIGKEIT_SPIEL];
+      ziel[schluessel] = Math.max(min, Math.min(max, (ziel[schluessel] || 0) + parseInt(schritt, 10)));
+      // Sinkt Körper oder Wille, darf LP/Stabilität nicht über dem
+      // neuen Maximum stehen bleiben.
+      meiner.lp = Math.min(meiner.lp, maxLp(meiner));
+      meiner.stab = Math.min(meiner.stab, maxStab(meiner));
+      geaendert();
+      zeichnen();
+    });
+  });
+
+  // Achtung: data-narbe-weg landet als dataset.narbeWeg
+  behaelter.querySelectorAll('[data-narbe-weg]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      const i = parseInt(knopf.dataset.narbeWeg, 10);
+      meiner.narben = (meiner.narben || []).filter((_, j) => j !== i);
+      geaendert();
+      zeichnen();
+    });
+  });
+
+  // Messgerät antippen: Wert direkt eingeben, z. B. nach 7 Schaden
+  // nicht siebenmal auf Minus tippen müssen.
+  behaelter.querySelectorAll('[data-direkt]').forEach(knopf => {
+    knopf.addEventListener('click', () => {
+      const feld = knopf.dataset.direkt;
+      const max = { lp: maxLp(meiner), stab: maxStab(meiner), sp: 3 }[feld];
+      const name = { lp: 'Lebenspunkte', stab: 'Stabilität', sp: 'Schicksal' }[feld];
+      const eingabe = prompt(`${name}: neuer Wert (0 bis ${max})`, meiner[feld] ?? 0);
+      if (eingabe === null || eingabe.trim() === '') return;
+      const zahl = parseInt(eingabe, 10);
+      if (Number.isNaN(zahl)) return;
+      meiner[feld] = Math.max(0, Math.min(max, zahl));
+      geaendert();
+      zeichnen();
+    });
   });
 }
 

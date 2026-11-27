@@ -373,6 +373,14 @@ export const Notizbuch = {
     );
   },
 
+  /** Einmal lesen (für die Spielleitung, siehe sl.js). getDoc
+      fragt zuerst den Server und fällt nur ohne Netz auf den
+      Offline-Speicher zurück. */
+  async lesen(gid, uid) {
+    const s = await getDoc(doc(db, 'gruppen', gid, 'notizbuch', uid));
+    return s.exists() ? (s.data().text || '') : '';
+  },
+
   async speichern(gid, uid, text) {
     await setDoc(doc(db, 'gruppen', gid, 'notizbuch', uid), {
       text, geaendert: serverTimestamp()

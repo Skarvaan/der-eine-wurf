@@ -990,6 +990,56 @@ h3.unter {
 .stufen-zeile button:disabled { opacity: 0.25; }
 .stufen-zeile .kosten { font-size: 12px; color: var(--messing); min-width: 44px; text-align: right; }
 
+/* --- Wertzeilen mit Schnellhilfe (daten/werte.js) ---
+   Eine Zeile pro Attribut oder Fertigkeit: Name, „?“, rechts der
+   Wert. Die Hilfe klappt darunter über die volle Breite auf. */
+.wert-zeile {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;
+  padding: 6px 4px; border-top: 1px solid var(--linie);
+}
+.wert-zeile:first-of-type { border-top: none; }
+.wert-zeile .bez { flex: 0 1 auto; min-width: 0; font-size: 15px; }
+.wert-zeile .rechts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.wert-zeile .stand {
+  min-width: 32px; text-align: center;
+  font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.wert-zeile.gedimmt .bez, .wert-zeile.gedimmt .stand { color: var(--text-leise); font-weight: 400; }
+.wert-zeile button.stufe {
+  width: 44px; height: 44px;
+  border: 1px solid var(--linie); border-radius: 8px;
+  background: var(--flaeche-hoch); color: var(--text);
+  font-size: 20px; cursor: pointer;
+}
+.wert-zeile button.stufe:disabled { opacity: 0.25; }
+/* Das „?“ ist optisch klein, die Tippfläche aber 44 px groß
+   (transparenter Rand), damit man es am Tisch auch trifft. */
+.hilfe-knopf {
+  width: 44px; height: 44px; margin: -10px -8px -10px -6px; padding: 0;
+  border: none; cursor: pointer; color: var(--kupfer-hell);
+  font-family: inherit; font-size: 13px; font-weight: 700; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  /* Kupferring als Verlauf statt Rahmen: so bleibt die Tippfläche
+     44 px groß, sichtbar ist nur ein kleiner Kreis. */
+  background: radial-gradient(circle 11px at center,
+    transparent 9.5px, var(--kupfer) 10px, var(--kupfer) 11px, transparent 11.5px);
+}
+.hilfe-knopf.offen { color: #17130c;
+  background: radial-gradient(circle 11px at center, var(--kupfer-hell) 10.5px, transparent 11.5px); }
+.wert-hilfe {
+  flex: 1 1 100%; margin: 2px 0 4px; padding: 8px 10px;
+  border-left: 3px solid var(--kupfer); border-radius: 0 6px 6px 0;
+  background: rgba(181,101,29,0.10); color: var(--text); font-size: 14px; line-height: 1.45;
+}
+
+/* Aufklappbare Abschnitte in der SL-Charakterübersicht */
+.sl-werte { margin: 10px 0; }
+.sl-werte > summary {
+  min-height: var(--tipp); display: flex; align-items: center; cursor: pointer;
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--messing-hell);
+}
+.notizbuch-lesen { white-space: pre-line; font-family: var(--schrift-notiz); font-size: 15px; margin: 0 0 8px; }
+
 /* --- Zähler (LP, Stabilität, Schicksal) --- */
 .zaehler { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .zaehler > .titel { flex: 0 0 96px; font-size: 13px; color: var(--text-leise); }
@@ -1009,6 +1059,13 @@ h3.unter {
    seine natürliche Breite und rutscht lieber in die nächste Zeile,
    statt sich neben dem Titel zusammenzuquetschen. */
 .zaehler > .knopf { flex: 0 0 auto; max-width: 100%; width: auto; height: auto; font-size: 15px; padding: 6px 18px; }
+/* Das Messgerät selbst ist auf dem Spielbogen ein Knopf (Wert
+   direkt eingeben). Ohne diese Zeile machte „.zaehler button“ es
+   zu einem 44-px-Kästchen. */
+.zaehler > .messgeraet-knopf {
+  width: auto; height: auto; padding: 0; border: none; border-radius: 50%;
+  background: none; cursor: pointer;
+}
 /* „.zaehler button“ oben ist spezifischer als .knopf-haupt und hätte
    sonst den Messingverlauf des eingeschalteten Zustands überdeckt. */
 .zaehler > .knopf-haupt { background: linear-gradient(180deg, var(--messing-hell), var(--messing)); color: #17130c; }
