@@ -55,7 +55,9 @@ const { initializeApp } = await import(`${CDN}/firebase-app.js`);
 const {
   getAuth, onAuthStateChanged,
   createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, updateProfile, sendPasswordResetEmail
+  signOut, updateProfile, sendPasswordResetEmail,
+  EmailAuthProvider, reauthenticateWithCredential,
+  updatePassword, verifyBeforeUpdateEmail
 } = await import(`${CDN}/firebase-auth.js`);
 
 const {
@@ -119,6 +121,69 @@ export const Auth = {
 
   async passwortZuruecksetzen(email) {
     return sendPasswordResetEmail(auth, email);
+  },
+
+  /* --- Konto ändern ---------------------------------------- */
+
+  /**
+   * Ändert den Anzeigenamen: im Auth-Profil, im Nutzerdokument
+   * und in jeder Runde, in der man Mitglied ist. Die Runden
+   * speichern den Namen als Kopie unter mitglieder.{uid}.name,
+   * damit alle ihn lesen können, ohne fremde Nutzerdokumente
+   * lesen zu dürfen. Deshalb muss er dort mitgezogen werden.
+   * Gibt die Namen der Runden zurück, in denen es NICHT geklappt
+   * hat (meist: firestore.rules noch nicht neu eingespielt).
+   */
+  async nameAendern(name) {
+    const nutzer = auth.currentUser;
+    await updateProfile(nutzer, { displayName: name });
+    await setDoc(doc(db, 'nutzer', nutzer.uid), { name }, { merge: true });
+
+    const fehlgeschlagen = [];
+    const runden = await Gruppen.meine();
+    for (const g of runden) {
+      try {
+        // Punktpfad: ändert NUR das eigene name-Feld, die Rolle
+        // bleibt. Die Regel prüft genau das.
+        await updateDoc(doc(db, 'gruppen', g.id), { [`mitglieder.${nutzer.uid}.name`]: name });
+      } catch (fehler) {
+        console.warn(`Name in Runde ${g.id} nicht geändert:`, fehler.code);
+        fehlgeschlagen.push(g.name);
+      }
+    }
+    return fehlgeschlagen;
+  },
+
+  /** Firebase verlangt für E-Mail- und Passwortänderungen eine
+      frische Anmeldung. Statt den Spieler abzumelden, fragen wir
+      das aktuelle Passwort im selben Fenster ab. */
+  async neuBestaetigen(passwort) {
+    const nutzer = auth.currentUser;
+    const nachweis = EmailAuthProvider.credential(nutzer.email, passwort);
+    await reauthenticateWithCredential(nutzer, nachweis);
+  },
+
+  /**
+   * Neue E-Mail-Adresse. Firebase ändert sie erst, wenn der Link
+   * in der Bestätigungsmail an die NEUE Adresse angeklickt wurde.
+   * So kann sich niemand durch einen Tippfehler aussperren.
+   */
+  async emailAendern(neueEmail, passwort) {
+    await this.neuBestaetigen(passwort);
+    await verifyBeforeUpdateEmail(auth.currentUser, neueEmail);
+  },
+
+  async passwortAendern(altesPasswort, neuesPasswort) {
+    await this.neuBestaetigen(altesPasswort);
+    await updatePassword(auth.currentUser, neuesPasswort);
+  },
+
+  /** Hält die E-Mail im Nutzerdokument aktuell, nachdem der
+      Bestätigungslink angeklickt wurde (beim nächsten Anmelden). */
+  async emailAbgleichen() {
+    const nutzer = auth.currentUser;
+    if (!nutzer?.email) return;
+    await setDoc(doc(db, 'nutzer', nutzer.uid), { email: nutzer.email }, { merge: true });
   }
 };
 

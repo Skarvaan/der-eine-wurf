@@ -709,7 +709,7 @@ function zeichneRunde(behaelter) {
         <div class="karte-kopf"><h2>Freigaben</h2>
           <span class="hinweis">Schalte das Steigern frei, wenn ihr eine Sitzung abgeschlossen habt. Danach wieder zu — dann sammeln sich die Punkte nur an.</span></div>
         <div class="zaehler">
-          <span class="titel" style="flex:1">Charaktere dürfen steigern</span>
+          <span class="titel" style="flex:1 1 160px">Charaktere dürfen steigern</span>
           <button type="button" class="knopf ${g.freigaben?.steigern ? 'knopf-haupt' : ''}" id="btn-steigern">
             ${g.freigaben?.steigern ? 'Freigeschaltet — jetzt schließen' : 'Steigern freischalten'}
           </button>

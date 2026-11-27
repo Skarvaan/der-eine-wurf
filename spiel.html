@@ -100,9 +100,57 @@
       <button type="button" class="knopf knopf-haupt" id="btn-gruppe-anlegen" style="width:100%">Gründen — ich bin Spielleiter</button>
     </details>
 
-    <p class="wechsel" style="margin-top:20px"><a href="#" id="link-abmelden-gruppen">Abmelden</a></p>
+    <p class="wechsel" style="margin-top:20px"><a href="#" id="link-konto-gruppen">Mein Konto</a> · <a href="#" id="link-abmelden-gruppen">Abmelden</a></p>
   </div>
 </div>
+
+
+<!-- ==========================================================
+     KONTO: Name, E-Mail, Passwort ändern
+     Gehört zum Zugang, nicht zum Charakter. Erreichbar über
+     „Konto“ in der Kopfleiste und „Mein Konto“ auf der
+     Rundenwahl. Logik in app.js (kontoAufbauen).
+     ========================================================== -->
+<dialog id="konto-dialog" class="konto-dialog">
+  <div class="anmelde-karte">
+    <h2>Mein Konto</h2>
+    <p class="leise" id="konto-info" style="margin-bottom:8px"></p>
+
+    <h3>Name</h3>
+    <label class="feld">
+      <span>So sehen dich die anderen in der Runde</span>
+      <input type="text" id="konto-name" autocomplete="name">
+    </label>
+    <button type="button" class="knopf knopf-haupt" id="konto-name-speichern">Namen speichern</button>
+
+    <h3>E-Mail-Adresse</h3>
+    <label class="feld">
+      <span>Neue E-Mail-Adresse</span>
+      <input type="email" id="konto-email" autocomplete="email" inputmode="email">
+    </label>
+    <label class="feld">
+      <span>Aktuelles Passwort (zur Bestätigung)</span>
+      <input type="password" id="konto-email-passwort" autocomplete="current-password">
+    </label>
+    <button type="button" class="knopf" id="konto-email-speichern">E-Mail ändern</button>
+
+    <h3>Passwort</h3>
+    <label class="feld">
+      <span>Aktuelles Passwort</span>
+      <input type="password" id="konto-pw-alt" autocomplete="current-password">
+    </label>
+    <label class="feld">
+      <span>Neues Passwort (mindestens 6 Zeichen)</span>
+      <input type="password" id="konto-pw-neu" autocomplete="new-password">
+    </label>
+    <button type="button" class="knopf" id="konto-pw-speichern">Passwort ändern</button>
+
+    <div id="konto-meldung" class="konto-meldung" hidden></div>
+    <div id="konto-fehler" class="fehler" hidden></div>
+
+    <p class="wechsel"><a href="#" id="konto-schliessen">Schließen</a></p>
+  </div>
+</dialog>
 
 
 <!-- ==========================================================
@@ -118,6 +166,7 @@
     <div class="kopf-rechts">
       <span class="kopf-info" id="kopf-status"></span>
       <button type="button" class="knopf-klein" id="btn-gruppe-wechseln">Runde</button>
+      <button type="button" class="knopf-klein" id="btn-konto">Konto</button>
       <button type="button" class="knopf-klein" id="btn-abmelden">Abmelden</button>
     </div>
   </header>

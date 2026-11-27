@@ -162,6 +162,18 @@ merkt den Code beim Laden in `localStorage['dew:einladungsCode']`
 (überlebt Anmeldung/Registrierung), eingelöst wird er per Knopf auf
 der Rundenwahl. SL-Oberfläche: Tab „Runde“, Karte „Einladungslink“.
 
+## Konto — Name, E-Mail, Passwort
+
+`<dialog id="konto-dialog">` in spiel.html, erreichbar über „Konto“ in
+der Kopfleiste und „Mein Konto“ auf der Rundenwahl (`kontoAufbauen()`
+in app.js, Firebase-Teil in `Auth` in speicher.js). Der Name steht
+dreifach: Auth-Profil, `nutzer/{uid}` und als Kopie in jeder Runde
+unter `mitglieder.{uid}.name` — `Auth.nameAendern()` zieht alle mit.
+Die Gruppen-Update-Regel erlaubt Mitgliedern dafür genau den eigenen
+`mitglieder`-Eintrag ohne Rollenänderung. E-Mail läuft über
+`verifyBeforeUpdateEmail` (gilt erst nach Klick auf den Link),
+E-Mail und Passwort verlangen das aktuelle Passwort.
+
 ## Offene Punkte
 
 - Bilder werden verlinkt, nicht hochgeladen (Firebase Storage bräuchte den Blaze-Tarif)

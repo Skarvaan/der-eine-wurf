@@ -10,7 +10,7 @@
    Offline-Speicher mit (siehe speicher.js).
    ============================================================ */
 
-const VERSION = 'dew-v18';
+const VERSION = 'dew-v20';
 
 const DATEIEN = [
   './', './index.html', './spiel.html', './regelwerk.html', './session-0.html', './stil.css',
@@ -23,7 +23,10 @@ const DATEIEN = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(VERSION)
-      .then(s => s.addAll(DATEIEN))
+      // 'reload' holt jede Datei frisch vom Server. Sonst könnte die
+      // neue Version ihren Offline-Speicher mit alten Dateien aus dem
+      // HTTP-Speicher des Browsers füllen (siehe fetch unten).
+      .then(s => s.addAll(DATEIEN.map(d => new Request(d, { cache: 'reload' }))))
       .then(() => self.skipWaiting())
   );
 });
@@ -46,8 +49,21 @@ self.addEventListener('fetch', (e) => {
       url.hostname.includes('gstatic.com') ||
       url.hostname.includes('firebase')) return;
 
+  /* „no-cache“ heißt NICHT „nichts speichern“, sondern: vor dem
+     Benutzen beim Server nachfragen, ob die Datei noch aktuell ist.
+     Ohne das geht auch fetch() hier durch den HTTP-Speicher des
+     Browsers, und GitHub Pages erlaubt dem bis zu 10 Minuten
+     (max-age=600) ohne Nachfrage. Dann lieferte „erst Netz“ nach
+     einem Update noch zehn Minuten lang die alte Fassung aus.
+     Seitenaufrufe (mode 'navigate') lassen sich nicht neu
+     verpacken, die bleiben unverändert; die HTML-Seiten ändern
+     sich ohnehin selten. */
+  const anfrage = e.request.mode === 'navigate'
+    ? e.request
+    : new Request(e.request, { cache: 'no-cache' });
+
   e.respondWith(
-    fetch(e.request)
+    fetch(anfrage)
       .then(antwort => {
         const kopie = antwort.clone();
         caches.open(VERSION).then(s => s.put(e.request, kopie));

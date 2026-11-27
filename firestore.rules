@@ -126,6 +126,19 @@ service cloud.firestore {
           && request.auth.uid in request.resource.data.mitgliederIds
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['mitgliederIds', 'mitglieder', 'beitrittsCode'])
+        )
+        // Namen ändern (Konto-Fenster): Ein Mitglied darf NUR den
+        // eigenen Eintrag unter mitglieder anfassen und die Rolle
+        // dabei nicht verändern. Sonst könnte sich ein Spieler
+        // selbst zur Spielleitung erklären oder andere umbenennen.
+        || (
+          angemeldet()
+          && request.auth.uid in resource.data.mitgliederIds
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mitglieder'])
+          && request.resource.data.mitglieder.diff(resource.data.mitglieder).affectedKeys()
+               .hasOnly([request.auth.uid])
+          && request.resource.data.mitglieder[request.auth.uid].rolle
+               == resource.data.mitglieder[request.auth.uid].rolle
         );
 
       allow delete: if angemeldet() && request.auth.uid == resource.data.slUid;

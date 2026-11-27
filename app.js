@@ -321,6 +321,95 @@ function fehlerText(code) {
 }
 
 /* ============================================================
+   KONTO — Name, E-Mail, Passwort
+   ============================================================
+   Gehört zum Zugang, nicht zum Charakter. Die Firebase-Aufrufe
+   stecken in Auth (speicher.js), hier nur Fenster und Meldungen.
+   ============================================================ */
+
+function kontoMeldung(text, istFehler = false) {
+  $('konto-meldung').hidden = istFehler || !text;
+  $('konto-fehler').hidden = !istFehler || !text;
+  $(istFehler ? 'konto-fehler' : 'konto-meldung').textContent = text;
+}
+
+/** Wie fehlerText, aber im Konto-Fenster geht es immer um das
+    AKTUELLE Passwort, nicht um E-Mail und Passwort beim Anmelden. */
+function kontoFehlerText(code) {
+  if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+    return 'Das aktuelle Passwort stimmt nicht.';
+  }
+  if (code === 'auth/requires-recent-login') {
+    return 'Bitte einmal ab- und wieder anmelden, dann klappt es.';
+  }
+  return fehlerText(code);
+}
+
+function kontoOeffnen() {
+  const n = sitzung.nutzer;
+  if (!n) return;
+  $('konto-info').textContent = `Angemeldet als ${n.email}`;
+  $('konto-name').value = n.displayName || '';
+  $('konto-email').value = '';
+  ['konto-email-passwort', 'konto-pw-alt', 'konto-pw-neu'].forEach(id => { $(id).value = ''; });
+  kontoMeldung('');
+  $('konto-dialog').showModal();
+}
+
+/** Führt eine Konto-Aktion aus und sperrt dabei ihren Knopf,
+    damit ein doppeltes Tippen nichts doppelt abschickt. */
+async function kontoAktion(knopfId, arbeit) {
+  const knopf = $(knopfId);
+  knopf.disabled = true;
+  kontoMeldung('');
+  try {
+    await arbeit();
+  } catch (fehler) {
+    console.error(fehler);
+    kontoMeldung(kontoFehlerText(fehler.code), true);
+  } finally {
+    knopf.disabled = false;
+  }
+}
+
+function kontoAufbauen() {
+  $('btn-konto').addEventListener('click', kontoOeffnen);
+  $('link-konto-gruppen').addEventListener('click', (e) => { e.preventDefault(); kontoOeffnen(); });
+  $('konto-schliessen').addEventListener('click', (e) => { e.preventDefault(); $('konto-dialog').close(); });
+
+  $('konto-name-speichern').addEventListener('click', () => kontoAktion('konto-name-speichern', async () => {
+    const name = $('konto-name').value.trim();
+    if (!name) return kontoMeldung('Bitte einen Namen eingeben.', true);
+    const fehlgeschlagen = await Auth.nameAendern(name);
+    if (fehlgeschlagen.length) {
+      kontoMeldung(`Name gespeichert, aber in diesen Runden noch nicht übernommen: ${fehlgeschlagen.join(', ')}. Die Spielleitung muss die aktuellen Sicherheitsregeln einspielen.`, true);
+    } else {
+      kontoMeldung('Name gespeichert.');
+    }
+  }));
+
+  $('konto-email-speichern').addEventListener('click', () => kontoAktion('konto-email-speichern', async () => {
+    const neu = $('konto-email').value.trim().toLowerCase();
+    const pw = $('konto-email-passwort').value;
+    if (!neu || !pw) return kontoMeldung('Bitte neue E-Mail und aktuelles Passwort eingeben.', true);
+    if (neu === sitzung.nutzer.email) return kontoMeldung('Das ist schon deine E-Mail-Adresse.', true);
+    await Auth.emailAendern(neu, pw);
+    $('konto-email-passwort').value = '';
+    kontoMeldung(`Bestätigungsmail an ${neu} verschickt. Erst nach dem Klick auf den Link darin gilt die neue Adresse. Bis dahin meldest du dich mit der alten an. Auch im Spam-Ordner nachsehen.`);
+  }));
+
+  $('konto-pw-speichern').addEventListener('click', () => kontoAktion('konto-pw-speichern', async () => {
+    const alt = $('konto-pw-alt').value;
+    const neu = $('konto-pw-neu').value;
+    if (!alt || !neu) return kontoMeldung('Bitte aktuelles und neues Passwort eingeben.', true);
+    await Auth.passwortAendern(alt, neu);
+    $('konto-pw-alt').value = '';
+    $('konto-pw-neu').value = '';
+    kontoMeldung('Passwort geändert.');
+  }));
+}
+
+/* ============================================================
    GRUPPENWAHL
    ============================================================ */
 
@@ -715,6 +804,7 @@ anmeldungAufbauen();
 speicherleisteAufbauen();
 gruppenSchirmKnoepfe();
 zonenAufbauen();
+kontoAufbauen();
 regelnAufbauen();
 wuerfelleisteAufbauen();
 wuerfelSchalterAufbauen();
@@ -729,6 +819,9 @@ Auth.beobachten(async (nutzer) => {
   if (nutzer) {
     $('ein-passwort').value = '';
     $('ein-name').value = '';
+    // Wurde die E-Mail im Konto-Fenster geändert und bestätigt,
+    // steht im Nutzerdokument noch die alte. Nebenbei angleichen.
+    Auth.emailAbgleichen().catch(f => console.warn('E-Mail-Abgleich:', f.code));
   }
 
   if (!nutzer) {

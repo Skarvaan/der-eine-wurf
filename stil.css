@@ -920,6 +920,13 @@ h3.unter {
   background: var(--flaeche-hoch); color: var(--text);
   font-family: inherit; font-weight: 600; cursor: pointer;
 }
+/* html/body setzen overflow-wrap: anywhere. Das zählt aber auch bei
+   der MINDESTbreite mit: Ein Knopf in einer Flex-Zeile durfte dadurch
+   auf einen Buchstaben schrumpfen, und „Steigern freischalten“ lief
+   senkrecht aus der Karte. break-word bricht genauso um, wenn es
+   wirklich nicht passt, lässt die Mindestbreite aber beim längsten
+   Wort. */
+.knopf, .knopf-klein { overflow-wrap: break-word; }
 .knopf { min-height: var(--tipp); padding: 0 18px; font-size: 15px; }
 .knopf-klein { min-height: 34px; padding: 0 12px; font-size: 13px; }
 .knopf:active, .knopf-klein:active { background: var(--messing); color: #17130c; }
@@ -998,6 +1005,13 @@ h3.unter {
   border: 1px solid var(--linie); border-radius: 8px;
   background: var(--flaeche-hoch); color: var(--text); font-size: 20px; cursor: pointer;
 }
+/* Ein Textknopf (z. B. „Steigern freischalten“ in Freigaben) behält
+   seine natürliche Breite und rutscht lieber in die nächste Zeile,
+   statt sich neben dem Titel zusammenzuquetschen. */
+.zaehler > .knopf { flex: 0 0 auto; max-width: 100%; width: auto; height: auto; font-size: 15px; padding: 6px 18px; }
+/* „.zaehler button“ oben ist spezifischer als .knopf-haupt und hätte
+   sonst den Messingverlauf des eingeschalteten Zustands überdeckt. */
+.zaehler > .knopf-haupt { background: linear-gradient(180deg, var(--messing-hell), var(--messing)); color: #17130c; }
 .zaehler .stand { flex: 1; text-align: center; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 80px; }
 
 .zustand { font-size: 13px; font-weight: 700; }
@@ -1213,6 +1227,23 @@ button.wert-kachel:active { background: rgba(201,143,42,0.18); border-top-color:
   box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 .anmelde-karte h1 { margin: 0 0 6px; font-size: 26px; }
+
+/* --- Konto-Fenster (Name, E-Mail, Passwort) ---
+   Ein natives <dialog>: Safari auf dem iPad kann es seit iPadOS
+   15.4, bringt Fokusführung und Escape-Taste gleich mit und legt
+   sich über jeden Schirm, egal ob Rundenwahl oder App. */
+.konto-dialog {
+  width: calc(100% - 32px); max-width: 440px; max-height: calc(100vh - 32px);
+  padding: 0; border: none; background: transparent; color: var(--text);
+  overflow: auto;
+}
+.konto-dialog::backdrop { background: rgba(0,0,0,0.65); }
+.konto-dialog .anmelde-karte { max-width: none; }
+.konto-dialog h2 { margin: 0 0 4px; font-size: 22px; }
+.konto-dialog h3 { margin: 22px 0 8px; font-size: 16px; color: var(--messing-hell); }
+.konto-dialog .knopf { width: 100%; }
+.konto-meldung { margin: 10px 0 0; padding: 10px 12px; border-radius: 8px; font-size: 14px;
+  background: rgba(111,156,98,0.15); color: var(--gruen); }
 .anmelde-karte .leise { margin-bottom: 20px; }
 .fehler { margin: 10px 0 0; padding: 10px 12px; border-radius: 8px; background: rgba(180,68,46,0.15); color: #e59b8a; font-size: 14px; }
 .wechsel { margin-top: 16px; text-align: center; font-size: 14px; }
